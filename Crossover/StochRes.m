@@ -362,8 +362,8 @@ tstr{5}='TvL';
 
 cond=[tstr{taskflag}];
 
-
-fid1=fopen(['StochRes_',tstr{taskflag},num2str(palmerFlag),'_', sinit], 'a');
+fileName1 = ['StochRes_',tstr{taskflag},num2str(palmerFlag),'_', sinit];
+fid1=fopen(fileName1, 'a');
 fprintf(fid1,'sinit cond palmerFlag color1 color2 orient1 orient2 varOrient1 varOrient2 refreshDur stimdur nRefreshes ISI mRefreshes actualdur pr/exp ctr ss LR RT response message err Tloc noiseParam revString\n'); %write the data 
 moo=fclose(fid1);
           			 		   
@@ -748,7 +748,8 @@ for a=1:2
 				noiseParam=noiseParam-noiseDown;	% big step down
 			end
 		else
-			message='Wrong Key!!!';
+			message{ctr}='Wrong Key!!!';
+                        error(ctr) = 1;
 			SND('Play',errbeep);
 			SND('Play',errbeep);
 			SND('Play',errbeep);
@@ -782,7 +783,7 @@ for a=1:2
 		 else
 			CenterText(['Trial ' num2str(ctr) ' - ERROR'],0,-40,[250 200 0]);
 		end
-		fid1=fopen(['StochRes_',tstr{taskflag},num2str(palmerFlag),'_', sinit], 'a');
+		fid1=fopen(fileName1, 'a');
 		fprintf(fid1,'%s %s %d %s %s %s %s %d %d %f %d %d %d %d %f %s %d %d %d %d %s %s %d %d %f %s\n', ...
                         sinit, cond, palmerFlag, c1str, c2str, or1str, or2str, vor1, vor2, refreshDuration, stimdur(durindex(tord(ctr))), nRefreshes, ISI, mRefreshes, actualdur,  prstr, ctr, ss,  YN(tord(ctr)), ...
                         round(RT*1000), response, message{ctr}, error(ctr), Tloc, gnoiseParam, revString); %write the data   
