@@ -4,6 +4,8 @@ function CrossStair
 %
 % $LastChangedDate$
 
+Version = '2.1';
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %clear everything before you begin
 clear all;
@@ -147,9 +149,10 @@ for c=0:7;
 end
 % make the pre screen
 SCREEN(preScreen,'FillRect',128);
-SCREEN(preScreen,'FillRect',250,[centx-10 centy-10 centx+10 centy+10]);
+SCREEN(preScreen,'FillRect',100,[centx-5 centy-5 centx+5 centy+5]);
 for m=1:8
-	SCREEN(preScreen,'FillRect',[100 100 100],cell{m});
+	SCREEN(preScreen,'FrameRect',[100 100 100],cell{m}+[-3 -3 3 3],[2],[2]);
+	SCREEN(stim,'FrameRect',[100 100 100],cell{m}+[-3 -3 3 3],[2],[2]);
 end
 
 SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders
@@ -491,6 +494,7 @@ for a=1:2
 		SCREEN(stim,'FillRect',128);
 		for mm=1:8 % make  a new mask
 			SCREEN('COPYWINDOW',M(randi(16)), stimOFF,[0 0 100 100], cell{mm});%put the masks into the window
+			SCREEN(stim,'FrameRect',[100 100 100],cell{mm}+[-3 -3 3 3],[2],[2]); % stimulus outlines
 		end
 		
 % recalculate orientations for the variable version	
@@ -542,7 +546,7 @@ for a=1:2
 				SCREEN(cueScreen,'FillRect',[100 100 140],cell{m});	% big cue
 			end
 		end
-		SCREEN(stim,'FillRect',250,[centx-10 centy-10 centx+10 centy+10]);
+		SCREEN(stim,'FillRect',100,[centx-5 centy-5 centx+5 centy+5]);
 		if(YN(tord(ctr)) == 1)
 			if taskflag==1	% then this is COLOR FEATURE exp
 				SCREEN(stim,'fillrect',c1, cell{loc(1)});%put color c1 into the window
@@ -634,7 +638,7 @@ for a=1:2
 % 		FlushEvents('KeyDown');
 % 		GetChar;
 			
-		SCREEN(stim,'FillRect',[0 0 255],[centx-30 centy-30-ymove centx+30 centy+30-ymove]);
+		SCREEN(stim,'FillRect',[100 100 100],[centx-5 centy-5-ymove centx+5 centy+5-ymove]);
 % 		SCREEN(stimOFF,'FillRect',[0 0 255],[centx-30 centy-30-ymove centx+30 centy+30-ymove]);
 		SCREEN('COPYWINDOW', stim, stimON);
 		SCREEN('COPYWINDOW', stim, stimHOLD);
@@ -847,6 +851,7 @@ end
 
 width = SCREEN(win1,'TextWidth',message);
 [newX, newY] = SCREEN(win1, 'DrawText', message, ((screenX/2)-(width/2))+xoffset,(screenY/2)+yoffset,color);
+
 
 
 
