@@ -4,6 +4,8 @@ function CrossStair
 %
 % $LastChangedDate$
 
+Version = '5.0';
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %clear everything before you begin
 clear all;
@@ -64,7 +66,7 @@ ymove=0; % shifts the display up the screen
 
 
 %get input
-prompt={'Enter initials:','Task: 1=ColorFeat, 2=OrFeat, 3-Conj, 4-TLconj, 5-TvL','setsizes <=8','Practice Trials:','Test Trials PER CELL','stim durations (msec)', 'Stim-Mask ISI','color1',...
+prompt={'Enter initials:','1=Color, 2=Ori, 3-Conj, 4-TLconj, 5-TvL, 6-easyTvL','setsizes <=8','Practice Trials:','Test Trials PER CELL','stim durations (msec)', 'Stim-Mask ISI','color1',...
 'color2','orient1','orient2','palmerStyle 0=AccNo 1=AccYes, 2=RTno, 3=RTyes '};
 def={['x' num2str(randi(100))],'3','1 2 4 8','50','50','80','60','255 255 0', '0 255 255','0','90','1'};
 title='Input Variables';
@@ -255,19 +257,20 @@ SCREEN(Tc2(4),'FillRect',c2,[0 40 100 60]);
 
 
 
+%easy L
 
-% L(1)=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]);
-% SCREEN(L(1),'FillRect',c1,[0 0 100 20]);
-% SCREEN(L(1),'FillRect',c1,[0 0 20 100]);
-% L(2)=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]);
-% SCREEN(L(2),'FillRect',c1,[80 0 100 100]);
-% SCREEN(L(2),'FillRect',c1,[0 0 100 20]);
-% L(3)=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]);
-% SCREEN(L(3),'FillRect',c1,[80 0 100 100]);
-% SCREEN(L(3),'FillRect',c1,[0 0 100 20]);
-% L(4)=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]);
-% SCREEN(L(4),'FillRect',c1,[0 80 100 100]);
-% SCREEN(L(4),'FillRect',c1,[0 0 20 100]);
+eL(1)=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]);
+SCREEN(eL(1),'FillRect',c1,[0 0 100 20]);
+SCREEN(eL(1),'FillRect',c1,[0 0 20 100]);
+eL(2)=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]);
+SCREEN(eL(2),'FillRect',c1,[80 0 100 100]);
+SCREEN(eL(2),'FillRect',c1,[0 0 100 20]);
+eL(3)=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]);
+SCREEN(eL(3),'FillRect',c1,[80 0 100 100]);
+SCREEN(eL(3),'FillRect',c1,[0 0 100 20]);
+eL(4)=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]);
+SCREEN(eL(4),'FillRect',c1,[0 80 100 100]);
+SCREEN(eL(4),'FillRect',c1,[0 0 20 100]);
 
 % Conj stimuli
 o1x1=50-(40*sin(or1/57.2958));
@@ -352,6 +355,7 @@ tstr{2}='OrFeat';
 tstr{3}='Conj';
 tstr{4}='TvLConj';
 tstr{5}='TvL';
+tstr{6}='easyTvL';
 
 
 cond=[tstr{taskflag}];
@@ -383,6 +387,8 @@ elseif taskflag==4
 	CenterText(['among Ls of this color'],0,top+txsz*1.5*2,c1);	
 	CenterText(['and Ls of this color'],0,top+txsz*1.5*3,c2);	
 elseif taskflag==5 
+	CenterText('You are looking for a T among Ls',0,top+txsz*1.5*1,[255 255 0]);
+elseif taskflag==6 
 	CenterText('You are looking for a T among Ls',0,top+txsz*1.5*1,[255 255 0]);	
 end	
 CenterText('A target is present on 50% of the trials',0,top+txsz*1.5*5,[255 255 0]);	
@@ -532,7 +538,7 @@ for a=1:2
 		if palmerFlag==1 | palmerFlag==3	% generate cues to tell you where the target might be
 			for m=cueAt
 % 				SCREEN(cueScreen,'FillRect',[170 170 170],cell{m}+[45 45 -45 -45]); % small cue
-				SCREEN(cueScreen,'FillRect',[100 100 140],cell{m});	% big cue
+				SCREEN(cueScreen,'FillRect',[0 0 0],cell{m});	% big cue
 			end
 		end
 		SCREEN(stim,'FillRect',250,[centx-10 centy-10 centx+10 centy+10]);
@@ -547,6 +553,8 @@ for a=1:2
 				SCREEN('COPYWINDOW',Tc1(randi(4)), stim,[0 0 100 100], cell{loc(1)});%put the Tc1 into the window
 			elseif  taskflag==5  % tvl 
 				SCREEN('COPYWINDOW',Tc1(randi(4)), stim,[0 0 100 100], cell{loc(1)});%put the Tc1 into the window
+			elseif  taskflag==6  % tvl 
+				SCREEN('COPYWINDOW',Tc1(randi(4)), stim,[0 0 100 100], cell{loc(1)});%put the Tc1 into the window
 			end
 			Tloc=loc(1);
 		else
@@ -560,6 +568,8 @@ for a=1:2
 				SCREEN('COPYWINDOW',Lc1(randi(4)), stim,[0 0 100 100], cell{loc(1)});%put the Lc1 into the window
 			elseif  taskflag==5  % tvl 
 				SCREEN('COPYWINDOW',Lc1(randi(4)), stim,[0 0 100 100], cell{loc(1)});%put the Lc1 into the window
+			elseif  taskflag==6  % tvl 
+				SCREEN('COPYWINDOW',eL(randi(4)), stim,[0 0 100 100], cell{loc(1)});%put the Lc1 into the window
 			end
 			Tloc=999;	% mark an absent trial
 		end
@@ -582,6 +592,8 @@ for a=1:2
 				end
 			elseif taskflag==5 % TvL
 				SCREEN('COPYWINDOW',Lc1(randi(4)), stim,[0 0 100 100], cell{cueAt(i)});%put the Lc1 into the window
+			elseif taskflag==6 % easyTvL
+				SCREEN('COPYWINDOW',eL(randi(4)), stim,[0 0 100 100], cell{cueAt(i)});%put the Lc1 into the window
 			end
 		end
 		cueNot=[];
@@ -610,6 +622,8 @@ for a=1:2
 					end
 				elseif taskflag==5 % TvL
 					SCREEN('COPYWINDOW',Lc1(randi(4)), stim,[0 0 100 100], cell{cueNot(i)});%put the Lc1 into the window
+				elseif taskflag==6 % easy TvL
+					SCREEN('COPYWINDOW',eL(randi(4)), stim,[0 0 100 100], cell{cueNot(i)});%put the Lc1 into the window
 				end
 			end
 		end
@@ -642,7 +656,7 @@ for a=1:2
 			Screen(win1,'WaitBlanking');
 			% cue
 			Screen('CopyWindow', cueScreen,win1);
-			Screen(win1,'WaitBlanking',8);	% wait for 8 refreshes	
+			Screen(win1,'WaitBlanking',4);	% wait for 4 refreshes	
 % 			SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders (If you want a blank cue->stim ISI)
 % 			Screen(win1,'WaitBlanking',5);	% wait for five refreshes	
 			% uncover stim
@@ -773,7 +787,7 @@ for a=1:2
 	end %ctr loop
 end % pract/exp loop
 
-StaircaseResult=mean(revList(max(1,length(revList)-19:length(revList))))	% mean of the last 20 reversals
+StaircaseResult=mean(revList(max(1,length(revList)-39:length(revList))))	% mean of the last 40 reversals
 
 CenterText(['Experiment Complete. Thank-you'],0,-40,[0 0 0]);
 FlushEvents('KeyDown');
@@ -825,6 +839,7 @@ end
 
 width = SCREEN(win1,'TextWidth',message);
 [newX, newY] = SCREEN(win1, 'DrawText', message, ((screenX/2)-(width/2))+xoffset,(screenY/2)+yoffset,color);
+
 
 
 
