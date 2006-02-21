@@ -59,38 +59,45 @@ SetSizes = sort(unique(setsize));
 for sub = Subjects
    for cond = Conditions
       for ss = SetSizes
+         % pick only those trials for this subject, condition, and setsize
          filter = (strcmp(subject, sub) & strcmp(condition, cond) & setsize == ss);
          noise2 = noise(filter);
          NoiseLevels = sort(unique(noise2));
          nNoiseLevels = length(NoiseLevels);
+
+         % initialize vars
          hr = zeros(nNoiseLevels, 1);
          fa = hr;
-         cneg = hr;
-         cpos = hr;
-         nneg = hr;
-         npos = hr;
+         cneg = hr; cpos = hr; nneg = hr; npos = hr;
+
+         % compute cell counts
          for n = 1:nNoiseLevels
             filter2 = (filter & noise == NoiseLevels(n));
             cpos(n) = sum(response(filter2 & target));
             cneg(n) = sum(response(filter2 & ~target));
-            npos(n) = sum(filter2 & target);
-            nneg(n) = sum(filter2 & ~target);
+            npos(n) = length(response(filter2 & target));
+            nneg(n) = length(response(filter2 & ~target));
          end
+
          % compute hit rate
          hr = cpos ./ npos;
          % compute false-alarm rate
          fa = 1 - cneg ./ nneg;
+
          %%% fprintf('Before correction:\n'); disp([NoiseLevels, cpos, npos, hr, cneg, nneg, fa]);
+
          % correct any HR or FA that are 0 or 1
          index = hr == 0; if any(index), hr(index) = 1 ./ (2 * npos(index)); end
          index = hr == 1; if any(index), hr(index) = 1 - 1 ./ (2 * npos(index)); end
          index = fa == 0; if any(index), fa(index) = 1 ./ (2 * nneg(index)); end
          index = fa == 1; if any(index), fa(index) = 1 - 1 ./ (2 * nneg(index)); end
+
          % compute d'
          dprime = norminv(hr) - norminv(fa);
-         
+
          %%% fprintf('After correction:\n'); disp([NoiseLevels, cpos, npos, hr, cneg, nneg, fa, dprime]);
 
+         % plot observed data
          x = NoiseLevels;
          plot(x, dprime, 'ok');
          hold on;
@@ -106,26 +113,30 @@ for sub = Subjects
             fprintf('FMINSEARCH quit after %d iterations and %d function evaluations.\n\n', ...
                     output.iterations, output.funcCount);
          end
+
+         % plot fitted weibull
          x0 = 0:.01:1;
          y0 = weibull(x0, p0);
          plot(x0, y0, 'k', 'LineWidth', 2);
 
-         % output fit:
+         % output fit information:
          dprime0 = weibull(x, p0);
          fprintf('Subject %s - Condition %s - Set Size %d\n', sub{1}, cond{1}, ss)
          fprintf('Fitted Weibull\n');
          fprintf('Parameters: threshold = %0.2f, slope = %0.2f, bounds = [%0.2f, %0.2f]\n', ...
                  p0);
-         fprintf('Goodness-of-fit: R^2 = %0.4f\n', corr2(x, dprime0) ^ 2);
+         fprintf('Goodness-of-fit: R^2 = %0.4f\n', corr2(dprime, dprime0) ^ 2);
 
-         ys = [0.5, 1.0, 1.5];
-         colors = ['r', 'g', 'b'];
+         % print and plot levels of noise corresponding to certain values of d-prime
+         ys = [1.0, 1.5, 2.0, 2.5];
+         colors = ['r', 'g', 'b', 'm'];
          for n = 1:length(ys);
             y = ys(n);
             x = weibullinv(y, p0);
             fprintf('Noise level of %0.4f leads to d'' = %3.1f\n', x, y);
-            plot([0 x], [y y], colors(n));
-            plot([x x], [-2 y], colors(n));
+            miny = min(get(gca, 'Ylim'));
+            plot([0 x], [y y], colors(n), 'LineWidth', 2);
+            plot([x x], [miny y], colors(n), 'LineWidth', 2);
          end
 
          hold off;
@@ -134,8 +145,12 @@ for sub = Subjects
 end
 
 
-%% weibull parameters: (1) threshold/scale, (2) slope/shape, (3) baseline, (4) asymptote
+% Define Weibull function with parameters that specify baseline and
+% asymptotic values, and an inverse Weibull
+%
+% parameters: (1) threshold/scale, (2) slope/shape, (3) baseline, (4) asymptote
 function y = weibull (x, param)
+% y = param(3) + (param(4) - param(3)) * (1 - exp(((x - 1) ./ param(1)) .^ param(2)));
 y = param(3) + (param(4) - param(3)) * wblcdf(1 - x, param(1), param(2));
 
 function x = weibullinv (y, param)
