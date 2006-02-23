@@ -35,6 +35,7 @@ end
 %%% which columns go with certain variables
 colSubject = find(strcmp(header, 'sinit'));
 colCondition = find(strcmp(header, 'cond'));
+colTrial = find(strcmp(header, 'ctr'));
 colSetSize = find(strcmp(header, 'ss'));
 colTarget = find(strcmp(header, 'TP?'));
 colError = find(strcmp(header, 'err'));
@@ -47,6 +48,7 @@ fclose(fid);
 
 subject = dt{colSubject};
 condition = dt{colCondition};
+trial = dt{colTrial};
 setsize = dt{colSetSize};
 target = dt{colTarget};
 response = 1 - dt{colError};
@@ -60,6 +62,7 @@ for sub = Subjects
    for cond = Conditions
       for ss = SetSizes
          % pick only those trials for this subject, condition, and setsize
+         %filter = (strcmp(subject, sub) & strcmp(condition, cond) & setsize == ss & trial > 225);
          filter = (strcmp(subject, sub) & strcmp(condition, cond) & setsize == ss);
          noise2 = noise(filter);
          NoiseLevels = sort(unique(noise2));
@@ -84,7 +87,7 @@ for sub = Subjects
          % compute false-alarm rate
          fa = 1 - cneg ./ nneg;
 
-         %%% fprintf('Before correction:\n'); disp([NoiseLevels, cpos, npos, hr, cneg, nneg, fa]);
+         %%%fprintf('Before correction:\n'); disp([NoiseLevels, cpos, npos, hr, cneg, nneg, fa]);
 
          % correct any HR or FA that are 0 or 1
          index = hr == 0; if any(index), hr(index) = 1 ./ (2 * npos(index)); end
@@ -95,7 +98,7 @@ for sub = Subjects
          % compute d'
          dprime = norminv(hr) - norminv(fa);
 
-         %%% fprintf('After correction:\n'); disp([NoiseLevels, cpos, npos, hr, cneg, nneg, fa, dprime]);
+         %%%fprintf('After correction:\n'); disp([NoiseLevels, cpos, npos, hr, cneg, nneg, fa, dprime]);
 
          % plot observed data
          x = NoiseLevels;
@@ -129,7 +132,7 @@ for sub = Subjects
 
          % print and plot levels of noise corresponding to certain values of d-prime
          ys = [1.0, 1.5, 2.0, 2.5];
-         colors = ['r', 'g', 'b', 'm'];
+         colors = ['r', 'g', 'b', 'm', 'c'];
          for n = 1:length(ys);
             y = ys(n);
             x = weibullinv(y, p0);
@@ -155,3 +158,6 @@ y = param(3) + (param(4) - param(3)) * wblcdf(1 - x, param(1), param(2));
 
 function x = weibullinv (y, param)
 x = 1 - param(1) * (-1 * log( (param(4) - y) ./ (param(4) - param(3)))) .^ (1 / param(2));
+if any(y < param(3) | y > param(4))
+   x(y < param(3) | y > param(4)) = NaN;
+end
