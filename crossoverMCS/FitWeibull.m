@@ -35,6 +35,7 @@ end
 %%% which columns go with certain variables
 colSubject = find(strcmp(header, 'sinit'));
 colCondition = find(strcmp(header, 'cond'));
+colPractice = find(strcmp(header, 'pr/exp'));
 colTrial = find(strcmp(header, 'ctr'));
 colSetSize = find(strcmp(header, 'ss'));
 colTarget = find(strcmp(header, 'TP?'));
@@ -51,6 +52,7 @@ condition = dt{colCondition};
 trial = dt{colTrial};
 setsize = dt{colSetSize};
 target = dt{colTarget};
+prac = strcmp(dt{colPractice}, 'practice');
 response = 1 - dt{colError};
 noise = dt{colNoise};
 
@@ -63,7 +65,7 @@ for sub = Subjects
       for ss = SetSizes
          % pick only those trials for this subject, condition, and setsize
          %filter = (strcmp(subject, sub) & strcmp(condition, cond) & setsize == ss & trial > 225);
-         filter = (strcmp(subject, sub) & strcmp(condition, cond) & setsize == ss);
+         filter = (strcmp(subject, sub) & strcmp(condition, cond) & prac == 0 & setsize == ss);
          noise2 = noise(filter);
          NoiseLevels = sort(unique(noise2));
          nNoiseLevels = length(NoiseLevels);
