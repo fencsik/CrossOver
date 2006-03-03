@@ -71,9 +71,7 @@ for sub = Subjects
          nNoiseLevels = length(NoiseLevels);
 
          % initialize vars
-         hr = zeros(nNoiseLevels, 1);
-         fa = hr;
-         cneg = hr; cpos = hr; nneg = hr; npos = hr;
+         cneg = zeros(nNoiseLevels, 1); cpos = cneg; nneg = cneg; npos = cneg;
 
          % compute cell counts
          for n = 1:nNoiseLevels
@@ -84,18 +82,16 @@ for sub = Subjects
             nneg(n) = length(response(filter2 & ~target));
          end
 
+         % correct cell counts
+         index = cpos == 0;    if any(index), cpos(index) = 0.5;               end
+         index = cpos == npos; if any(index), cpos(index) = npos(index) - 0.5; end
+         index = cneg == 0;    if any(index), cneg(index) = 0.5;               end
+         index = cneg == nneg; if any(index), cneg(index) = nneg(index) - 0.5; end
+
          % compute hit rate
          hr = cpos ./ npos;
          % compute false-alarm rate
          fa = 1 - cneg ./ nneg;
-
-         %%%fprintf('Before correction:\n'); disp([NoiseLevels, cpos, npos, hr, cneg, nneg, fa]);
-
-         % correct any HR or FA that are 0 or 1
-         index = hr == 0; if any(index), hr(index) = 1 ./ (2 * npos(index)); end
-         index = hr == 1; if any(index), hr(index) = 1 - 1 ./ (2 * npos(index)); end
-         index = fa == 0; if any(index), fa(index) = 1 ./ (2 * nneg(index)); end
-         index = fa == 1; if any(index), fa(index) = 1 - 1 ./ (2 * nneg(index)); end
 
          % compute d'
          dprime = norminv(hr) - norminv(fa);
@@ -110,10 +106,16 @@ for sub = Subjects
          title(sprintf('Subject %s - Condition %s - Set Size %d', sub{1}, cond{1}, ss));
          xlabel('Percentage noise');
          ylabel('d''');
-         
+
+         % plot 95% confidence intervals
+         ci = Compute95CI(cpos, cneg, npos, nneg);
+         for n = 1:nNoiseLevels
+            plot([x(n) x(n)], ci(n, :), '-k');
+         end
+
          % fit weibull
          GoodnessOfFit = @(p) sum((dprime - weibull(x, p)) .^ 2); % create an anonymous function
-         [p0, gof, exitflag, output] = fminsearch(GoodnessOfFit, [3, .5, 0, 4]);
+         [p0, gof, exitflag, output] = fminsearch(GoodnessOfFit, [3, .5, 4]);
          if exitflag ~= 1
             fprintf('FMINSEARCH quit after %d iterations and %d function evaluations.\n\n', ...
                     output.iterations, output.funcCount);
@@ -128,8 +130,7 @@ for sub = Subjects
          dprime0 = weibull(x, p0);
          fprintf('Subject %s - Condition %s - Set Size %d\n', sub{1}, cond{1}, ss)
          fprintf('Fitted Weibull\n');
-         fprintf('Parameters: threshold = %0.2f, slope = %0.2f, bounds = [%0.2f, %0.2f]\n', ...
-                 p0);
+         fprintf('Parameters: threshold = %0.2f, slope = %0.2f, asymptote = %0.2f\n', p0);
          fprintf('Goodness-of-fit: R^2 = %0.4f\n', corr2(dprime, dprime0) ^ 2);
 
          % print and plot levels of noise corresponding to certain values of d-prime
@@ -150,16 +151,26 @@ for sub = Subjects
 end
 
 
-% Define Weibull function with parameters that specify baseline and
-% asymptotic values, and an inverse Weibull
+% Define Weibull function, with an extra parameter that specifies an
+% asymptote, and an inverse Weibull
 %
-% parameters: (1) threshold/scale, (2) slope/shape, (3) baseline, (4) asymptote
+% parameters: (1) threshold/scale, (2) slope/shape, (3) asymptote
 function y = weibull (x, param)
 % y = param(3) + (param(4) - param(3)) * (1 - exp(((x - 1) ./ param(1)) .^ param(2)));
-y = param(3) + (param(4) - param(3)) * wblcdf(1 - x, param(1), param(2));
+y = param(3) * wblcdf(1 - x, param(1), param(2));
 
 function x = weibullinv (y, param)
-x = 1 - param(1) * (-1 * log( (param(4) - y) ./ (param(4) - param(3)))) .^ (1 / param(2));
-if any(y < param(3) | y > param(4))
-   x(y < param(3) | y > param(4)) = NaN;
+x = 1 - param(1) * (-1 * log( (param(3) - y) ./ param(3))) .^ (1 / param(2));
+if any(y < 0 | y > param(3))
+   x(y < 0 | y > param(3)) = NaN;
 end
+
+
+function ci = Compute95CI (cpos, cneg, npos, nneg)
+hr = cpos ./ npos;
+fa = 1 - cneg ./ nneg;
+phiHR = 1 ./ sqrt(2*pi) .* exp(-.5 .* norminv(hr));
+phiFA = 1 ./ sqrt(2*pi) .* exp(-.5 .* norminv(fa));
+dprime = norminv(hr) - norminv(fa);
+delta = 1.96 * sqrt( hr .* (1-hr) ./ npos ./ (phiHR.^2) + fa .* (1-fa) ./ nneg ./ (phiFA.^2));
+ci = [dprime - delta, dprime + delta];
