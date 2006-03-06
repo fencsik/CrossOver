@@ -13,6 +13,8 @@ function FitWeibull (datafile)
 % Authors: David E. Fencsik
 % $LastChangedDate$
 
+debug = 1;
+
 if nargin < 1 || isempty(datafile)
    error('data filename missing');
 end
@@ -96,7 +98,16 @@ for sub = Subjects
          % compute d'
          dprime = norminv(hr) - norminv(fa);
 
-         %%%fprintf('After correction:\n'); disp([NoiseLevels, cpos, npos, hr, cneg, nneg, fa, dprime]);
+         if debug > 0
+            %        12345678901234567890123456789012345678901234567890123456789
+            fprintf('  Noise   #Hits   #TP  HitRate  #TNEG   #TA   FARate    d''\n');
+            for n = 1:nNoiseLevels
+               fprintf('%7.4f%8.1f%6.0f%8.2f%8.1f%6.0f%8.2f%8.2f\n', ...
+                       NoiseLevels(n), ...
+                       cpos(n), npos(n), hr(n), ...
+                       cneg(n), nneg(n), fa(n), dprime(n));
+            end
+         end
 
          % plot observed data
          x = NoiseLevels;
