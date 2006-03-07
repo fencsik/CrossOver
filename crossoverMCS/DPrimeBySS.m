@@ -136,7 +136,7 @@ for nsub = 1:length(Subjects)
          text(8.25, dprime(length(AllSetSizes), n), sprintf('%3.0f%% noise', 100*AllNoiseLevels(n)), ...
               'Color', colors(n));
       end
-      axis([1.5 10 0 4.5]);
+      axis([1.5 10 0 5]);
       title(sprintf('Subject %s - Condition %s', sub, cond));
       xlabel('Set size');
       ylabel('d''');
