@@ -1,7 +1,7 @@
-function DPrimeBySS (datafile)
+function PlotDPrime (datafile)
 
-% DPrimeBySS computes d' from accuracy data and plots it as a
-% function of setsize.
+% PlotDPrime computes d' from accuracy data and plots it as a function
+% of setsize.
 % 
 % Reads in data from one file output by the CrossoverMCS code, then
 % computes and plots d' as a function of setsize.
