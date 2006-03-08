@@ -123,7 +123,8 @@ for nsub = 1:length(Subjects)
                     hr(s, n), fa(s, n), dprime(s, n));
          end
          % plot dprimes
-         plot(x, dprime(:, n), [colors(n), '-' points(n)], 'MarkerFaceColor', colors(n));
+         plot(x, dprime(:, n), [colors(n), '-' points(n)], ...
+              'LineWidth', 2, 'MarkerSize', 8, 'MarkerFaceColor', 'w');
          hold on;
 
          % plot 95% confidence intervals
@@ -133,6 +134,8 @@ for nsub = 1:length(Subjects)
             plot([x(s)-offset, x(s)+offset], repmat(dprime(s,n) + ci(s,n), 1, 2), [colors(n), '-']);
             plot([x(s)-offset, x(s)+offset], repmat(dprime(s,n) - ci(s,n), 1, 2), [colors(n), '-']);
          end
+         plot(x, dprime(:, n), [colors(n), '-' points(n)], ...
+              'LineWidth', 2, 'MarkerSize', 8, 'MarkerFaceColor', 'w');
          text(8.25, dprime(length(AllSetSizes), n), sprintf('%3.0f%% noise', 100*AllNoiseLevels(n)), ...
               'Color', colors(n));
       end
