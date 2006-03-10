@@ -150,7 +150,7 @@ for sub = Subjects
          for n = 1:length(ys);
             y = ys(n);
             x = weibullinv(y, p0);
-            fprintf('Noise level of %0.4f leads to d'' = %3.1f\n', x, y);
+            fprintf('Noise level of %0.6f leads to d'' = %3.2f\n', x, y);
             miny = min(get(gca, 'Ylim'));
             plot([0 x], [y y], colors(n), 'LineWidth', 2);
             plot([x x], [miny y], colors(n), 'LineWidth', 2);

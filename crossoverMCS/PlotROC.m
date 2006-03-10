@@ -107,13 +107,13 @@ for nsub = 1:length(Subjects)
       % compute d', etc.
       [dprime, ci, hr, fa] = ComputeDprime(cpos, cneg, npos, nneg);
 
-      fprintf('Noise SetSize Pos  Neg   Hits  TNegs   HitRate FARate   d''\n');
+      fprintf('  Noise  SetSize Pos  Neg   Hits  TNegs   HitRate FARate   d''\n');
       colors = 'bgrcmyk';
       points = 'os^x+d*';
       legendtext = cell(1, length(AllNoiseLevels));
       for n = 1:length(AllNoiseLevels)
          for s = 1:length(AllSetSizes)
-            fprintf('%5.2f%5.0f  %5.0f%5.0f%7.1f%7.1f%8.2f%8.2f%7.2f\n', ...
+            fprintf('%8.5f%5.0f  %5.0f%5.0f%7.1f%7.1f%8.2f%8.2f%7.2f\n', ...
                     AllNoiseLevels(n), AllSetSizes(s), ...
                     npos(s, n), nneg(s, n), cpos(s, n), cneg(s, n), ...
                     hr(s, n), fa(s, n), dprime(s, n));
