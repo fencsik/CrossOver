@@ -880,7 +880,3 @@ end
 
 width = SCREEN(win1,'TextWidth',message);
 [newX, newY] = SCREEN(win1, 'DrawText', message, ((screenX/2)-(width/2))+xoffset,(screenY/2)+yoffset,color);
-
-
-
-
