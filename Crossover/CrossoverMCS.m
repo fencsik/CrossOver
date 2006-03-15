@@ -70,12 +70,7 @@ ymove=0; % shifts the display up the screen
 
 %get input
 prompt={'Enter initials:','1=Color, 2=Ori, 3-Conj, 4-TLconj, 5-TvL, 6-easyTvL','setsizes <=8','Practice Trials:','Test Trials PER CELL','PreCue Duration (msec)','PreCue-Stim ISI (msec)','Stim Duration (msec)', 'Stim-Mask ISI (msec)','Noise Levels', 'color1','color2','orient1','orient2','palmerStyle 0=AccNo 1=AccYes, 2=RTno, 3=RTyes '};
-% conjunction default
-%def={'DEF','3','4','20','25','160','440','80','80','.1 .2 .3 .4 .5 .6 .7 .8 .9','255 255 0', '0 255 255','0','90','1'};
-% orientation default
-%def={'DEF','2','4','20','25','160','440','80','80','.1 .2 .3 .4 .5 .6 .7 .8 .9','170 170 170', '0 255 255','20','0','1'};
-% TvL default
-def={'DEF','5','4','20','25','160','440','80','80','.1 .2 .3 .4 .5 .6 .7 .8 .9','170 170 170', '0 255 255','0','90','1'};
+def={['x' num2str(randi(100))],'3','4','50','50','160','440','80','80','.1 .2 .3 .4 .5 .6 .7 .8 .9','255 255 0', '0 255 255','0','90','1'};
 title='Input Variables';
 lineNo=1;
 userinput=inputdlg(prompt,title,lineNo,def,'on');
@@ -372,7 +367,7 @@ tstr{6}='easyTvL';
 
 cond=[tstr{taskflag}];
 
-fileName1 = ['CrossoverMCS2_',tstr{taskflag},num2str(palmerFlag),'_', sinit];
+fileName1 = ['CrossoverMCS2b_',tstr{taskflag},num2str(palmerFlag),'_', sinit];
 fid1=fopen(fileName1, 'a');
 fprintf(fid1,'sinit\tcond\tpalmerFlag\tcolor1\tcolor2\torient1\torient2\tvarOrient1\tvarOrient2\trefreshDur\tstimdur\tnRefreshes\tstimmaskISI\tmRefreshes\tactualdur\tpr/exp\tctr\tss\tTP?\tRT\tresponse\tmessage\terr\tTloc\tnoiseParam\n'); %write the data 
 moo=fclose(fid1);
@@ -658,9 +653,9 @@ for a=1:2
       % 		SCREEN('COPYWINDOW', stim, win1);		
       % 		FlushEvents('KeyDown');
       % 		GetChar;
-      
-      SCREEN(stim,'FillRect',[0 0 255],[centx-30 centy-30-ymove centx+30 centy+30-ymove]);
-      % 		SCREEN(stimOFF,'FillRect',[0 0 255],[centx-30 centy-30-ymove centx+30 centy+30-ymove]);
+
+      SCREEN(stim,'FillRect',250,[centx-10 centy-10-ymove centx+10 centy+10-ymove]); %% CHANGED BY EMP & DF 3/10/06
+      SCREEN(stimOFF,'FillRect',250,[centx-10 centy-10-ymove centx+10 centy+10-ymove]); %% CHANGED BY EMP & DF 3/10/06
       SCREEN('COPYWINDOW', stim, stimON);
 
 
@@ -669,7 +664,8 @@ for a=1:2
       if palmerFlag < 2 % this is an accuracy version
          SND('Play',Hibeep);
          SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders
-         waitsecs(1);
+                                                %waitsecs(1);
+         waitsecs(.25);
          button=0;
          Screen(win1,'WaitBlanking');
          % cue
@@ -684,7 +680,8 @@ for a=1:2
          Screen(win1,'WaitBlanking'); % wait for stimuli to appear
          t2=getsecs; % mark the time, since the stimuli are now visible
          Screen(win1,'WaitBlanking', nRefreshes - 1); % wait for remaining refreshes
-         SCREEN(win1,'FillRect',128);		% blank
+                                                      %SCREEN(win1,'FillRect',128);		% blank
+         Screen('CopyWindow', preScreen,win1);  % CHANGED BY EMP 03/10/06
          Screen(win1,'WaitBlanking', mRefreshes); % wait for a ISIs worth of refreshes
          Screen('CopyWindow', stimOFF, win1); % draw masks
          Screen(win1,'WaitBlanking'); % stimuli are now covered
@@ -706,7 +703,8 @@ for a=1:2
          RT=9999;
          SND('Play',Hibeep);
          SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders
-         waitsecs(1);
+                                                %waitsecs(1);
+         waitsecs(.5);
          button=0;
          Screen(win1,'WaitBlanking');
          % cue
@@ -790,7 +788,8 @@ for a=1:2
       %oldParam=noiseParam;
       
       % FEEDBACK
-      waitsecs(.5);
+      %waitsecs(.5);
+      waitsecs(.25);
       SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders		SCREEN(win1,'FillRect',128);
       noiseParam=min(1,max(noiseParam,0));	% range=0,1
                                                 % 		CenterText([num2str(ctr) '  ' message{ctr} '  RT = ' num2str(RT)],0,-40,[0 130 200]);
@@ -804,13 +803,14 @@ for a=1:2
               sinit, cond, palmerFlag, c1str, c2str, or1str, or2str, vor1, vor2, refreshDuration, stimdur(durindex((ctr))), nRefreshes, cuestimISI, mRefreshes, actualdur,  prstr, ctr, ss,  YN(tord(ctr)), ...
               round(RT*1000), response, message{ctr}, error(ctr), Tloc, NoiseThisTrial); %write the data  %% EMP--Replaced noiseParam in output with NoiseThisTrial
       moo=fclose(fid1);
-      waitsecs(.6);
+      %waitsecs(.6);
+      waitsecs(.5);
       SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders		SCREEN(win1,'FillRect',255);
                                                 % 		FlushEvents('KeyDown');
                                                 % 		GetChar;		
       
       %take a break
-      if mod(ctr,50)==0
+      if mod(ctr,100)==0
          
          SCREEN('CopyWindow',Blank,win1);
          WaitSecs(.5);
