@@ -7,7 +7,7 @@ function CrossoverMCS1
 %%% 02/13/06 Changed to Method of Constant Stimuli by EMP
 %%%          50 TP and 50 TA trials at Noise Levels: 10:10:90
 %%%
-%%%
+%%% 03/03/06 Changed timing of presentation to 160 ms flag, 80 ISI, 80 stim
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %clear everything before you begin
@@ -69,9 +69,13 @@ ymove=0; % shifts the display up the screen
 
 
 %get input
-prompt={'Enter initials:','1=Color, 2=Ori, 3-Conj, 4-TLconj, 5-TvL, 6-easyTvL','setsizes <=8','Practice Trials:','Test Trials PER CELL','stim durations (msec)', 'Stim-Mask ISI','Noise Levels', 'color1',...
-        'color2','orient1','orient2','palmerStyle 0=AccNo 1=AccYes, 2=RTno, 3=RTyes '};
-def={['x' num2str(randi(100))],'3','4','50','50','80','60','.1 .2 .3 .4 .5 .6 .7 .8 .9','255 255 0', '0 255 255','0','90','1'};
+prompt={'Enter initials:','1=Color, 2=Ori, 3-Conj, 4-TLconj, 5-TvL, 6-easyTvL','setsizes <=8','Practice Trials:','Test Trials PER CELL','PreCue Duration (msec)','PreCue-Stim ISI (msec)','Stim Duration (msec)', 'Stim-Mask ISI (msec)','Noise Levels', 'color1','color2','orient1','orient2','palmerStyle 0=AccNo 1=AccYes, 2=RTno, 3=RTyes '};
+% conjunction default
+%def={'DEF','3','4','20','25','160','440','80','80','.1 .2 .3 .4 .5 .6 .7 .8 .9','255 255 0', '0 255 255','0','90','1'};
+% orientation default
+%def={'DEF','2','4','20','25','160','440','80','80','.1 .2 .3 .4 .5 .6 .7 .8 .9','170 170 170', '0 255 255','20','0','1'};
+% TvL default
+def={'DEF','5','4','20','25','160','440','80','80','.1 .2 .3 .4 .5 .6 .7 .8 .9','170 170 170', '0 255 255','0','90','1'};
 title='Input Variables';
 lineNo=1;
 userinput=inputdlg(prompt,title,lineNo,def,'on');
@@ -83,14 +87,16 @@ taskflag=str2num(userinput{2,1});
 SS=str2num(userinput{3,1});
 ptrials=str2num(userinput{4,1});
 celltr=str2num(userinput{5,1});
-stimdur=str2num(userinput{6,1});
-ISI=str2num(userinput{7,1});
-noiseLevels=str2num(userinput{8,1});  %%% <-------- JUST ADDED THIS
-c1=str2num(userinput{9,1});
-c2=str2num(userinput{10,1});
-or1=str2num(userinput{11,1});
-or2=str2num(userinput{12,1});
-palmerFlag=str2num(userinput{13,1});
+cuedur=str2num(userinput{6,1});
+cuestimISI=str2num(userinput{7,1});
+stimdur=str2num(userinput{8,1});
+stimmaskISI=str2num(userinput{9,1});
+noiseLevels=str2num(userinput{10,1});  
+c1=str2num(userinput{11,1});
+c2=str2num(userinput{12,1});
+or1=str2num(userinput{13,1});
+or2=str2num(userinput{14,1});
+palmerFlag=str2num(userinput{15,1});
 
 
 %get input
@@ -115,10 +121,12 @@ or2str=[num2str(or2),'deg'];
 
 ssnum=length(SS);
 
+cuedurRefreshes = floor(cuedur / refreshDuration);
+cuestimISIRefreshes = floor(cuestimISI / refreshDuration);
 durnum=length(stimdur);
 stimDurRefreshes = floor(stimdur / refreshDuration);
-ISInum=length(ISI);
-ISIRefreshes = floor(ISI / refreshDuration);
+ISInum=length(stimmaskISI);
+stimmaskISIRefreshes = floor(stimmaskISI / refreshDuration);
 noisenum=length(noiseLevels);
 
 
@@ -364,9 +372,9 @@ tstr{6}='easyTvL';
 
 cond=[tstr{taskflag}];
 
-fileName1 = ['CrossoverMCS1_',tstr{taskflag},num2str(palmerFlag),'_', sinit];
+fileName1 = ['CrossoverMCS2_',tstr{taskflag},num2str(palmerFlag),'_', sinit];
 fid1=fopen(fileName1, 'a');
-fprintf(fid1,'sinit\tcond\tpalmerFlag\tcolor1\tcolor2\torient1\torient2\tvarOrient1\tvarOrient2\trefreshDur\tstimdur\tnRefreshes\tISI\tmRefreshes\tactualdur\tpr/exp\tctr\tss\tTP?\tRT\tresponse\tmessage\terr\tTloc\tnoiseParam\n'); %write the data 
+fprintf(fid1,'sinit\tcond\tpalmerFlag\tcolor1\tcolor2\torient1\torient2\tvarOrient1\tvarOrient2\trefreshDur\tstimdur\tnRefreshes\tstimmaskISI\tmRefreshes\tactualdur\tpr/exp\tctr\tss\tTP?\tRT\tresponse\tmessage\terr\tTloc\tnoiseParam\n'); %write the data 
 moo=fclose(fid1);
 
 
@@ -494,7 +502,7 @@ for a=1:2
       loc=shuffle(1:CellCount);
       ori=randi(4,[1,CellCount]);
       nRefreshes = stimDurRefreshes(durindex(tord(ctr)));
-      mRefreshes = ISIRefreshes(1);	% need to change if there is ever more than 1 ISI
+      mRefreshes = stimmaskISIRefreshes(1);	% need to change if there is ever more than 1 ISI
       SCREEN(stim,'FillRect',128);
       for mm=1:8 % make  a new mask
          SCREEN('COPYWINDOW',M(randi(16)), stimOFF,[0 0 100 100], cell{mm});%put the masks into the window
@@ -666,10 +674,10 @@ for a=1:2
          Screen(win1,'WaitBlanking');
          % cue
          Screen('CopyWindow', cueScreen,win1);
-         Screen(win1,'WaitBlanking',4);	% wait for 4 refreshes	
-                                        % 			Screen('CopyWindow', preScreen, win1);	% puts up the place holders (If you want a blank cue->stim ISI)
-                                        % 			Screen(win1,'WaitBlanking',5);	% wait for five refreshes	
-                                        % uncover stim
+         Screen(win1,'WaitBlanking',cuedurRefreshes);	% wait for 4 refreshes	%%% THIS IS cueScreen DURATION
+         SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders (If you want a blank cue->stim ISI)
+         Screen(win1,'WaitBlanking',cuestimISIRefreshes);	% wait for 5 refreshes	%%% ISI BETWEEN cueScreen AND stimON
+                                                                % uncover stim
          t3=getsecs;
          Screen('CopyWindow', stimON,win1);
          Snd('Play',beep);
@@ -793,7 +801,7 @@ for a=1:2
       end
       fid1=fopen(fileName1, 'a');
       fprintf(fid1,'%s\t%s\t%d\t%s\t%s\t%s\t%s\t%d\t%d\t%f\t%d\t%d\t%d\t%d\t%f\t%s\t%d\t%d\t%d\t%d\t%s\t%s\t%d\t%d\t%f\n', ...
-              sinit, cond, palmerFlag, c1str, c2str, or1str, or2str, vor1, vor2, refreshDuration, stimdur(durindex((ctr))), nRefreshes, ISI, mRefreshes, actualdur,  prstr, ctr, ss,  YN(tord(ctr)), ...
+              sinit, cond, palmerFlag, c1str, c2str, or1str, or2str, vor1, vor2, refreshDuration, stimdur(durindex((ctr))), nRefreshes, cuestimISI, mRefreshes, actualdur,  prstr, ctr, ss,  YN(tord(ctr)), ...
               round(RT*1000), response, message{ctr}, error(ctr), Tloc, NoiseThisTrial); %write the data  %% EMP--Replaced noiseParam in output with NoiseThisTrial
       moo=fclose(fid1);
       waitsecs(.6);
@@ -802,7 +810,7 @@ for a=1:2
                                                 % 		GetChar;		
       
       %take a break
-      if mod(ctr,100)==0
+      if mod(ctr,50)==0
          
          SCREEN('CopyWindow',Blank,win1);
          WaitSecs(.5);
