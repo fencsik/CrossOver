@@ -70,7 +70,12 @@ ymove=0; % shifts the display up the screen
 
 %get input
 prompt={'Enter initials:','1=Color, 2=Ori, 3-Conj, 4-TLconj, 5-TvL, 6-easyTvL','setsizes <=8','Practice Trials:','Test Trials PER CELL','PreCue Duration (msec)','PreCue-Stim ISI (msec)','Stim Duration (msec)', 'Stim-Mask ISI (msec)','Noise Levels', 'color1','color2','orient1','orient2','palmerStyle 0=AccNo 1=AccYes, 2=RTno, 3=RTyes '};
-def={['x' num2str(randi(100))],'3','4','50','50','160','440','80','80','.1 .2 .3 .4 .5 .6 .7 .8 .9','255 255 0', '0 255 255','0','90','1'};
+% conjunction default
+%def={'DEF','3','4','20','25','160','440','80','80','.1 .2 .3 .4 .5 .6 .7 .8 .9','255 255 0', '0 255 255','0','90','1'};
+% orientation default
+%def={'DEF','2','4','20','25','160','440','80','80','.1 .2 .3 .4 .5 .6 .7 .8 .9','170 170 170', '0 255 255','20','0','1'};
+% TvL default
+def={'DEF','5','4','20','25','160','440','80','80','.1 .2 .3 .4 .5 .6 .7 .8 .9','170 170 170', '0 255 255','0','90','1'};
 title='Input Variables';
 lineNo=1;
 userinput=inputdlg(prompt,title,lineNo,def,'on');
@@ -812,7 +817,7 @@ for a=1:2
                                                 % 		GetChar;		
       
       %take a break
-      if mod(ctr,100)==0
+      if mod(ctr,50)==0
          
          SCREEN('CopyWindow',Blank,win1);
          WaitSecs(.5);
