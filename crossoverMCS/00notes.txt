@@ -1,0 +1,13 @@
+notes:
+
+$LastChangedDate$
+
+Notes on items in this folder. MCS = method of constant stimuli, when
+we systematically vary noise at a fixed set-size to find a good noise
+level; fixed-noise is when we vary set-size at a fixed noise level.
+
+data1/: contains crossover MCS and fixed-noise data, with very fast
+setsize cues and very short cue-stimulus ISI
+
+data2/: contains crossover MCS and fixed-noise data, with longer
+setsize cue durations and longer cue-stimulus ISIs
