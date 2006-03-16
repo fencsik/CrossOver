@@ -12,6 +12,8 @@ function PlotDPrime (datafile)
 % Authors: David E. Fencsik
 % $LastChangedDate$
 
+axislimits = [1.5 10.5 0 4];
+
 if nargin < 1 || isempty(datafile)
    error('data filename missing');
 end
@@ -71,7 +73,6 @@ AllNoiseLevels = sort(unique(noise));
 AllSetSizes = sort(unique(setsize));
 
 dprime = nan(length(AllSetSizes), length(AllNoiseLevels));
-x = AllSetSizes;
 
 Subjects = sort(unique(subject));
 for nsub = 1:length(Subjects)
@@ -93,6 +94,7 @@ for nsub = 1:length(Subjects)
       % figure out which noise levels were run for this condition and subject
       NoiseLevels = sort(unique(noise(filterSubCond)));
       SetSizes = sort(unique(setsize(filterSubCond)));
+      x = SetSizes;
       
       npos = nan(length(SetSizes), length(NoiseLevels));
       nneg = npos; cpos = npos; cneg = npos;
@@ -154,12 +156,13 @@ for nsub = 1:length(Subjects)
               'Color', colors(counter));
          counter = counter + 1;
       end
-      axis([1.5 10.5 0 4]);
+      axis(axislimits);
       title(sprintf('Subject %s', sub));
       xlabel('Set size');
       ylabel('d''');
 
    end % loop over conditions
+   plot(axislimits(1:2), [2 2], 'k--');
    hold off;
 
 end % loop over subjects
