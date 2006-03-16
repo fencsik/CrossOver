@@ -1,4 +1,4 @@
-function CrossoverMCS1
+function CrossoverMCS
 
 % One-Shot Search Control for Confidence Ratings studies
 %
@@ -543,6 +543,8 @@ for a=1:2
          cueAt=[0 3 6]+loc(1);
       elseif ss==4
          cueAt=[0 2 4 6]+loc(1);
+      elseif ss==6
+         cueAt=[0 1 2 4 5 6]+loc(1);
       elseif ss > 4
          cueAt=(0:ss-1)+loc(1);
       end
