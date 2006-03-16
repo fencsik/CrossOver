@@ -55,6 +55,17 @@ prac = strcmp(dt{colPractice}, 'practice');
 correct = 1 - dt{colError};
 noise = dt{colNoise};
 
+% filter out DEF's extraneous trials
+filter = ~(strcmp(subject, 'DEF') & strcmp(condition, 'Conj') & noise == 0.75);
+subject = subject(filter);
+condition = condition(filter);
+trial = trial(filter);
+setsize = setsize(filter);
+target = target(filter);
+prac = prac(filter);
+correct = correct(filter);
+noise = noise(filter);
+
 AllConditions = sort(unique(condition));
 AllNoiseLevels = sort(unique(noise));
 AllSetSizes = sort(unique(setsize));
@@ -69,6 +80,11 @@ for nsub = 1:length(Subjects)
    filterSub = strcmp(subject, sub) & prac == 0;
    % figure out which condition this subject ran in
    Conditions = sort(unique(condition(filterSub)));
+
+   figure;
+   colors = 'bgrcmyk';
+   points = 'os^x+d*';
+   counter = 1;
 
    for ncond = 1:length(Conditions)
       cond = Conditions{ncond};
@@ -111,41 +127,40 @@ for nsub = 1:length(Subjects)
       % compute d', etc.
       [dprime, ci, hr, fa] = ComputeDprime(cpos, cneg, npos, nneg);
 
-      fprintf('Noise SetSize Pos  Neg   Hits  TNegs   HitRate FARate   d''\n');
-      colors = 'bgrcmyk';
-      points = 'os^x+d*';
-      legendtext = cell(1, length(AllNoiseLevels));
-      for n = 1:length(AllNoiseLevels)
-         for s = 1:length(AllSetSizes)
-            fprintf('%5.2f%5.0f  %5.0f%5.0f%7.1f%7.1f%8.2f%8.2f%7.2f\n', ...
-                    AllNoiseLevels(n), AllSetSizes(s), ...
+      fprintf('  Noise SetSize Pos  Neg   Hits  TNegs  HitRate  FARate   d''\n');
+      legendtext = cell(1, length(NoiseLevels));
+      for n = 1:length(NoiseLevels)
+         for s = 1:length(SetSizes)
+            fprintf('%7.4f%5.0f  %5.0f%5.0f%7.1f%7.1f%8.2f%8.2f%7.2f\n', ...
+                    NoiseLevels(n), SetSizes(s), ...
                     npos(s, n), nneg(s, n), cpos(s, n), cneg(s, n), ...
                     hr(s, n), fa(s, n), dprime(s, n));
          end
          % plot dprimes
-         plot(x, dprime(:, n), [colors(n), '-' points(n)], ...
+         plot(x, dprime(:, n), [colors(counter), '-' points(counter)], ...
               'LineWidth', 2, 'MarkerSize', 8, 'MarkerFaceColor', 'w');
          hold on;
 
          % plot 95% confidence intervals
          offset = 0.;
-         for s = 1:length(AllSetSizes)
-            plot([x(s) x(s)], [dprime(s,n) + ci(s,n), dprime(s,n) - ci(s,n)], [colors(n), '-']);
-            plot([x(s)-offset, x(s)+offset], repmat(dprime(s,n) + ci(s,n), 1, 2), [colors(n), '-']);
-            plot([x(s)-offset, x(s)+offset], repmat(dprime(s,n) - ci(s,n), 1, 2), [colors(n), '-']);
+         for s = 1:length(SetSizes)
+            plot([x(s) x(s)], [dprime(s,n) + ci(s,n), dprime(s,n) - ci(s,n)], [colors(counter), '-']);
+            plot([x(s)-offset, x(s)+offset], repmat(dprime(s,n) + ci(s,n), 1, 2), [colors(counter), '-']);
+            plot([x(s)-offset, x(s)+offset], repmat(dprime(s,n) - ci(s,n), 1, 2), [colors(counter), '-']);
          end
-         plot(x, dprime(:, n), [colors(n), '-' points(n)], ...
+         plot(x, dprime(:, n), [colors(counter), '-' points(counter)], ...
               'LineWidth', 2, 'MarkerSize', 8, 'MarkerFaceColor', 'w');
-         text(8.25, dprime(length(AllSetSizes), n), sprintf('%3.0f%% noise', 100*AllNoiseLevels(n)), ...
-              'Color', colors(n));
+         text(8.25, dprime(length(SetSizes), n), sprintf('%s - %3.0f%% noise', cond, 100*NoiseLevels(n)), ...
+              'Color', colors(counter));
+         counter = counter + 1;
       end
-      axis([1.5 10 0 5]);
-      title(sprintf('Subject %s - Condition %s', sub, cond));
+      axis([1.5 10.5 0 4]);
+      title(sprintf('Subject %s', sub));
       xlabel('Set size');
       ylabel('d''');
-      hold off;
 
    end % loop over conditions
+   hold off;
 
 end % loop over subjects
 

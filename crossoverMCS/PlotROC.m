@@ -51,6 +51,17 @@ prac = strcmp(dt{colPractice}, 'practice');
 correct = 1 - dt{colError};
 noise = dt{colNoise};
 
+% filter out DEF's extraneous trials
+filter = ~(strcmp(subject, 'DEF') & strcmp(condition, 'Conj') & noise == 0.75);
+subject = subject(filter);
+condition = condition(filter);
+trial = trial(filter);
+setsize = setsize(filter);
+target = target(filter);
+prac = prac(filter);
+correct = correct(filter);
+noise = noise(filter);
+
 AllConditions = sort(unique(condition));
 AllNoiseLevels = sort(unique(noise));
 AllSetSizes = sort(unique(setsize));
@@ -65,6 +76,11 @@ for nsub = 1:length(Subjects)
    filterSub = strcmp(subject, sub) & prac == 0;
    % figure out which condition this subject ran in
    Conditions = sort(unique(condition(filterSub)));
+
+   figure;
+   colors = 'bgrcmyk';
+   points = 'os^x+d*';
+   counter = 1;
 
    for ncond = 1:length(Conditions)
       cond = Conditions{ncond};
@@ -108,32 +124,31 @@ for nsub = 1:length(Subjects)
       [dprime, ci, hr, fa] = ComputeDprime(cpos, cneg, npos, nneg);
 
       fprintf('  Noise  SetSize Pos  Neg   Hits  TNegs   HitRate FARate   d''\n');
-      colors = 'bgrcmyk';
-      points = 'os^x+d*';
-      legendtext = cell(1, length(AllNoiseLevels));
-      for n = 1:length(AllNoiseLevels)
-         for s = 1:length(AllSetSizes)
+      legendtext = cell(1, length(NoiseLevels));
+      for n = 1:length(NoiseLevels)
+         for s = 1:length(SetSizes)
             fprintf('%8.5f%5.0f  %5.0f%5.0f%7.1f%7.1f%8.2f%8.2f%7.2f\n', ...
-                    AllNoiseLevels(n), AllSetSizes(s), ...
+                    NoiseLevels(n), SetSizes(s), ...
                     npos(s, n), nneg(s, n), cpos(s, n), cneg(s, n), ...
                     hr(s, n), fa(s, n), dprime(s, n));
             % plot ROC points
-            plot(fa(s, n), hr(s, n), [colors(n), points(s)], ...
+            plot(fa(s, n), hr(s, n), [colors(counter), points(counter)], ...
                  'LineWidth', 2, 'MarkerSize', 8, 'MarkerFaceColor', 'w');
             hold on;
-            text(fa(s, n)+.025, hr(s, n), sprintf('SS%02d-%3.0f%%', AllSetSizes(s), 100*AllNoiseLevels(n)), ...
-                 'Color', colors(n));
+            text(fa(s, n)+.025, hr(s, n), sprintf('SS%02d', SetSizes(s)), ...
+                 'Color', colors(counter));
          end
       end
       axis([0 1 0 1], 'square');
-      title(sprintf('Subject %s - Condition %s', sub, cond));
+      title(sprintf('Subject %s', sub, cond));
       xlabel('False-alarm rate');
       ylabel('Hit rate');
       plot([0 1], [0 1], 'k:');
       plot([0 1], [1 0], 'k:');
-      hold off;
 
+      counter = counter + 1;
    end % loop over conditions
+   hold off;
 
 end % loop over subjects
 
