@@ -367,7 +367,7 @@ tstr{6}='easyTvL';
 
 cond=[tstr{taskflag}];
 
-fileName1 = ['CrossoverMCS2b_',tstr{taskflag},num2str(palmerFlag),'_', sinit];
+fileName1 = ['CrossoverMCS2c_',tstr{taskflag},num2str(palmerFlag),'_', sinit];
 fid1=fopen(fileName1, 'a');
 fprintf(fid1,'sinit\tcond\tpalmerFlag\tcolor1\tcolor2\torient1\torient2\tvarOrient1\tvarOrient2\trefreshDur\tstimdur\tnRefreshes\tstimmaskISI\tmRefreshes\tactualdur\tpr/exp\tctr\tss\tTP?\tRT\tresponse\tmessage\terr\tTloc\tnoiseParam\n'); %write the data 
 moo=fclose(fid1);
