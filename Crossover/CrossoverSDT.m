@@ -1,10 +1,13 @@
-function CrossStair
+function CrossoverSDT
 
 % One-Shot Search Control for Confidence Ratings studies
 %
 % $LastChangedDate$
-
-Version = '5.0';
+%%%
+%%% 02/13/06 Changed to Method of Constant Stimuli by EMP
+%%%          50 TP and 50 TA trials at Noise Levels: 10:10:90
+%%%
+%%% 03/03/06 Changed timing of presentation to 160 ms flag, 80 ISI, 80 stim
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %clear everything before you begin
@@ -66,41 +69,49 @@ ymove=0; % shifts the display up the screen
 
 
 %get input
-prompt={'Enter initials:','1=Color, 2=Ori, 3-Conj, 4-TLconj, 5-TvL, 6-easyTvL','setsizes <=8','Practice Trials:','Test Trials PER CELL','stim durations (msec)', 'Stim-Mask ISI','color1',...
-'color2','orient1','orient2','palmerStyle 0=AccNo 1=AccYes, 2=RTno, 3=RTyes '};
-def={['x' num2str(randi(100))],'3','1 2 4 8','50','50','80','60','255 255 0', '0 255 255','0','90','1'};
+prompt={'Enter initials:','1=Color, 2=Ori, 3-Conj, 4-TLconj, 5-TvL, 6-easyTvL','Practice Trials:','Number Reversals Until Stable','Trials Per Cell After Stable',...
+'proportion noise (0-1)','noise UP step', 'noise DOWN step', 'color1','color2','orient1','orient2','palmerStyle 0=AccNo 1=AccYes, 2=RTno, 3=RTyes '};
+def={['x' num2str(randi(100))],'3','50','20','50','.5','.025','.1','255 255 0', '0 255 255','0','90','1'};
 title='Input Variables';
 lineNo=1;
 userinput=inputdlg(prompt,title,lineNo,def,'on');
 
 
 %Convert User Input
-sinit=(userinput{1,1});
-taskflag=str2num(userinput{2,1});
-SS=str2num(userinput{3,1});
-ptrials=str2num(userinput{4,1});
-celltr=str2num(userinput{5,1});
-stimdur=str2num(userinput{6,1});
-ISI=str2num(userinput{7,1});
-c1=str2num(userinput{8,1});
-c2=str2num(userinput{9,1});
-or1=str2num(userinput{10,1});
-or2=str2num(userinput{11,1});
-palmerFlag=str2num(userinput{12,1});
+sinit=(userinput{1,1})
+taskflag=str2num(userinput{2,1})
+ptrials=str2num(userinput{3,1})
+numReversals=str2num(userinput{4,1})
+numtrials=str2num(userinput{5,1})
+noiseParam=str2num(userinput{6,1})
+noiseUp=str2num(userinput{7,1})
+noiseDown=str2num(userinput{8,1}) 
+c1=str2num(userinput{9,1})
+c2=str2num(userinput{10,1})
+or1=str2num(userinput{11,1})
+or2=str2num(userinput{12,1})
+palmerFlag=str2num(userinput{13,1})
 
+
+%%% HARD-CODING SOME EXPERIMENT OPTIONS TO MAKE ROOM IN DIALOG BOX.
+SS=[1 2 4 8]
+cuedur=160
+cuestimISI=440
+stimdur=80
+stimmaskISI=80
 
 %get input
-prompt={'proportion noise (0-1)','noise UP step', 'noise DOWN step'};
-def={'.5','.025','.1'};
-title='Input Variables';
-lineNo=1;
-userinput=inputdlg(prompt,title,lineNo,def,'on');
+%prompt={'proportion noise (0-1)','noise UP step', 'noise DOWN step'};
+%def={'.5','.025','.1'};
+%title='Input Variables';
+%lineNo=1;
+%userinput=inputdlg(prompt,title,lineNo,def,'on');
 
-noiseParam=str2num(userinput{1,1});
-noiseUp=str2num(userinput{2,1});
-noiseDown=str2num(userinput{3,1});
-oldParam=0;
-revList=[];
+%noiseParam=str2num(userinput{1,1});
+%noiseUp=str2num(userinput{2,1});
+%noiseDown=str2num(userinput{3,1});
+%oldParam=0;
+%revList=[];
 
 
 c1str=[num2str(c1(1)),'_'num2str(c1(2)),'_'num2str(c1(3))];
@@ -111,16 +122,19 @@ or2str=[num2str(or2),'deg'];
 
 ssnum=length(SS);
 
+cuedurRefreshes = floor(cuedur / refreshDuration);
+cuestimISIRefreshes = floor(cuestimISI / refreshDuration);
 durnum=length(stimdur);
 stimDurRefreshes = floor(stimdur / refreshDuration);
-ISInum=length(ISI);
-ISIRefreshes = floor(ISI / refreshDuration);
-
+ISInum=length(stimmaskISI);
+stimmaskISIRefreshes = floor(stimmaskISI / refreshDuration);
+%noisenum=length(noiseLevels);
 
 
 feedflag=2;	% normal feedback
 
-xtrials=celltr*2*durnum*ssnum;	% total experimental trials
+%%xtrials=celltr*2*durnum*ssnum*noisenum;		% total experimental trials  %% Eliminated because using staircase version
+
 
 % Make a ring of big item locations (cell 1-8) and small item locations (cell 9-16)
 for c=0:7;
@@ -131,7 +145,7 @@ for c=0:7;
 	y1=(centy+y-ItemSize)-ymove;
 	y2=(centy+y+ItemSize)-ymove;
 	cell{c+1}=[x1 y1 x2 y2];
-% 	SCREEN(win1,'FillRect',[randi(255) randi(255) randi(255)],cell{c+1});
+	% 	SCREEN(win1,'FillRect',[randi(255) randi(255) randi(255)],cell{c+1});
 	x=sin((c+0.5)*0.25*pi)*rad/2;
 	y=cos((c+0.5)*0.25*pi)*rad/2;
 	x1=centx+x-ItemSize/2;
@@ -139,7 +153,7 @@ for c=0:7;
 	y1=(centy+y-ItemSize/2)-ymove;
 	y2=(centy+y+ItemSize/2)-ymove;
 	cell{c+9}=[x1 y1 x2 y2];
-% 	SCREEN(win1,'FillRect',[randi(255) randi(255) randi(255)],cell{c+9});
+	% 	SCREEN(win1,'FillRect',[randi(255) randi(255) randi(255)],cell{c+9});
 end
 % make the pre screen
 SCREEN(preScreen,'FillRect',128);
@@ -181,10 +195,7 @@ SCREEN(L(4),'FillRect',0,[0 70 100 90]);
 SCREEN(L(4),'FillRect',0,[10 0 30 100]);
 
 
-
-
 % HARD L c1
-
 Lc1(1)=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]);
 SCREEN(Lc1(1),'FillRect',c1,[0 10 100 30]);
 SCREEN(Lc1(1),'FillRect',c1,[10 0 30 100]);
@@ -199,7 +210,6 @@ SCREEN(Lc1(4),'FillRect',c1,[0 70 100 90]);
 SCREEN(Lc1(4),'FillRect',c1,[10 0 30 100]);
 
 % HARD L c2
-
 Lc2(1)=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]);
 SCREEN(Lc2(1),'FillRect',c2,[0 10 100 30]);
 SCREEN(Lc2(1),'FillRect',c2,[10 0 30 100]);
@@ -258,7 +268,6 @@ SCREEN(Tc2(4),'FillRect',c2,[0 40 100 60]);
 
 
 %easy L
-
 eL(1)=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]);
 SCREEN(eL(1),'FillRect',c1,[0 0 100 20]);
 SCREEN(eL(1),'FillRect',c1,[0 0 20 100]);
@@ -293,7 +302,6 @@ c2o2=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]);
 SCREEN(c2o2,'DrawLine',c2,o2x1,o2y1,o2x2,o2y2,[12],[12]);
 
 % 45 deg Conj stimuli
-
 c1_135=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]); 
 SCREEN(c1_135,'DrawLine', c1,20,20,80,80, [12],[12]);
 c2_135=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]); 
@@ -360,11 +368,18 @@ tstr{6}='easyTvL';
 
 cond=[tstr{taskflag}];
 
-fileName1 = ['CrossSDT_',tstr{taskflag},num2str(palmerFlag),'_', sinit];
+fileName1 = ['CrossoverSDT7_',tstr{taskflag},num2str(palmerFlag),'_', sinit];
 fid1=fopen(fileName1, 'a');
-fprintf(fid1,'sinit cond palmerFlag color1 color2 orient1 orient2 varOrient1 varOrient2 refreshDur stimdur nRefreshes ISI mRefreshes actualdur pr/exp ctr ss LR RT response message err Tloc noiseParam revString\n'); %write the data 
+
+%datastr1='sinit\tcond\tpalmerFlag\tcolor1\tcolor2\torient1\torient2\tvarOrient1\tvarOrient2\trefreshDur\tstimdur\tnRefreshes\tstimmaskISI';
+%datastr2='\tmRefreshes\tactualdur\tpr/exp\tctr\tss\tTP?\tRT\tresponse\tmessage\terr\tTloc\tnoiseParam\trevString\t1TP\t1TA\t2TP\t2TA\t4TP\t4TA\t8TP\t8TA\n';
+
+%eval(['fprint(fid1, ''' datastr1 '' datastr2 ''' );']);
+
+fprintf(fid1,'sinit\tcond\tpalmerFlag\tcolor1\tcolor2\torient1\torient2\tvarOrient1\tvarOrient2\trefreshDur\tstimdur\tnRefreshes\tstimmaskISI');
+fprintf(fid1,'\tmRefreshes\tactualdur\tpr/exp\tctr\tss\tTP?\tRT\tresponse\tmessage\terr\tTloc\tnoiseParam\trevString\tnumReversals\tStable?\n'); %write the data 
 moo=fclose(fid1);
-          			 		   
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -411,7 +426,7 @@ pauseKey=50;
 while (Key1==Key2)
 	SCREEN('CopyWindow',Blank,win1);
 	CenterText('Press a key for "target present" responses',0,-40,[255 255 255]);
-				
+	
 	FlushEvents('keyDown');
 	
 	while(1)
@@ -442,14 +457,17 @@ end
 
 SCREEN('CopyWindow',Blank,win1,[],screenRect);
 
+
+startingNoise = noiseParam;
+
 for a=1:2
 	if a==1
 		ttr=ptrials;
 		CenterText(['Begin ' num2str(ttr) ' practice trials'],0,-40,[255 255 255]);
 		prstr='practice';
 	else
-		ttr=xtrials;
-		CenterText(['Begin ' num2str(ttr) ' experimental trials'],0,-40,[255 255 255]);
+		ttr=2*ssnum*numtrials;
+		CenterText(['Begin experimental trials'],0,-40,[255 255 255]);
 		prstr='exp';
 	end
 	CenterText('Press any key to continue',0,0,[0 0 180]);
@@ -459,65 +477,98 @@ for a=1:2
 	SCREEN(win1,'FillRect',128);
 	CenterText(['thanks'],0,40,[0 130 200]);
 	waitsecs(.6);
-% 	FlushEvents('KeyDown');
-% 	SCREEN(win1,'FillRect',255);
-
-% set up trials
-	ctr=0;
-	for a=0:1	% YN
+	% 	FlushEvents('KeyDown');
+	% 	SCREEN(win1,'FillRect',255);
+	
+	% set up trials
+	temp=0;
+	for z=0:1	% YN
 		for s=1:ssnum
-			for d=1:durnum
-				for i=1:celltr
-					ctr=ctr+1;
-					YN(ctr)=a;
-					ssn(ctr)=s;
-					durindex(ctr)=d;
-				end
+			for i=1:numtrials
+				temp=temp+1;
+				YNlist(temp)=z;
+				SSlist(temp)=SS(s);
 			end
 		end
 	end
-	tord=shuffle(1:xtrials);
 
-	for ctr=1:ttr
+	tord=shuffle(1:ttr);
+	
+	exit=0;
+	ctr=0;
+	revList=[];
+	trialctr=0;
+	
+	if (a==1)&(ptrials==0)
+		exit=1;
+	end
+
+	noiseParam=startingNoise;
+	
+	startcounting=0;
+	
+	%for ctr=1:ttr  %% Removed because stopping after certain number of reversals
+	while exit~=1	
+		
+		ctr=ctr+1;
+		
 		randConj=randi(2);	% this will be used to make sure that you don't always do the conj distractors in the sameorder 
 		response=9000;
-		ss=SS(ssn(tord(ctr)));
-% 		SCREEN(win1,'FillRect',128);	
+		
+		%ss=SS(ssn(tord(ctr)));
+		
+		if startcounting~=1
+			temp=shuffle(shuffle(shuffle(SS)));
+			ss=temp(1);
+			YN=round(rand);
+		else
+			ss=SSlist(tord(trialctr));
+			YN=YNlist(tord(trialctr));
+		end
+		
+		
+		% 		SCREEN(win1,'FillRect',128);	
 		loc=shuffle(1:CellCount);
 		ori=randi(4,[1,CellCount]);
-        nRefreshes = stimDurRefreshes(durindex(tord(ctr)));
-        mRefreshes = ISIRefreshes(1);	% need to change if there is ever more than 1 ISI
+		%nRefreshes = stimDurRefreshes(durindex(tord(ctr)));
+		%mRefreshes = stimmaskISIRefreshes(1);	% need to change if there is ever more than 1 ISI
+		
+		nRefreshes = stimDurRefreshes;
+		mRefreshes = stimmaskISIRefreshes;	% need to change if there is ever more than 1 ISI
+		
 		SCREEN(stim,'FillRect',128);
 		for mm=1:8 % make  a new mask
 			SCREEN('COPYWINDOW',M(randi(16)), stimOFF,[0 0 100 100], cell{mm});%put the masks into the window
 		end
+	
+		%noiseParam=noiseLevels(noiseindex(tord(ctr)));		% Removed for staircase version
 		
-% recalculate orientations for the variable version	
-% 		vor1=round(or1+(3*randn(1)));
-% 		vor2=round(or2+(3*randn(1)));
-
-% otherwise no variability in orientation
+		% recalculate orientations for the variable version	
+		% 		vor1=round(or1+(3*randn(1)));
+		% 		vor2=round(or2+(3*randn(1)));
+		
+		% otherwise no variability in orientation
 		vor1=or1;
 		vor2=or2;
-
+		
 		o1x1=50-(40*sin(vor1/57.2958));
 		o1x2=50+(40*sin(vor1/57.2958));
 		o1y1=50+(40*cos(vor1/57.2958));
 		o1y2=50-(40*cos(vor1/57.2958));
-
+		
 		o2x1=50-(40*sin(vor2/57.2958));
 		o2x2=50+(40*sin(vor2/57.2958));
 		o2y1=50+(40*cos(vor2/57.2958));
 		o2y2=50-(40*cos(vor2/57.2958));
-
-		c1vo1=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]); 
-		SCREEN(c1vo1,'DrawLine',c1,o1x1,o1y1,o1x2,o1y2,[12],[12]);
-		c2vo1=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]); 
-		SCREEN(c2vo1,'DrawLine',c2,o1x1,o1y1,o1x2,o1y2,[12],[12]);
-		c1vo2=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]); 
-		SCREEN(c1vo2,'DrawLine',c1,o2x1,o2y1,o2x2,o2y2,[12],[12]);
-		c2vo2=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]); 
-		SCREEN(c2vo2,'DrawLine',c2,o2x1,o2y1,o2x2,o2y2,[12],[12]);
+		
+		%c1vo1=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]); 
+		%SCREEN(c1vo1,'DrawLine',c1,o1x1,o1y1,o1x2,o1y2,[12],[12]);
+		%c2vo1=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]); 
+		%SCREEN(c2vo1,'DrawLine',c2,o1x1,o1y1,o1x2,o1y2,[12],[12]);
+		%c1vo2=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]); 
+		%SCREEN(c1vo2,'DrawLine',c1,o2x1,o2y1,o2x2,o2y2,[12],[12]);
+		%c2vo2=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]); 
+		%SCREEN(c2vo2,'DrawLine',c2,o2x1,o2y1,o2x2,o2y2,[12],[12]);
 		
 		% make the cue screen, Space the probes as evenly as possible
 		SCREEN('COPYWINDOW', preScreen, cueScreen);	% puts up the place holders
@@ -530,6 +581,8 @@ for a=1:2
 			cueAt=[0 3 6]+loc(1);
 		elseif ss==4
 			cueAt=[0 2 4 6]+loc(1);
+		elseif ss==6
+			cueAt=[0 1 2 4 5 6]+loc(1);
 		elseif ss > 4
 			cueAt=(0:ss-1)+loc(1);
 		end
@@ -537,12 +590,13 @@ for a=1:2
 		cueAt(ca)=cueAt(ca)-8;
 		if palmerFlag==1 | palmerFlag==3	% generate cues to tell you where the target might be
 			for m=cueAt
-% 				SCREEN(cueScreen,'FillRect',[170 170 170],cell{m}+[45 45 -45 -45]); % small cue
+				% 				SCREEN(cueScreen,'FillRect',[170 170 170],cell{m}+[45 45 -45 -45]); % small cue
 				SCREEN(cueScreen,'FillRect',[0 0 0],cell{m});	% big cue
 			end
 		end
 		SCREEN(stim,'FillRect',250,[centx-10 centy-10 centx+10 centy+10]);
-		if(YN(tord(ctr)) == 1)
+		%if(YN(tord(ctr)) == 1)
+		if YN==1
 			if taskflag==1	% then this is COLOR FEATURE exp
 				SCREEN(stim,'fillrect',c1, cell{loc(1)});%put color c1 into the window
 			elseif taskflag==2  % then this is ORIENT FEATURE exp
@@ -627,38 +681,39 @@ for a=1:2
 				end
 			end
 		end
-% put noise on stim
+		% put noise on stim
 		for ii=1:8
 			imageArray=double(screen(stim,'GetImage',[cell{ii}])); % copy from stim
 			sz=size(imageArray);
 			noiseArray=randi(255,[sz(1), sz(2)]); % full contrast noise
- 			noiseArray=repmat(noiseArray,[1,1,3]);	% makes it 3D again
+			noiseArray=repmat(noiseArray,[1,1,3]);	% makes it 3D again
 			newArray=(imageArray.*(1-noiseParam))+(noiseArray.*noiseParam);	% noiseParam = fraction of noise
 			newArray=min(255,max(0,round(newArray)));
 			SCREEN(stim,'PutImage',newArray,cell{ii});	% copy to stim
 		end
-% 		SCREEN('COPYWINDOW', stim, win1);		
-% 		FlushEvents('KeyDown');
-% 		GetChar;
-			
-		SCREEN(stim,'FillRect',[0 0 255],[centx-30 centy-30-ymove centx+30 centy+30-ymove]);
-% 		SCREEN(stimOFF,'FillRect',[0 0 255],[centx-30 centy-30-ymove centx+30 centy+30-ymove]);
+		% 		SCREEN('COPYWINDOW', stim, win1);		
+		% 		FlushEvents('KeyDown');
+		% 		GetChar;
+		
+		SCREEN(stim,'FillRect',250,[centx-10 centy-10-ymove centx+10 centy+10-ymove]); %% CHANGED BY EMP & DF 3/10/06
+		SCREEN(stimOFF,'FillRect',250,[centx-10 centy-10-ymove centx+10 centy+10-ymove]); %% CHANGED BY EMP & DF 3/10/06
 		SCREEN('COPYWINDOW', stim, stimON);
-
-
+		
+		
 		t1=getsecs;
-%start trials
+		%start trials
 		if palmerFlag < 2 % this is an accuracy version
 			SND('Play',Hibeep);
 			SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders
-			waitsecs(1);
+			%waitsecs(1);
+			waitsecs(.25);
 			button=0;
 			Screen(win1,'WaitBlanking');
 			% cue
 			Screen('CopyWindow', cueScreen,win1);
-			Screen(win1,'WaitBlanking',4);	% wait for 4 refreshes	
-% 			SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders (If you want a blank cue->stim ISI)
-% 			Screen(win1,'WaitBlanking',5);	% wait for five refreshes	
+			Screen(win1,'WaitBlanking',cuedurRefreshes);	% wait for 4 refreshes	%%% THIS IS cueScreen DURATION
+			SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders (If you want a blank cue->stim ISI)
+			Screen(win1,'WaitBlanking',cuestimISIRefreshes);	% wait for 5 refreshes	%%% ISI BETWEEN cueScreen AND stimON
 			% uncover stim
 			t3=getsecs;
 			Screen('CopyWindow', stimON,win1);
@@ -666,12 +721,13 @@ for a=1:2
 			Screen(win1,'WaitBlanking'); % wait for stimuli to appear
 			t2=getsecs; % mark the time, since the stimuli are now visible
 			Screen(win1,'WaitBlanking', nRefreshes - 1); % wait for remaining refreshes
-			SCREEN(win1,'FillRect',128);		% blank
+			%SCREEN(win1,'FillRect',128);		% blank
+			Screen('CopyWindow', preScreen,win1);  % CHANGED BY EMP 03/10/06
 			Screen(win1,'WaitBlanking', mRefreshes); % wait for a ISIs worth of refreshes
 			Screen('CopyWindow', stimOFF, win1); % draw masks
 			Screen(win1,'WaitBlanking'); % stimuli are now covered
-                	actualdur = (GetSecs - t2) * 1000;
-		%wait for response
+			actualdur = (GetSecs - t2) * 1000;
+			%wait for response
 			while 1
 				[keyIsDown,secs,keyCode]=KbCheck;
 				if keyIsDown
@@ -688,14 +744,15 @@ for a=1:2
 			RT=9999;
 			SND('Play',Hibeep);
 			SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders
-			waitsecs(1);
+			%waitsecs(1);
+			waitsecs(.5);
 			button=0;
 			Screen(win1,'WaitBlanking');
 			% cue
 			Screen('CopyWindow', cueScreen,win1);
 			Screen(win1,'WaitBlanking',8);	% wait for 8 refreshes	
-% 			SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders (If you want a blank cue->stim ISI)
-% 			Screen(win1,'WaitBlanking',5);	% wait for five refreshes	
+			% 			SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders (If you want a blank cue->stim ISI)
+			% 			Screen(win1,'WaitBlanking',5);	% wait for five refreshes	
 			% uncover stim
 			t3=getsecs;
 			Screen('CopyWindow', stimON,win1);
@@ -716,29 +773,31 @@ for a=1:2
 			end
 			SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders 		replace: SCREEN(win1,'FillRect',128); % blank screen
 		end
-%check response
+		%check response
+		NoiseThisTrial=noiseParam;  %% EMP--Added this variable so datafile says what noise was on current trial rather than what it will be on next trial.
+		
 		if response==Key1 % then you hit the right hand key 
 			response='RIGHT';
-			if YN(tord(ctr))==1
+			if YN==1
 				error(ctr)=0;
 				message{ctr}='HIT';
-				noiseParam=noiseParam+noiseUp;	% small step up
+				noiseParam=noiseParam+noiseUp;	% small step up  		
 			else
 				error(ctr)=1;
 				message{ctr}='FA';
-				noiseParam=noiseParam-noiseDown;	% big step down
+				noiseParam=noiseParam-noiseDown;	% big step down		
 			end
 		
 		elseif response==Key2 % you hit the left hand key 
 			response='LEFT';
-			if YN(tord(ctr))==0
+			if YN==0
 				error(ctr)=0;
 				message{ctr}='TNEG';
-				noiseParam=noiseParam+noiseUp;	% small step up
+				noiseParam=noiseParam+noiseUp;	% small step up			
 			else
 				error(ctr)=1;
 				message{ctr}='MISS';
-				noiseParam=noiseParam-noiseDown;	% big step down
+				noiseParam=noiseParam-noiseDown;	% big step down		
 			end
 		else
 			message{ctr}='Wrong Key!!!';
@@ -748,7 +807,12 @@ for a=1:2
 			SND('Play',errbeep);
 			SND('Play',errbeep);
 		end
-% check for reversal
+	
+	
+		% check for reversal
+		
+		noiseParam=min(1,max(noiseParam,0));	% range=0,1  %% EMP--Copied line 775 to here to avoid negative numbers going into revList
+		
 		if ctr > 1
 			if error(ctr) == error(ctr-1)
 				if error(ctr) == 1
@@ -758,36 +822,84 @@ for a=1:2
 				end
 			else
 				revString='REVERSE';
-				revList=[revList oldParam]
+				revList=[revList oldParam];
 			end
 		else
 			revString='START';
 		end
+	
 		oldParam=noiseParam;
 		
-% FEEDBACK
-		waitsecs(.5);
+		% FEEDBACK
+		%waitsecs(.5);
+		waitsecs(.25);
 		SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders		SCREEN(win1,'FillRect',128);
-		noiseParam=min(1,max(noiseParam,0))	% range=0,1
-% 		CenterText([num2str(ctr) '  ' message{ctr} '  RT = ' num2str(RT)],0,-40,[0 130 200]);
-        if error(ctr) == 0;
+		noiseParam=min(1,max(noiseParam,0));	% range=0,1
+		% 		CenterText([num2str(ctr) '  ' message{ctr} '  RT = ' num2str(RT)],0,-40,[0 130 200]);
+		if error(ctr) == 0;
 			CenterText(['Trial ' num2str(ctr) ' - CORRECT'],0,-40,[0 250 200]);
-		 else
+		else
 			CenterText(['Trial ' num2str(ctr) ' - ERROR'],0,-40,[250 200 0]);
 		end
 		fid1=fopen(fileName1, 'a');
-		fprintf(fid1,'%s %s %d %s %s %s %s %d %d %f %d %d %d %d %f %s %d %d %d %d %s %s %d %d %f %s\n', ...
-                        sinit, cond, palmerFlag, c1str, c2str, or1str, or2str, vor1, vor2, refreshDuration, stimdur(durindex(tord(ctr))), nRefreshes, ISI, mRefreshes, actualdur,  prstr, ctr, ss,  YN(tord(ctr)), ...
-                        round(RT*1000), response, message{ctr}, error(ctr), Tloc, noiseParam, revString); %write the data   
+		fprintf(fid1,'%s\t%s\t%d\t%s\t%s\t%s\t%s\t%d\t%d\t%f\t%d\t%d\t%d\t%d\t%f\t%s\t%d\t%d\t%d\t%d\t%s\t%s\t%d\t%d\t%f\t%s\t%d\t%d\n', ...
+		sinit, cond, palmerFlag, c1str, c2str, or1str, or2str, vor1, vor2, refreshDuration, stimdur, nRefreshes, cuestimISI, mRefreshes, actualdur,  prstr, ctr, ss,  YN, ...
+		round(RT*1000), response, message{ctr}, error(ctr), Tloc, NoiseThisTrial,revString, length(revList),startcounting); %write the data  %% EMP--Replaced noiseParam in output with NoiseThisTrial
 		moo=fclose(fid1);
- 		waitsecs(.6);
+		%waitsecs(.6);
+		waitsecs(.5);
 		SCREEN('COPYWINDOW', preScreen, win1);	% puts up the place holders		SCREEN(win1,'FillRect',255);
-% 		FlushEvents('KeyDown');
-% 		GetChar;		
-	end %ctr loop
+		% 		FlushEvents('KeyDown');
+		% 		GetChar;		
+		
+		%take a break
+		if mod(ctr,100)==0
+			
+			SCREEN('CopyWindow',Blank,win1);
+			WaitSecs(.5);
+			
+			CenterText('Take a break for a moment...',0,-40,[255 255 255]);
+			CenterText('Press any key when you are ready to continue',0,40,[255 255 255]);
+			
+			FlushEvents('keyDown');
+			while(1)
+				[keyIsDown,secs,keyCode]=KbCheck;
+				if keyIsDown
+					break;
+				end
+			end
+			FlushEvents('keyDown');
+			
+			
+			SCREEN('CopyWindow',Blank,win1);
+			WaitSecs(.5);
+		end
+	
+	
+		%%% EXIT CONDITIONS
+		if (a==1) & (ctr==ptrials)
+			exit=1;
+		end
+	
+		if (a==2)
+			if length(revList)>=numReversals
+				startcounting=1;
+				trialctr=trialctr+1;
+			end
+		end
+	
+		if (a==2)&(trialctr>length(tord))
+			exit=1;
+		end
+		
+			
+	end %while loop
+
+
 end % pract/exp loop
 
-StaircaseResult=mean(revList(max(1,length(revList)-39:length(revList))))	% mean of the last 40 reversals
+%StaircaseResult=mean(revList(max(1,length(revList)-39:length(revList))))	% mean of the last 40 reversals
+StaircaseResult=mean(revList)
 
 CenterText(['Experiment Complete. Thank-you'],0,-40,[0 0 0]);
 FlushEvents('KeyDown');
@@ -839,7 +951,3 @@ end
 
 width = SCREEN(win1,'TextWidth',message);
 [newX, newY] = SCREEN(win1, 'DrawText', message, ((screenX/2)-(width/2))+xoffset,(screenY/2)+yoffset,color);
-
-
-
-
