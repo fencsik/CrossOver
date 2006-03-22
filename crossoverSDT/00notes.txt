@@ -1,0 +1,8 @@
+notes:
+
+$LastChangedDate$
+
+Notes on items in this folder. SDT = signal-detection theory, but is
+actually used for the staircase version of the crossover.
+
+data1/: contains crossover data from the staircase
