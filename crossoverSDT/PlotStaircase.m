@@ -83,7 +83,7 @@ for nsub = 1:length(Subjects)
       x = trial(filterSubCond);
       y = noise(filterSubCond);
 
-      plot(x, y, 'LineWidth', 1, 'MarkerSize', 4, 'MarkerFaceColor', 'w');
+      plot(x, y, [colors(counter), '-'], 'LineWidth', 1, 'MarkerSize', 4, 'MarkerFaceColor', 'w');
 
       hold on;
 
