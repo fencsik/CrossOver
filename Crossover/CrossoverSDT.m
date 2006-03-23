@@ -8,6 +8,9 @@ function CrossoverSDT
 %%%          50 TP and 50 TA trials at Noise Levels: 10:10:90
 %%%
 %%% 03/03/06 Changed timing of presentation to 160 ms flag, 80 ISI, 80 stim
+%%% 03/23/06 DEF: 1. cleaned up window opening code
+%%%               2. added 2v5 task
+%%% 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %clear everything before you begin
@@ -26,16 +29,30 @@ ttr=10;
 bcolor=[128 128 128];
 c1=[200 150 250];
 cuecolor=[0 0 100];
-[fullwin,screenRect]=SCREEN(0,'OpenWindow',0,[],32);
-%screenX and screenY are determined by the resolution of the main window
-screenX=screenRect(1,3);
-screenY=screenRect(1,4);
 
-centx=screenX/2;
-centy=screenY/2;
+%%% % We used to open a full-screen window in order to determine the
+%%% % center of the display, but this is inefficient.  Also note that the
+%%% % full-screen rect was computed from display 0, while the actual window
+%%% % was opened on the highest-numbered display, meaning that the display
+%%% % wouldn't be centered if you have two monitors that weren't the same
+%%% % size.
+%%%
+%%% [fullwin,screenRect]=SCREEN(0,'OpenWindow',0,[],32);
+%%% 
+%%% %screenX and screenY are determined by the resolution of the main window
+%%% screenX=screenRect(1,3);
+%%% screenY=screenRect(1,4);
+%%% 
+%%% centx=screenX/2;
+%%% centy=screenY/2;
+%%% screenNumber = max(Screen('Screens'));
+%%% [win1,screenRect]=SCREEN(screenNumber,'OpenWindow',0,[centx-512 centy-359 centx+512 centy+359],32);
 
+% a different way to center the screen rect is this:
 screenNumber = max(Screen('Screens'));
-[win1,screenRect]=SCREEN(screenNumber,'OpenWindow',0,[centx-512 centy-359 centx+512 centy+359],32);
+fullRect = Screen(screenNumber, 'Rect');
+screenRect = CenterRect([0 0 1024 768], fullRect);
+[win1,screenRect] = Screen(screenNumber, 'OpenWindow', 0, screenRect, 32);
 
 SCREEN(win1,'TextSize',24);
 SCREEN(win1,'FillRect',128);
@@ -69,9 +86,9 @@ ymove=0; % shifts the display up the screen
 
 
 %get input
-prompt={'Enter initials:','1=Color, 2=Ori, 3-Conj, 4-TLconj, 5-TvL, 6-easyTvL','Practice Trials:','Number Reversals Until Stable','Trials Per Cell After Stable',...
+prompt={'Enter initials:','1=Col,2=Ori,3-Conj,4-TLconj,5-TvL,6-easyTvL,7-2v5','Practice Trials:','Number Reversals Until Stable','Trials Per Cell After Stable',...
 'proportion noise (0-1)','noise UP step', 'noise DOWN step', 'color1','color2','orient1','orient2','palmerStyle 0=AccNo 1=AccYes, 2=RTno, 3=RTyes '};
-def={['x' num2str(randi(100))],'3','50','20','50','.5','.025','.1','255 255 0', '0 255 255','0','90','1'};
+def={['x' num2str(randi(100))],'3','50','20','50','.5','.025','.1','170 170 170', '0 255 255','0','90','1'};
 title='Input Variables';
 lineNo=1;
 userinput=inputdlg(prompt,title,lineNo,def,'on');
@@ -281,6 +298,22 @@ eL(4)=SCREEN(win1,'OpenOffscreenWindow',bcolor,[0 0 100 100]);
 SCREEN(eL(4),'FillRect',c1,[0 80 100 100]);
 SCREEN(eL(4),'FillRect',c1,[0 0 20 100]);
 
+
+% 2 vs. 5, color 1
+two = Screen(win1, 'OpenOffscreenWindow', bcolor, [0 0 100 100]);
+Screen(two, 'FillRect', c1, [  0   0 100  20]);
+Screen(two, 'FillRect', c1, [  0  40 100  60]);
+Screen(two, 'FillRect', c1, [  0  80 100 100]);
+Screen(two, 'FillRect', c1, [ 80   0 100  60]);
+Screen(two, 'FillRect', c1, [  0  40  20 100]);
+five = Screen(win1, 'OpenOffscreenWindow', bcolor, [0 0 100 100]);
+Screen(five, 'FillRect', c1, [  0   0 100  20]);
+Screen(five, 'FillRect', c1, [  0  40 100  60]);
+Screen(five, 'FillRect', c1, [  0  80 100 100]);
+Screen(five, 'FillRect', c1, [  0   0  20  60]);
+Screen(five, 'FillRect', c1, [ 80  40 100 100]);
+
+
 % Conj stimuli
 o1x1=50-(40*sin(or1/57.2958));
 o1x2=50+(40*sin(or1/57.2958));
@@ -364,11 +397,12 @@ tstr{3}='Conj';
 tstr{4}='TvLConj';
 tstr{5}='TvL';
 tstr{6}='easyTvL';
+tstr{7}='2v5';
 
 
 cond=[tstr{taskflag}];
 
-fileName1 = ['CrossoverSDT7_',tstr{taskflag},num2str(palmerFlag),'_', sinit];
+fileName1 = ['CrossoverSDT7b_',tstr{taskflag},num2str(palmerFlag),'_', sinit];
 fid1=fopen(fileName1, 'a');
 
 %datastr1='sinit\tcond\tpalmerFlag\tcolor1\tcolor2\torient1\torient2\tvarOrient1\tvarOrient2\trefreshDur\tstimdur\tnRefreshes\tstimmaskISI';
@@ -405,6 +439,8 @@ elseif taskflag==5
 	CenterText('You are looking for a T among Ls',0,top+txsz*1.5*1,[255 255 0]);
 elseif taskflag==6 
 	CenterText('You are looking for a T among Ls',0,top+txsz*1.5*1,[255 255 0]);	
+elseif taskflag==7
+	CenterText('You are looking for a 2 among 5s',0,top+txsz*1.5*1,[255 255 0]);	
 end	
 CenterText('A target is present on 50% of the trials',0,top+txsz*1.5*5,[255 255 0]);	
 CenterText('Hit the quote key if you think a  target is present',0,top+txsz*1.5*6,[255 255 0]);	
@@ -609,6 +645,8 @@ for a=1:2
 				SCREEN('COPYWINDOW',Tc1(randi(4)), stim,[0 0 100 100], cell{loc(1)});%put the Tc1 into the window
 			elseif  taskflag==6  % tvl 
 				SCREEN('COPYWINDOW',Tc1(randi(4)), stim,[0 0 100 100], cell{loc(1)});%put the Tc1 into the window
+			elseif taskflag==7 % 2v5
+				Screen('CopyWindow', two, stim,[0 0 100 100], cell{loc(1)});%put the 2 into the window
 			end
 			Tloc=loc(1);
 		else
@@ -624,6 +662,8 @@ for a=1:2
 				SCREEN('COPYWINDOW',Lc1(randi(4)), stim,[0 0 100 100], cell{loc(1)});%put the Lc1 into the window
 			elseif  taskflag==6  % tvl 
 				SCREEN('COPYWINDOW',eL(randi(4)), stim,[0 0 100 100], cell{loc(1)});%put the Lc1 into the window
+			elseif taskflag==7 % 2v5
+				Screen('CopyWindow', five, stim,[0 0 100 100], cell{loc(1)});%put the 5 into the window
 			end
 			Tloc=999;	% mark an absent trial
 		end
@@ -648,6 +688,8 @@ for a=1:2
 				SCREEN('COPYWINDOW',Lc1(randi(4)), stim,[0 0 100 100], cell{cueAt(i)});%put the Lc1 into the window
 			elseif taskflag==6 % easyTvL
 				SCREEN('COPYWINDOW',eL(randi(4)), stim,[0 0 100 100], cell{cueAt(i)});%put the Lc1 into the window
+			elseif taskflag==7 % 2v5
+				Screen('CopyWindow', five, stim,[0 0 100 100], cell{cueAt(i)});%put the 5 into the window
 			end
 		end
 		cueNot=[];
@@ -678,6 +720,8 @@ for a=1:2
 					SCREEN('COPYWINDOW',Lc1(randi(4)), stim,[0 0 100 100], cell{cueNot(i)});%put the Lc1 into the window
 				elseif taskflag==6 % easy TvL
 					SCREEN('COPYWINDOW',eL(randi(4)), stim,[0 0 100 100], cell{cueNot(i)});%put the Lc1 into the window
+                                elseif taskflag==7 % 2v5
+                                   Screen('CopyWindow',five, stim,[0 0 100 100], cell{cueNot(i)});%put the 5 into the window
 				end
 			end
 		end
