@@ -95,10 +95,10 @@ for nsub = 1:length(Subjects)
          ci(s, 2) = 1.96 * sqrt(var(noise(filter & target)) / n(s, 2));
       end % loop over setsizes
 
-      fprintf('Cond      SetSize Target Num     Noise\n');
+      fprintf('Cond      SetSize Target Num     Noise    95%%-CI\n');
       for s = 1:length(SetSizes)
          for i = 1:2
-            fprintf('%-10s %5.0f %5d %5.0f %10.6f\n', cond, SetSizes(s), i - 1, n(s, i), y(s, i));
+            fprintf('%-10s%5.0f%7d%6.0f%11.6f%10.6f\n', cond, SetSizes(s), i - 1, n(s, i), y(s, i), ci(s, i));
          end
       end
 
