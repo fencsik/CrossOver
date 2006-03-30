@@ -139,16 +139,30 @@ try
       colBackground = repmat(colBackground, 1, 3);
    end
    if taskflag == 7
+      %%% 2 vs. 5
+
+      % generate basic components
       col = reshape(colStim, 1, 1, 3);
-      mat = repmat(reshape(colBackground, 1, 1, 3), [100, 100, 1]);
       vbar = repmat(col, [20, 100, 1]);
       hbar = repmat(col, [40,  20, 1]);
+
+      % generate 2
+      mat = repmat(reshape(colBackground, 1, 1, 3), [100, 100, 1]);
+      mat( 1:20 , :, :) = vbar;
+      mat(41:60 , :, :) = vbar;
+      mat(81:100, :, :) = vbar;
+      mat( 1:40 , 81:100, :) = hbar;
+      mat(61:100,  1:20 , :) = hbar;
+      texTwo = Screen('MakeTexture', winMain, mat);
+      
+      % generate 5
+      mat = repmat(reshape(colBackground, 1, 1, 3), [100, 100, 1]);
       mat( 1:20 , :, :) = vbar;
       mat(41:60 , :, :) = vbar;
       mat(81:100, :, :) = vbar;
       mat( 1:40 ,  1:20 , :) = hbar;
       mat(61:100, 81:100, :) = hbar;
-      texStim = Screen('MakeTexture', winMain, mat);
+      texFive = Screen('MakeTexture', winMain, mat);
    else
       error(sprintf('taskflag %d does not exist', taskflag));
    end
@@ -167,7 +181,7 @@ try
    displayX = RectWidth(rectDisplay);
    displayY = RectHeight(rectDisplay);
 
-   noise = 0.5;
+   noise = 1.0;
    noiseStep1 = 0.001;
    noiseStep2 = 0.01;
    noiseStep3 = 0.1;
@@ -189,6 +203,7 @@ try
 
    %texNoise = Screen('MakeTexture', winMain, mat);
 
+   tloc = Randi(nStimCells);
    done = 0;
    while ~done
       matMask = repmat(255, size(matNoise, 1), size(matNoise, 2));
@@ -198,11 +213,12 @@ try
 
       Screen('FillRect', winMain, colBackground, rectDisplay);
       for n = 1:nStimCells
-         Screen('DrawTexture', winMain, texStim, [], stimCells(n, :));
+         Screen('DrawTexture', winMain, texFive, [], stimCells(n, :));
       end
+      Screen('DrawTexture', winMain, texTwo, [], stimCells(tloc, :));
       % Screen('DrawTexture', winMain, texNoise, [], rectDisplay, [], [], noise);
       Screen('DrawTexture', winMain, texNoise, [], rectDisplay);
-      CenterText(winMain, sprintf('%7.5f', noise), colForeground, 0, displayY / 2 + 50);
+      CenterText(winMain, sprintf('%7.5f', noise), colForeground, displayX / 2, 0);
       Screen('Flip', winMain);
       
       while 1
@@ -436,7 +452,7 @@ try
       Screen('FillRect', winMain, colBackground, rectDisplayCentered);
       Screen('FrameRect', winMain, colFrame, rectDisplayCentered);
       for n = 1:ss1
-         Screen('DrawTexture', winMain, texStim(stimIndex1(n)), rectStim, rect(n, :));
+         Screen('DrawTexture', winMain, texFive(stimIndex1(n)), rectStim, rect(n, :));
          WaitSecs(0.001); % free up CPU for other tasks
       end
       % CenterText(winMain, sprintf('%s%s', colorNames{colorIndex1(1)}, shapeNames{shapeIndex1(1)}), ...
@@ -461,7 +477,7 @@ try
       Screen('FillRect', winMain, colBackground, rectDisplayCentered);
       Screen('FrameRect', winMain, colFrame, rectDisplayCentered);
       for n = 1:ss2
-         Screen('DrawTexture', winMain, texStim(stimIndex2(n)), rectStim, rect(n, :));
+         Screen('DrawTexture', winMain, texFive(stimIndex2(n)), rectStim, rect(n, :));
          WaitSecs(0.001); % free up CPU for other tasks
       end
       % CenterText(winMain, sprintf('%s%s', colorNames{colorIndex2(1)}, shapeNames{shapeIndex2(1)}), ...
