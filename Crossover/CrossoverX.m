@@ -6,7 +6,7 @@ function CrossoverX
 % $LastChangedDate$
 
 experiment = 'Test01';
-Version = '0.1';
+Version = '0.2';
 
 %%% %%% Dialog box
 %%% dlgParam = {'subject'           , 'Subject'                          , 'xxx';
@@ -31,18 +31,33 @@ Version = '0.1';
 
 % Set any remaining parameters
 subject = 'def';
+taskflag = 7;
 expTrials = 4;
 praTrials = 0;
-setSizeList = [2 4 8];
-taskflag = 7;
+targetList = 1; %[0 1];
+setSizeList = [4 8];
+noiseLevelList = [.5 .25 .75];
+nStaircases = 0;
+stairStepError = -0.10;
+stairStepCorrect = 0.025;
+
+% control how stimuli are presented and cued
+noiseFlag     = 1; % 0 = none, 1 = % of noise pixels, 2 = transparency of noise texture
+noiseCellFlag = 1; % 0 = whole display, 1 = per cell
+pedestalFlag  = 1; % 0 = none, 1 = square, 2 = circle
+precueFlag    = 0; % 0 = none, 1 = square, 2 = arc
+allstimFlag   = 0; % 0 = only show S stim, 1 = always fill all cue locations
+balanceFlag   = 0; % 0 = random stim locations, 1 = balanced L-R locations
 
 % define timings (sec)
-durPreTrial  = 0.745;
-durFixation  = 0.745;
-durDisplay1  = 0.180;
-durISI       = 0.995;
-durDisplay2  = 2.000;
-durFeedback  = 0.745;
+durPreTrial   = 0.745;
+durFixation   = 0.745;
+durSSCues     = 0.080;
+durPostSSCues = 0.240;
+durStim       = 0.500;
+durISI        = 0.080;
+durFeedback   = 0.745;
+durPostTrial  = 0.745;
 
 % stimulus set-up
 % Note: distance -> pixel sizes (17" monitor, 1024x768 resolution)
@@ -51,14 +66,15 @@ durFeedback  = 0.745;
 %  53 cm -> 30.07 pix/deg ---  52 cm -> 29.50 pix/deg
 stimRadius = 256;
 nStimMax = 12;
-rectStim = [0 0 128 128];
+rectStim = [0 0 100 100];
+rectPedestal = [0 0 120 120];
 rectDisplay = [0 0 500 500];
 sizeStimX = RectWidth(rectStim);
 sizeStimY = RectHeight(rectStim);
 
 % response set-up
-responseTA = 227;   % 'LeftGUI'  == left Apple-key
-responseTP = 231;   % 'RightGUI' == right Apple-key
+response0 = 227;   % 'LeftGUI'  == left Apple-key
+response1 = 231;   % 'RightGUI' == right Apple-key
 respUp3 = 228;     % RightControl
 respUp2 = 230;     % RightAlt
 respUp1 = 231;     % RightGUI
@@ -66,9 +82,13 @@ respDown1 = 227;   % LeftGUI
 respDown2 = 226;   % LeftAlt
 respDown3 = 224;   % LeftControl
 respQuit = 41;     % ESCAPE
-% responseTA = 4;  % 'a'  == "a" key
-% responseTP = 52; % ''"' == quote key
-allowedResponses = [responseTA responseTP];
+% response0 = 4;  % 'a'  == "a" key
+% response1 = 52; % ''"' == quote key
+allowedResponses = [response0 response1];
+
+% stimulus presentation modes
+mdDetect = 1; % target present on half of trials, remaining stim are distractors
+mdIdentify = 2; % two target classes, one present on every trial, remaining are distractors
 
 % misc set-up
 seed = sum(100*clock);
@@ -87,7 +107,7 @@ sndClick = MakeBeep(1000, .01);
 
 % system tests
 if exist('IsOSX') ~= 2 || ~IsOSX
-   error(sprintf('%s can only be run in OSX versions of Psychtoolbox', mfilename));
+   error('%s can only be run in OSX versions of Psychtoolbox', mfilename);
 end
 AssertOpenGL;
 
@@ -120,8 +140,9 @@ try
    colGreen = [0 150 0];
    colYellow = [255 255 0];
    colForeground = colWhite;
-   colBackground = colDarkGray;
+   colBackground = colGray;
    colFrame = colBackground;
+   colPedestal = colRed;
    colFixation = colForeground;
    colStim = [170 170 170];
    
@@ -135,130 +156,122 @@ try
    Screen('Flip', winMain);
 
    % Generate stimuli
-   if prod(size(colBackground)) == 1
+   if numel(colBackground) == 1
       colBackground = repmat(colBackground, 1, 3);
    end
-   if taskflag == 7
+   if taskflag == 1
+      error('taskflag %d does not exist', taskflag);
+   elseif taskflag == 2
+      % orientation
+      mat = repmat(255, [100, 100, 4]);
+      mat(:, :, 1:3) = repmat(reshape(colBackground, 1, 1, 3), [100, 100, 1]);
+      mat(:, 41:60, 1:3) = repmat(reshape(colStim, 1, 1, 3), [100, 20, 1]);
+      mat(:, 41:50, 4) = repmat(0, [100, 20, 1]);
+
+      stimTextureT = Screen('MakeTexture', winMain, mat);
+      stimTextureD = stimTextureT;
+      stimAngleT = 20;
+      stimAngleD = 0;
+
+      stimMode = mdDetect;
+      responseString0 = 'absent';
+      responseString1 = 'present';
+   elseif taskflag == 7
       %%% 2 vs. 5
 
       % generate basic components
-      col = reshape(colStim, 1, 1, 3);
+      col = reshape([colStim 255], 1, 1, 4);
       vbar = repmat(col, [20, 100, 1]);
       hbar = repmat(col, [40,  20, 1]);
 
       % generate 2
-      mat = repmat(reshape(colBackground, 1, 1, 3), [100, 100, 1]);
+      mat = repmat(0, [100, 100, 4]);
+      mat(:, :, 1:3) = repmat(reshape(colBackground, 1, 1, 3), [100, 100, 1]);
       mat( 1:20 , :, :) = vbar;
       mat(41:60 , :, :) = vbar;
       mat(81:100, :, :) = vbar;
       mat( 1:40 , 81:100, :) = hbar;
       mat(61:100,  1:20 , :) = hbar;
-      texTwo = Screen('MakeTexture', winMain, mat);
+      stimTextureT = Screen('MakeTexture', winMain, mat);
+      stimAngleT = 0;
       
       % generate 5
-      mat = repmat(reshape(colBackground, 1, 1, 3), [100, 100, 1]);
+      mat = repmat(0, [100, 100, 4]);
+      mat(:, :, 1:3) = repmat(reshape(colBackground, 1, 1, 3), [100, 100, 1]);
       mat( 1:20 , :, :) = vbar;
       mat(41:60 , :, :) = vbar;
       mat(81:100, :, :) = vbar;
       mat( 1:40 ,  1:20 , :) = hbar;
       mat(61:100, 81:100, :) = hbar;
-      texFive = Screen('MakeTexture', winMain, mat);
+      stimTextureD = Screen('MakeTexture', winMain, mat);
+      stimAngleD = 0;
+
+      stimMode = mdDetect;
+      responseString0 = 'absent';
+      responseString1 = 'present';
    else
-      error(sprintf('taskflag %d does not exist', taskflag));
+      error('taskflag %d does not exist', taskflag);
    end
 
+   % define stimulus presentation cells
    nStimCells = 8;
    radiusStimCells = 256;
+   expansionFactor = 1.0;
    stimCells = zeros(nStimCells, 4);
+   pedCells = stimCells;
    for n = 1:nStimCells
-      stimCells(n, :) = CenterRectOnPoint([0 0 100 100], ...
-                                          centerX + radiusStimCells * sin((n - 1) * 2 * pi / nStimCells), ...
-                                          centerY + radiusStimCells * cos((n - 1) * 2 * pi / nStimCells));
+      stimCells(n, :) = CenterRectOnPoint(rectStim, ...
+                                          centerX + round(radiusStimCells * sin((n - 1) * 2 * pi / nStimCells)), ...
+                                          centerY + round(radiusStimCells * cos((n - 1) * 2 * pi / nStimCells)));
+      pedCells(n, :) = CenterRectOnPoint(rectPedestal, ...
+                                          centerX + round(radiusStimCells * sin((n - 1) * 2 * pi / nStimCells)), ...
+                                          centerY + round(radiusStimCells * cos((n - 1) * 2 * pi / nStimCells)));
    end
-   expansion = 100;
-   rectDisplay = [min(stimCells(:, 1)) - expansion, min(stimCells(:, 2)) - expansion, ...
-                  max(stimCells(:, 3)) + expansion, max(stimCells(:, 4)) + expansion];
-   displayX = RectWidth(rectDisplay);
-   displayY = RectHeight(rectDisplay);
-
-   noise = 1.0;
-   noiseStep1 = 0.001;
-   noiseStep2 = 0.01;
-   noiseStep3 = 0.1;
-
-   matNoise = repmat(255, [displayY, displayX, 4]);
-   matNoise(:, :, 1:3) = repmat(ceil(255 * rand(displayY, displayX)), [1, 1, 3]);
-   %mat(226:275, 226:275, 4) = 0;
-   matCenterX = displayX / 2;
-   matCenterY = displayY / 2;
    
-   matBounds = repmat(1, [size(matNoise, 1), size(matNoise, 2)]);
-   for x = 1:size(matBounds, 2)
-      for y = 1:size(matBounds, 1)
-         if sqrt((x - matCenterX)^2 + (y - matCenterY)^2) > radiusStimCells + 80
-            matBounds(y, x) = 0;
-         end
-      end
+   % compute square rect needed to contain all stimulus cells
+   extraRadius = ceil( sqrt( (.5 * RectWidth(pedCells(1, :)))^2 + (.5 * RectHeight(pedCells(1, :)))^2 ) );
+   stimAreaDiameter = ceil(2 * expansionFactor * (radiusStimCells + extraRadius));
+   rectDisplay = CenterRect([0 0 stimAreaDiameter stimAreaDiameter], rectMain);
+
+   % draw a sample of the display area
+   Screen('FillRect', winMain, colBackground);
+   Screen('FillOval', winMain, colFixation, CenterRect([0 0 10 10], rectMain));
+   for n = 1:nStimCells
+      Screen('FillRect', winMain, colForeground, stimCells(n, :));
+      Screen('DrawText', winMain, int2str(n), stimCells(n, RectLeft) + 30, stimCells(n, RectBottom) - 50, colBackground);
    end
+   Screen('FrameOval', winMain, colRed, rectDisplay);
+   Screen('Flip', winMain);
+   WaitSecs(.25);
 
-   %texNoise = Screen('MakeTexture', winMain, mat);
-
-   tloc = Randi(nStimCells);
-   done = 0;
-   while ~done
-      matMask = repmat(255, size(matNoise, 1), size(matNoise, 2));
-      matMask(rand(size(matMask)) > noise) = 0;
-      matNoise(:, :, 4) = matMask .* matBounds;
-      texNoise = Screen('MakeTexture', winMain, matNoise);
-
-      Screen('FillRect', winMain, colBackground, rectDisplay);
-      for n = 1:nStimCells
-         Screen('DrawTexture', winMain, texFive, [], stimCells(n, :));
-      end
-      Screen('DrawTexture', winMain, texTwo, [], stimCells(tloc, :));
-      % Screen('DrawTexture', winMain, texNoise, [], rectDisplay, [], [], noise);
-      Screen('DrawTexture', winMain, texNoise, [], rectDisplay);
-      CenterText(winMain, sprintf('%7.5f', noise), colForeground, displayX / 2, 0);
-      Screen('Flip', winMain);
-      
-      while 1
-         [keyDown, keyTime, keyCode] = KbCheck;
-         if keyDown
-            resp = find(keyCode);
-            if resp == respQuit
-               done = 1;
-               break;
-            elseif resp == respUp3
-               noise = min(1, noise + noiseStep3);
-               break;
-            elseif resp == respUp2
-               noise = min(1, noise + noiseStep2);
-               break;
-            elseif resp == respUp1
-               noise = min(1, noise + noiseStep1);
-               break;
-            elseif resp == respDown1
-               noise = max(0, noise - noiseStep1);
-               break;
-            elseif resp == respDown2
-               noise = max(0, noise - noiseStep2);
-               break;
-            elseif resp == respDown3
-               noise = max(0, noise - noiseStep3);
-               break;
+   sx = RectWidth(rectDisplay);
+   sy = RectHeight(rectDisplay);
+   %matTransparency = repmat(255, 
+   if noiseFlag == 1
+      matNoise = repmat(colWhite*rand(sy, sx), [1, 1, 3]);
+      matNoiseMask = repmat(1, [sy, sx]);
+      radius = stimAreaDiameter / 2;
+      for x = 1:sx
+         for y = 1:sy
+            if floor(sqrt( (x - sx / 2)^2 + (y - sy / 2)^2 )) > radius
+               matNoiseMask(y, x) = 0;
             end
          end
       end
-      Screen('Close', texNoise);
-%       while keyDown
-%          [keyDown, keyTime, keyCode] = KbCheck;
-%       end
+   else
+      error('obscureflag = %d is not supported', obscureFlag);
    end
-   
-   ShowCursor;
-   Screen('CloseAll');
-   return;
-               
+
+   % set-up pedestal drawings
+   if pedestalFlag == 1
+      drawPedestals = 1;
+      pedestalCommand = 'FillRect';
+   elseif pedestalFlag == 2
+      drawPedestals = 1;
+      pedestalCommand = 'FillOval';
+   else
+      drawPedestals = 0;
+   end
 
    Screen('FillRect', winMain, colBackground);
    %    CenterText(winMain, 'Press any key to begin.', colForeground);
@@ -266,331 +279,279 @@ try
    Screen('Flip', winMain);
    %    KbWait;
 
-   % balance independent variables
-   ivs = {'setSize'           , setSizeList;
-          'changeType'        , changeTypeList;
-         };
-   nVariables = size(ivs, 1);
-   varLength = zeros(nVariables, 1);
-   listLength = 1;
-   for v = 1:nVariables
-      varLength(v) = length(ivs{v, 2});
-      listLength = listLength * varLength(v);
-   end
-   nRepetitions = ceil(expTrials / listLength);
-   len1 = listLength;
-   len2 = 1;
-   [dummy, index] = sort(rand(listLength * nRepetitions, 1)); 
-   for v = 1:nVariables
-      len1 = len1 / varLength(v);
-      eval([ivs{v, 1} ' = repmat(reshape(repmat(ivs{v, 2}, len1, len2), listLength, 1), nRepetitions, 1);']);
-      eval([ivs{v, 1} ' = ' ivs{v, 1} '(index);']);
-      len2 = len2 * varLength(v);
-   end
-   clear dummy len1 len2 index ivs varLength;
-
-   if listLength * nRepetitions ~= expTrials
-      warning('unbalanced design');
-   end
-
-   priorityLevel = MaxPriority(winMain, 'KbCheck', 'GetSecs');
-   Priority(priorityLevel);
-   % Priority(0);
-
-   nTrials = expTrials + praTrials;
-   for trial = 1:nTrials
-      prepStartTime = GetSecs;
-      trialtime = datestr(now);
-
-      % pre-trial blank
-      Screen('FillRect', winMain, colBackground);
-      Screen('FrameRect', winMain, colFrame, rectDisplay);
-      [t1, lastOnsetTime] = Screen('Flip', winMain);
-      trialOnsetTime = lastOnsetTime;
-
-      % determine trial index
-      if trial <= praTrials
+   for subBlock = 1:2
+      
+      if subBlock == 1
          prac = 1;
-         trialIndex = Randi(expTrials);
+         nTrials = praTrials;
       else
          prac = 0;
-         trialIndex = trial - praTrials;
+         nTrials = expTrials;
       end
-      ss1 = setSize(trialIndex);
-      ss2 = ss1;
+      
+      if nTrials <= 0, continue; end
 
-      % shuffle colors and shapes for display 1
-      if useColor
-         colorIndex1 = repmat(useColor, [1, nColors]);
+      % balance independent variables
+      NumberOfTrials = nTrials;
+      if nStaircases < 1
+         IVs = {'target'            , targetList;
+                'setSize'           , setSizeList;
+                'noiseLevel'        , noiseLevelList;
+               };
       else
-         colorIndex1 = randperm(nColors);
+         IVs = {'target'            , targetList;
+                'setSize'           , setSizeList;
+               };
+      end      
+      nVariables = size(IVs, 1);
+      varLength = zeros(nVariables, 1);
+      listLength = 1;
+      for v = 1:nVariables
+         varLength(v) = length(IVs{v, 2});
+         listLength = listLength * varLength(v);
       end
-      if useShape
-         shapeIndex1 = repmat(useShape, [1, nShapes]);
-      else
-         shapeIndex1 = randperm(nShapes);
+      nRepetitions = ceil(NumberOfTrials / listLength);
+      len1 = listLength;
+      len2 = 1;
+      [dummy, index] = sort(rand(listLength * nRepetitions, 1)); 
+      for v = 1:nVariables
+         len1 = len1 / varLength(v);
+         eval([IVs{v, 1} ' = repmat(reshape(repmat(IVs{v, 2}, len1, len2), listLength, 1), nRepetitions, 1);']);
+         eval([IVs{v, 1} ' = ' IVs{v, 1} '(index);']);
+         len2 = len2 * varLength(v);
       end
+      if listLength * nRepetitions ~= NumberOfTrials
+         warning('unbalanced design');
+      end
+      clear NumberOfTrials IVs nVariables varLength listLength nRepetitions v dummy len1 len2 index;
 
-      % make changes for display 2
-      if changeType(trialIndex) > 0 && changeType(trialIndex) <= length(changeTypeNames)
-         changeTypeString = changeTypeNames{changeType(trialIndex)};
-      else
-         changeTypeString = 'unknown';
-      end
-      isDiff = 1;
-      matchString = 'diff';
-      maxSetSizeExceeded = 0; minSetSizeExceeded = 0;
-      colorIndex2 = colorIndex1;
-      shapeIndex2 = shapeIndex1;
-      switch changeType(trialIndex)
-       case ctSame
-         isDiff = 0;
-         matchString = 'same';
-       case ctSubst1color
-         if ss1 > nColors - 1, maxSetSizeExceeded = nColors - 1;
-         elseif ss1 < 1, minSetSizeExceeded = 1;
-         else
-            colorIndex2(1) = colorIndex1(ss1 + 1);
-         end
-       case ctSubst2color
-         if ss1 > nColors - 2, maxSetSizeExceeded = nColors - 2;
-         elseif ss1 < 2, minSetSizeExceeded = 2;
-         else
-            colorIndex2(1) = colorIndex1(ss1 + 1);
-            colorIndex2(2) = colorIndex1(ss1 + 2);
-         end
-       case ctSubst1shape
-         if ss1 > nShapes - 1, maxSetSizeExceeded = nShapes - 1;
-         elseif ss1 < 1, minSetSizeExceeded = 1;
-         else
-            shapeIndex2(1) = shapeIndex1(ss1 + 1);
-         end
-       case ctSubst2shape
-         if ss1 > nShapes - 2, maxSetSizeExceeded = nShapes - 2;
-         elseif ss1 < 2, minSetSizeExceeded = 2;
-         else
-            shapeIndex2(1) = shapeIndex1(ss1 + 1);
-            shapeIndex2(2) = shapeIndex1(ss1 + 2);
-         end
-       case ctInter2color
-         if ss1 > nColors, maxSetSizeExceeded = nColors;
-         elseif ss1 < 2, minSetSizeExceeded = 2;
-         else
-            colorIndex2(1) = colorIndex1(2);
-            colorIndex2(2) = colorIndex1(1);
-         end
-       case ctInter2shape
-         if ss1 > nShapes, maxSetSizeExceeded = nShapes;
-         elseif ss1 < 2, minSetSizeExceeded = 2;
-         else
-            shapeIndex2(1) = shapeIndex1(2);
-            shapeIndex2(2) = shapeIndex1(1);
-         end
-       case ctAdd1
-         if ss1 > min(nColors, nShapes) - 1, maxSetSizeExceeded = min(nColors, nShapes) - 1;
-         else
-            ss2 = ss1 + 1;
-         end
-       case ctAdd2
-         if ss1 > min(nColors, nShapes) - 2, maxSetSizeExceeded = min(nColors, nShapes) - 2;
-         else
-            ss2 = ss1 + 2;
-         end
-       case ctRemove1
-         if ss1 < 1, minSetSizeExceeded = 1;
-         else
-            ss2 = ss1 - 1;
-         end
-       case ctRemove2
-         if ss1 < 2, minSetSizeExceeded = 2;
-         else
-            ss2 = ss1 - 2;
-         end
-       otherwise
-         error(sprintf('change type %d (%s) not yet implemented', changeType(trialIndex), changeTypeString)); 
-      end
-      if maxSetSizeExceeded > 0
-         error(sprintf('Set size must be no more than %d for %s trials', ...
-                       maxSetSizeExceeded, changeTypeString));
-      end
-      if minSetSizeExceeded > 0
-         error(sprintf('Set size must be at least %d for %s trials', ...
-                       minSetSizeExceeded, changeTypeString));
-      end
+      % set priority level
+      priorityLevel = MaxPriority(winMain, 'KbCheck', 'GetSecs');
+      % Priority(priorityLevel);
+      Priority(0);
 
-      % determine stimulus indexes
-      stimIndex1 = (colorIndex1(1:ss1) - 1) .* nShapes + shapeIndex1(1:ss1);
-      stimIndex2 = (colorIndex2(1:ss2) - 1) .* nShapes + shapeIndex2(1:ss2);
+      for trial = 1:nTrials
+         prepStartTime = GetSecs;
+         trialtime = datestr(now);
 
-      % figure out object placement
-      % rect = MakeGrid(rectDisplayCentered, 4, 4, rectStim, 1, 30, 30);
-      rect = MakeRing(rectMain, rectStim, stimSpacing, stimRadius, 1, 1);
+         ss = setSize(trial);
+         noise = noiseLevel(trial);
+         targ = target(trial);
 
-      prepDur = (GetSecs - prepStartTime) * 1000;
+         if balanceFlag == 0
+            stimloc = stimCells(randperm(nStimCells), :);
+         else
+            error('balanceFlag values of %d are not supported', balanceFlag);
+         end
+         cueloc = stimloc(1:ss);
+         
+         if allstimFlag == 0;
+            nStim = ss;
+         else
+            nStim = nStimCells;
+         end
+         
+         texture = zeros(nStimCells, 1);
+         angle = zeros(nStimCells, 1);
+         if stimMode == mdDetect
+            if targ
+               % select target stimuli
+               index = Randi(length(stimTextureT));
+               texture(1) = stimTextureT(index);
+               angle(1) = stimAngleT(index);
+               % define index for remaining stimuli
+               index = Randi(length(stimTextureD), size(texture));
+               texture(2:nStimCells) = stimTextureD(index(2:nStimCells));
+               angle(2:nStimCells) = stimAngleD(index(2:nStimCells));
+            else
+               index = Randi(length(stimTextureD), size(texture));
+               texture = stimTextureD(index);
+               angle = stimAngleD(index);
+            end
+         else
+            error('stim mode %d not supported', stimMode);
+         end
 
-      % make sure no keys are pressed
-      [keyDown, keyTime, keyCode] = KbCheck;
-      while keyDown
+         prepDur = (GetSecs - prepStartTime) * 1000;
+
+         % make sure no keys are pressed
          [keyDown, keyTime, keyCode] = KbCheck;
-         WaitSecs(0.001); % free up CPU for other tasks
-      end
-
-      % prepare fixation
-      t1 = GetSecs;
-      Screen('FillRect', winMain, colBackground, rectDisplayCentered);
-      Screen('FrameRect', winMain, colFrame, rectDisplayCentered);
-      Screen('FillOval', winMain, colFixation, rectFixation);
-      Screen('DrawingFinished', winMain);
-      fixationDrawDur = GetSecs - t1;
-      [t1, lastOnsetTime] = Screen('Flip', winMain, lastOnsetTime + durPreTrial);
-      Snd('Play', sndClick);
-      fixationOnsetTime = lastOnsetTime;
-      % fixationOnsetTime = GetSecs;
-
-      % draw display 1
-      t1 = GetSecs;
-      Screen('FillRect', winMain, colBackground, rectDisplayCentered);
-      Screen('FrameRect', winMain, colFrame, rectDisplayCentered);
-      for n = 1:ss1
-         Screen('DrawTexture', winMain, texFive(stimIndex1(n)), rectStim, rect(n, :));
-         WaitSecs(0.001); % free up CPU for other tasks
-      end
-      % CenterText(winMain, sprintf('%s%s', colorNames{colorIndex1(1)}, shapeNames{shapeIndex1(1)}), ...
-      %            colForeground, 0, 120);
-      Screen('DrawingFinished', winMain);
-      display1DrawDur = GetSecs - t1;
-      [t1, lastOnsetTime] = Screen('Flip', winMain, lastOnsetTime + durFixation);
-      display1OnsetTime = lastOnsetTime;
-      % display1OnsetTime = GetSecs;
-
-      % ISI
-      t1 = GetSecs;
-      Screen('FillRect', winMain, colBackground, rectDisplayCentered);
-      Screen('FrameRect', winMain, colFrame, rectDisplayCentered);
-      Screen('DrawingFinished', winMain);
-      isiDrawDur = GetSecs - t1;
-      [t1, lastOnsetTime] = Screen('Flip', winMain, lastOnsetTime + durDisplay1);
-      isiOnsetTime = lastOnsetTime;
-      % isiOnsetTime = GetSecs;
-
-      % draw display 2
-      Screen('FillRect', winMain, colBackground, rectDisplayCentered);
-      Screen('FrameRect', winMain, colFrame, rectDisplayCentered);
-      for n = 1:ss2
-         Screen('DrawTexture', winMain, texFive(stimIndex2(n)), rectStim, rect(n, :));
-         WaitSecs(0.001); % free up CPU for other tasks
-      end
-      % CenterText(winMain, sprintf('%s%s', colorNames{colorIndex2(1)}, shapeNames{shapeIndex2(1)}), ...
-      %            colForeground, 0, 120);
-      Screen('DrawingFinished', winMain);
-      display2DrawDur = GetSecs - t1;
-      [t1, lastOnsetTime] = Screen('Flip', winMain, lastOnsetTime + durISI);
-      display2OnsetTime = lastOnsetTime;
-      % display2OnsetTime = GetSecs;
-
-      % wait for response
-      [keyDown, keyTime, keyCode] = KbCheck;
-      while ~keyDown
-         [keyDown, keyTime, keyCode] = KbCheck;
-         WaitSecs(0.001); % free up CPU for other tasks
-      end
-      Screen('FillRect', winMain, colBackground, rectDisplayCentered);
-      Screen('FrameRect', winMain, colFrame, rectDisplayCentered);
-      [t1, lastOnsetTime] = Screen('Flip', winMain);
-      display2OffsetTime = lastOnsetTime;
-      
-      responseOnsetTime = keyTime;
-      responseCode = find(keyCode);
-      responseCode = responseCode(1);
-
-      % process response
-      rt = (responseOnsetTime - display2OnsetTime) * 1000;
-      if responseCode == responseSame
-         responseString = 'same';
-         if isDiff
-            acc = 0;
-         else
-            acc = 1;
+         while keyDown
+            [keyDown, keyTime, keyCode] = KbCheck;
+            WaitSecs(0.001); % free up CPU for other tasks
          end
-      elseif responseCode == responseDiff
-         responseString = 'diff';
-         if isDiff
-            acc = 1;
-         else
-            acc = 0;
+
+         % pretrial blank
+         Screen('FillRect', winMain, colBackground);
+         if drawPedestals
+            for n = 1:nStimCells
+               Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
+            end
          end
-      else
-         % non-response key pressed
-         responseString = KbName(responseCode);
-         acc = -1;
-      end
+         Screen('DrawingFinished', winMain);
+         [t1, tLastOnset] = Screen('Flip', winMain);
+         trialOnsetTime = tLastOnset;
+         tNextOnset = tLastOnset + durPreTrial;
 
-      % prepare feedback
-      if acc == 0
-         feedback = sprintf('TRIAL %d - ERROR', trial);
-         colFeedback = colRed;
-      elseif acc == 1
-         feedback = sprintf('TRIAL %d - CORRECT', trial);
-         colFeedback = colGreen;
-      else
-         colFeedback = colRed;
-         feedback = sprintf('YOU PRESSED A BAD KEY', trial);
-      end
+         % fixation
+         t1 = GetSecs;
+         Screen('FillRect', winMain, colBackground, rectDisplay);
+         if drawPedestals
+            for n = 1:nStimCells
+               Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
+            end
+         end
+         Screen('FillOval', winMain, colFixation, rectFixation);
+         Screen('DrawingFinished', winMain);
+         fixationDrawDur = GetSecs - t1;
+         [t1, tLastOnset] = Screen('Flip', winMain, tNextOnset);
+         Snd('Play', sndClick);
+         fixationOnsetTime = tLastOnset;
+         tNextOnset = tLastOnset + durFixation;
+
+         % draw pre-cues
+
+
+         % draw display
+         t1 = GetSecs;
+         Screen('FillRect', winMain, colBackground, rectDisplay);
+         if drawPedestals
+            for n = 1:nStimCells
+               Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
+            end
+         end
+         for n = 1:nStim
+            Screen('DrawTexture', winMain, texture(n), [], stimloc(n, :), angle(n));
+         end
+         Screen('FillOval', winMain, colFixation, rectFixation);
+         Screen('DrawingFinished', winMain);
+         displayDrawDur = GetSecs - t1;
+         [t1, tLastOnset] = Screen('Flip', winMain, tNextOnset);
+         displayOnsetTime = tLastOnset;
+         tNextOnset = tLastOnset + durStim;
+
+         % ISI
+         t1 = GetSecs;
+         Screen('FillRect', winMain, colBackground, rectDisplay);
+         if drawPedestals
+            for n = 1:nStimCells
+               Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
+            end
+         end
+         Screen('FillOval', winMain, colFixation, rectFixation);
+         Screen('DrawingFinished', winMain);
+         isiDrawDur = GetSecs - t1;
+         [t1, tLastOnset] = Screen('Flip', winMain, tNextOnset);
+         isiOnsetTime = tLastOnset;
+         tNextOnset = tLastOnset + durISI;
+         
+         % mask
+
+         % collect response
+         while 1
+            [keyDown, keyTime, keyCode] = KbCheck;
+            if keyDown && any(keyCode(allowedResponses))
+               break;
+            end
+            WaitSecs(0.001); % free up CPU for other tasks
+         end
+         Screen('FillRect', winMain, colBackground, rectDisplay);
+         [t1, lastOnsetTime] = Screen('Flip', winMain);
+         maskOffsetTime = lastOnsetTime;
       
-      % present feedback
-      Screen('FillRect', winMain, colBackground, rectDisplayCentered);
-      Screen('FrameRect', winMain, colFrame, rectDisplayCentered);
-      CenterText(winMain, feedback, colFeedback, 0, -50);
-      [t1, lastOnsetTime] = Screen('Flip', winMain);
-      feedbackOnsetTime = lastOnsetTime;
-      
-      durExtraFeedback = 0;
-      if acc == -1
-         durExtraFeedback = 0.300;
-         Snd('Play', sndBeep);
-         Snd('Play', sndBeep);
-         Snd('Play', sndBeep);
-      end
+         responseOnsetTime = keyTime;
+         responseCode = find(keyCode);
 
-      % compute durations and convert to milliseconds
-      fixationDur = (display1OnsetTime - fixationOnsetTime) * 1000;
-      display1Dur = (isiOnsetTime - display1OnsetTime) * 1000;
-      isiDur = (display2OnsetTime - isiOnsetTime) * 1000;
-      display2Dur = (display2OffsetTime - display2OnsetTime) * 1000;
-      display1DrawDur = display1DrawDur * 1000;
-      display2DrawDur = display2DrawDur * 1000;
+         % process response
+         rt = (responseOnsetTime - displayOnsetTime) * 1000;
+         if numel(responseCode) > 1
+            responseString = 'multi';
+            acc = -1;
+         elseif responseCode == response0
+            responseString = responseString0;
+            if targ
+               acc = 0;
+            else
+               acc = 1;
+            end
+         elseif responseCode == response1
+            responseString = responseString1;
+            if targ
+               acc = 1;
+            else
+               acc = 0;
+            end
+         else
+            % non-response key pressed
+            responseString = KbName(responseCode);
+            acc = -1;
+         end
 
-      % output data
-      dataFile = fopen(dataFileName, 'r');
-      if dataFile == -1
-         header = ['exp,code,version,sub,computer,blocktime,prac,trial,trialtime,' ...
-                   'refreshdur,ss1,ss2,match,changetype,resp,acc,rt,' ...
-                   'priority,prepdur,fixationdur,disp1dur,isidur,disp2dur,disp1drawdur,disp2drawdur'];
-      else
-         fclose(dataFile);
-         header = [];
-      end
-      dataFile = fopen(dataFileName, 'a');
-      if dataFile == -1
-         error(sprintf('cannot open data file %s for writing', dataFileName));
-      end
-      if ~isempty(header)
-         fprintf(dataFile, '%s\n', header);
-      end
-      %                  %exp     %sub     %prac    %refreshdur    %resp             %prepdur    %disp1dur         %disp1drawdur
-      fprintf(dataFile, '%s,%s,%s,%s,%s,%f,%d,%d,%s,%0.3f,%d,%d,%s,%s,%s,%d,%0.1f,%0.0f,%0.3f,%0.3f,%0.3f,%0.3f,%0.3f,%0.3f,%0.3f\n', ...
-              experiment, mfilename, Version, subject, computer, blocktime, prac, trial, trialtime, ...
-              refreshDuration * 1000, ss1, ss2, matchString, changeTypeString, responseString, acc, rt, ...
-              Priority, prepDur, fixationDur, display1Dur, isiDur, display2Dur, display1DrawDur, display2DrawDur);
-      fclose(dataFile);
+         % prepare feedback
+         if acc == 0
+            feedback = sprintf('TRIAL %d - ERROR', trial);
+            colFeedback = colRed;
+         elseif acc == 1
+            feedback = sprintf('TRIAL %d - CORRECT', trial);
+            colFeedback = colGreen;
+         else
+            colFeedback = colRed;
+            feedback = sprintf('YOU PRESSED A BAD KEY', trial);
+         end
+         
+         % present feedback
+         Screen('FillRect', winMain, colBackground, rectDisplayCentered);
+         Screen('FrameRect', winMain, colFrame, rectDisplayCentered);
+         CenterText(winMain, feedback, colFeedback, 0, -50);
+         [t1, lastOnsetTime] = Screen('Flip', winMain);
+         feedbackOnsetTime = lastOnsetTime;
+         
+         durExtraFeedback = 0;
+         if acc == -1
+            durExtraFeedback = 0.300;
+            Snd('Play', sndBeep);
+            Snd('Play', sndBeep);
+            Snd('Play', sndBeep);
+         end
 
-      % clear screen after feedback duration
-      Screen('FillRect', winMain, colBackground, rectDisplayCentered);
-      Screen('FrameRect', winMain, colFrame, rectDisplayCentered);
-      Screen('Flip', winMain, lastOnsetTime + durFeedback + durExtraFeedback);
+         % compute durations and convert to milliseconds
+         fixationDur = (displayOnsetTime - fixationOnsetTime) * 1000;
+         displayDur = (isiOnsetTime - displayOnsetTime) * 1000;
+         isiDur = 0; %(displayOnsetTime - isiOnsetTime) * 1000;
 
-   end
-   Priority(0);
+%%%          % output data
+%%%          dataFile = fopen(dataFileName, 'r');
+%%%          if dataFile == -1
+%%%             header = ['exp,code,version,sub,computer,blocktime,prac,trial,trialtime,' ...
+%%%                       'refreshdur,ss1,ss2,match,changetype,resp,acc,rt,' ...
+%%%                       'priority,prepdur,fixationdur,disp1dur,isidur,disp2dur,disp1drawdur,disp2drawdur'];
+%%%          else
+%%%             fclose(dataFile);
+%%%             header = [];
+%%%          end
+%%%          dataFile = fopen(dataFileName, 'a');
+%%%          if dataFile == -1
+%%%             error('cannot open data file %s for writing', dataFileName);
+%%%          end
+%%%          if ~isempty(header)
+%%%             fprintf(dataFile, '%s\n', header);
+%%%          end
+%%%          %                  %exp     %sub     %prac    %refreshdur    %resp             %prepdur    %disp1dur         %disp1drawdur
+%%%          fprintf(dataFile, '%s,%s,%s,%s,%s,%f,%d,%d,%s,%0.3f,%d,%d,%s,%s,%s,%d,%0.1f,%0.0f,%0.3f,%0.3f,%0.3f,%0.3f,%0.3f,%0.3f,%0.3f\n', ...
+%%%                  experiment, mfilename, Version, subject, computer, blocktime, prac, trial, trialtime, ...
+%%%                  refreshDuration * 1000, ss1, ss2, matchString, changeTypeString, responseString, acc, rt, ...
+%%%                  Priority, prepDur, fixationDur, display1Dur, isiDur, display2Dur, display1DrawDur, display2DrawDur);
+%%%          fclose(dataFile);
+
+         % clear screen after feedback duration
+         Screen('FillRect', winMain, colBackground, rectDisplayCentered);
+         Screen('FrameRect', winMain, colFrame, rectDisplayCentered);
+         Screen('Flip', winMain, lastOnsetTime + durFeedback + durExtraFeedback);
+
+      end % for trial = 1:nTrials
+      Priority(0);
+   end % for subBlock = 1:2
+
 catch
    %this "catch" section executes in case of an error in the "try" section
    %above.  Importantly, it closes the onscreen window if its open.
@@ -625,13 +586,13 @@ function [pos, index] = MakeGrid (rect, rows, cols, stimrect, randomize, xnoise,
 % Author: David E. Fencsik (fencsik@gmail.com)
 % $LastChangedDate$
 
-if prod(size(randomize)) ~= 1
+if numel(randomize) ~= 1
    randomize = 0;
 end
-if nargin < 6 || prod(size(xnoise)) ~= 1
+if nargin < 6 || numel(xnoise) ~= 1
    xnoise = 0;
 end
-if nargin < 7 || prod(size(ynoise)) ~= 1
+if nargin < 7 || numel(ynoise) ~= 1
    ynoise = 0;
 end
 
@@ -694,10 +655,10 @@ function [pos, index] = MakeRing (rect, stimrect, num, radius, randomize, equidi
 % spaced around the circle; otherwise, all N stimuli are equally
 % spaced.
 
-if nargin < 3 || prod(size(randomize)) ~= 1
+if nargin < 3 || numel(randomize) ~= 1
    randomize = 0;
 end
-if nargin < 4 || prod(size(equidistant)) ~= 1
+if nargin < 4 || numel(equidistant) ~= 1
    equidistant = 0;
 end
 
@@ -731,16 +692,16 @@ end
 
 function CenterText (win, string, color, xOffset, yOffset)
 
-if nargin < 2 || prod(size(string)) < 1
-   error(sprintf('Usage: %s (win, string, [color], [xOffset], [yOffset])', mfilename));
+if nargin < 2 || numel(string) < 1
+   error('Usage: %s (win, string, [color], [xOffset], [yOffset])', mfilename);
 end 
 if nargin < 3 || isempty(color)
    color = BlackIndex(win);
 end
-if nargin < 4 || prod(size(xOffset)) ~= 1
+if nargin < 4 || numel(xOffset) ~= 1
    xOffset = 0;
 end
-if nargin < 5 || prod(size(yOffset)) ~= 1
+if nargin < 5 || numel(yOffset) ~= 1
    yOffset = 0;
 end
 
