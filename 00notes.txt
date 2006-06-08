@@ -1,0 +1,11 @@
+List of folders:
+
+* Code: experiment-running code
+
+* crossover01: first crossover experiment with experimenters as
+  subjects; used method of constant stimuli to set noise level for
+  orientation and TvL task, without any evidence of crossover
+
+* crossover02: see above; used staircase throughout run to adjust
+  noise level for orientation, TvL, and 2v5 task, with crossover
+  between 2v5 and the other two
