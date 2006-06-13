@@ -6,7 +6,7 @@ function CrossoverX
 % $LastChangedDate$
 
 experiment = 'Test01';
-Version = '0.3';
+Version = '0.4';
 
 %%% %%% Dialog box
 %%% dlgParam = {'subject'           , 'Subject'                          , 'xxx';
@@ -39,7 +39,7 @@ setSizeList = [4];
 noiseLevelList = [.5 .25 .75];
 
 % staircase parameters
-staircaseFlag = 1;
+staircaseFlag = 0;
 nStaircases = 1;
 nReversals = 20;
 nReversalsUsed = 10;
@@ -147,7 +147,7 @@ try
    colBackground = colLightGray;
    colFrame = colBackground;
    colPedestal = colGray;
-   colFixation = colForeground;
+   colFixation = colRed;
    colStim = [170 170 170];
    
    % other rects
@@ -245,11 +245,11 @@ try
    WaitSecs(.25);
 
    % define transparency masks for noise field
-   if noiseType == 1
+   if noiseType == 1 || noiseType == 2
       % each cell gets its own noise field
       matNoiseTransparency = repmat(255, [pedestalSize, pedestalSize]);
       if pedestalShape == 2
-         radius = stimAreaDiameter / 2;
+         radius = pedestalSize / 2;
          for x = 1:pedestalSize
             for y = 1:pedestalSize
                if floor(sqrt( (x - pedestalSize / 2)^2 + (y - pedestalSize / 2)^2 )) > radius
@@ -258,7 +258,7 @@ try
             end
          end
       end
-   else
+   elseif noiseType == 0
       % one noise field for the whole display
       matNoiseTransparency = repmat(255, [stimAreaDiameter, stimAreaDiameter]);
       if pedestalShape == 2
@@ -271,6 +271,8 @@ try
             end
          end
       end
+   else
+      error('noise type %d not supported', noiseType);
    end
 
    % set-up pedestal drawings
@@ -416,6 +418,27 @@ try
          else
             error('stim mode %d not supported', stimMode);
          end
+         
+         % generate noise fields
+         if noiseType == 0
+            % whole display
+            matNoise = repmat(Randi(256, [stimAreaDiameter, stimAreaDiameter]) - 1, [1, 1, 4]);
+            matNoise(:, :, 4) = matNoiseTransparency;
+            texNoise = Screen('MakeTexture', winMain, matNoise);
+         else
+            % one per stim cell
+            if noiseType == 1
+               n = nStimCells;
+            else
+               n = ss;
+            end
+            matNoise = repmat(matNoiseTransparency, [1, 1, 4]);
+            texNoise = zeros(n, 1);
+            for i = 1:n
+               matNoise(:, :, 1:3) = repmat(Randi(256, [pedestalSize, pedestalSize]) - 1, [1, 1, 3]);
+               texNoise(i) = Screen('MakeTexture', winMain, matNoise);
+            end
+         end
 
          prepDur = (GetSecs - prepStartTime) * 1000;
 
@@ -467,6 +490,17 @@ try
          end
          for n = 1:nStim
             Screen('DrawTexture', winMain, texture(n), [], stimloc(n, :), angle(n));
+         end
+         if noiseType == 0
+            Screen('DrawTexture', winMain, texNoise, [], rectDisplay, [], [], noise);
+         elseif noiseType == 1
+            for n = 1:nStimCells
+               Screen('DrawTexture', winMain, texNoise(n), [], stimCells(n, :), [], [], noise);
+            end
+         elseif noiseType == 2
+            for n = 1:nStim
+               Screen('DrawTexture', winMain, texNoise(n), [], stimCells(n, :), [], [], noise);
+            end
          end
          Screen('FillOval', winMain, colFixation, rectFixation);
          Screen('DrawingFinished', winMain);
