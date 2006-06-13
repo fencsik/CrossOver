@@ -6,7 +6,7 @@ function CrossoverX
 % $LastChangedDate$
 
 experiment = 'Test01';
-Version = '0.2';
+Version = '0.3';
 
 %%% %%% Dialog box
 %%% dlgParam = {'subject'           , 'Subject'                          , 'xxx';
@@ -32,22 +32,28 @@ Version = '0.2';
 % Set any remaining parameters
 subject = 'def';
 taskflag = 7;
-expTrials = 4;
+expTrials = 2;
 praTrials = 0;
 targetList = 1; %[0 1];
-setSizeList = [4 8];
+setSizeList = [4];
 noiseLevelList = [.5 .25 .75];
-nStaircases = 0;
-stairStepError = -0.10;
-stairStepCorrect = 0.025;
+
+% staircase parameters
+staircaseFlag = 1;
+nStaircases = 1;
+nReversals = 20;
+nReversalsUsed = 10;
+staircaseStepError = -0.10;
+staircaseStepCorrect = 0.025;
+staircaseRange = [0 1];
 
 % control how stimuli are presented and cued
-noiseFlag     = 1; % 0 = none, 1 = % of noise pixels, 2 = transparency of noise texture
-noiseCellFlag = 1; % 0 = whole display, 1 = per cell
-pedestalFlag  = 1; % 0 = none, 1 = square, 2 = circle
-precueFlag    = 0; % 0 = none, 1 = square, 2 = arc
-allstimFlag   = 0; % 0 = only show S stim, 1 = always fill all cue locations
-balanceFlag   = 0; % 0 = random stim locations, 1 = balanced L-R locations
+pedestalFlag    = 1; % 0 = no pedestals, 1 = pedestals
+pedestalShape   = 2; % 1 = square, 2 = circle
+precueFlag      = 0; % 0 = none, 1 = square, 2 = arc
+allstimFlag     = 0; % 0 = only show S stim, 1 = always fill all cue locations
+balanceFlag     = 0; % 0 = random stim locations, 1 = balanced L-R locations
+noiseType       = 1; % 0 = whole display, 1 = per cell, 2 = just stimuli
 
 % define timings (sec)
 durPreTrial   = 0.745;
@@ -60,17 +66,15 @@ durFeedback   = 0.745;
 durPostTrial  = 0.745;
 
 % stimulus set-up
-% Note: distance -> pixel sizes (17" monitor, 1024x768 resolution)
+% Note: distance -> pixel sizes (17 in. monitor, 1024x768 resolution)
 % 106 cm -> 60.14 pix/deg --- 105 cm -> 59.58 pix/deg
 %  89 cm -> 50.50 pix/deg ---  88 cm -> 49.93 pix/deg
 %  53 cm -> 30.07 pix/deg ---  52 cm -> 29.50 pix/deg
-stimRadius = 256;
-nStimMax = 12;
-rectStim = [0 0 100 100];
-rectPedestal = [0 0 120 120];
-rectDisplay = [0 0 500 500];
-sizeStimX = RectWidth(rectStim);
-sizeStimY = RectHeight(rectStim);
+nStimCells = 8;
+pedestalRadius = 256;
+pedestalSize = 128; % make sure pedestalSize - stimulusSize >= 0 and is even
+stimSize = 100;
+stimWidth = 20;
 
 % response set-up
 response0 = 227;   % 'LeftGUI'  == left Apple-key
@@ -139,15 +143,14 @@ try
    colBlue = [0 0 255];
    colGreen = [0 150 0];
    colYellow = [255 255 0];
-   colForeground = colWhite;
-   colBackground = colGray;
+   colForeground = colBlack;
+   colBackground = colLightGray;
    colFrame = colBackground;
-   colPedestal = colRed;
+   colPedestal = colGray;
    colFixation = colForeground;
    colStim = [170 170 170];
    
    % other rects
-   rectDisplayCentered = CenterRect(rectDisplay, rectMain);
    rectFixation = CenterRect([0 0 6 6], rectMain);
 
    % blank screen and issue wait notice
@@ -156,17 +159,20 @@ try
    Screen('Flip', winMain);
 
    % Generate stimuli
-   if numel(colBackground) == 1
-      colBackground = repmat(colBackground, 1, 3);
+   bg = colBackground;
+   if numel(bg) == 1
+      bg = repmat(bg, 1, 3);
    end
+   edgeOffset = round((pedestalSize - stimSize) / 2); % distance from edge of pedestal to edge of stimulus
+   middle = ceil(pedestalSize / 2); % middle of the pedestal
+   stimRadius = stimWidth / 2; % distance from stimulus edge to its middle
    if taskflag == 1
       error('taskflag %d does not exist', taskflag);
    elseif taskflag == 2
       % orientation
-      mat = repmat(255, [100, 100, 4]);
-      mat(:, :, 1:3) = repmat(reshape(colBackground, 1, 1, 3), [100, 100, 1]);
-      mat(:, 41:60, 1:3) = repmat(reshape(colStim, 1, 1, 3), [100, 20, 1]);
-      mat(:, 41:50, 4) = repmat(0, [100, 20, 1]);
+      mat = repmat(0, [pedestalSize, pedestalSize, 4]);
+      mat(edgeOffset+1:pedestalSize-edgeOffset, middle-stimRadius+1:middle+stimRadius, :) = ...
+          repmat(reshape([colStim 255], 1, 1, 4), [stimSize, stimWidth, 1]);
 
       stimTextureT = Screen('MakeTexture', winMain, mat);
       stimTextureD = stimTextureT;
@@ -176,61 +182,55 @@ try
       stimMode = mdDetect;
       responseString0 = 'absent';
       responseString1 = 'present';
+      clear mat;
    elseif taskflag == 7
       %%% 2 vs. 5
 
       % generate basic components
       col = reshape([colStim 255], 1, 1, 4);
-      vbar = repmat(col, [20, 100, 1]);
-      hbar = repmat(col, [40,  20, 1]);
+      hbar = repmat(col, [stimWidth, stimSize, 1]);
+      vbar = repmat(col, [middle - edgeOffset,  stimWidth, 1]);
+      % generate common horizontal lines
+      mat = repmat(0, [pedestalSize, pedestalSize, 4]);
+      mat(edgeOffset+1:edgeOffset+stimWidth, edgeOffset+1:pedestalSize-edgeOffset, :) = hbar;
+      mat(middle-stimRadius+1:middle+stimRadius, edgeOffset+1:pedestalSize-edgeOffset, :) = hbar;
+      mat(pedestalSize-edgeOffset-stimWidth+1:pedestalSize-edgeOffset, edgeOffset+1:pedestalSize-edgeOffset, :) = hbar;
 
       % generate 2
-      mat = repmat(0, [100, 100, 4]);
-      mat(:, :, 1:3) = repmat(reshape(colBackground, 1, 1, 3), [100, 100, 1]);
-      mat( 1:20 , :, :) = vbar;
-      mat(41:60 , :, :) = vbar;
-      mat(81:100, :, :) = vbar;
-      mat( 1:40 , 81:100, :) = hbar;
-      mat(61:100,  1:20 , :) = hbar;
-      stimTextureT = Screen('MakeTexture', winMain, mat);
+      mat2 = mat;
+      mat2(edgeOffset+1:middle, pedestalSize-edgeOffset-stimWidth+1:pedestalSize-edgeOffset, :) = vbar;
+      mat2(middle+1:pedestalSize-edgeOffset, edgeOffset+1:edgeOffset+stimWidth, :) = vbar;
+      stimTextureT = Screen('MakeTexture', winMain, mat2);
       stimAngleT = 0;
       
       % generate 5
-      mat = repmat(0, [100, 100, 4]);
-      mat(:, :, 1:3) = repmat(reshape(colBackground, 1, 1, 3), [100, 100, 1]);
-      mat( 1:20 , :, :) = vbar;
-      mat(41:60 , :, :) = vbar;
-      mat(81:100, :, :) = vbar;
-      mat( 1:40 ,  1:20 , :) = hbar;
-      mat(61:100, 81:100, :) = hbar;
-      stimTextureD = Screen('MakeTexture', winMain, mat);
+      mat5 = mat;
+      mat5(edgeOffset+1:middle, edgeOffset+1:edgeOffset+stimWidth, :) = vbar;
+      mat5(middle+1:pedestalSize-edgeOffset, pedestalSize-edgeOffset-stimWidth+1:pedestalSize-edgeOffset, :) = vbar;
+      stimTextureD = Screen('MakeTexture', winMain, mat5);
       stimAngleD = 0;
 
       stimMode = mdDetect;
       responseString0 = 'absent';
       responseString1 = 'present';
+      clear mat mat2 mat5;
    else
       error('taskflag %d does not exist', taskflag);
    end
 
    % define stimulus presentation cells
-   nStimCells = 8;
-   radiusStimCells = 256;
    expansionFactor = 1.0;
+   rectPedestal = [0 0 pedestalSize pedestalSize];
    stimCells = zeros(nStimCells, 4);
-   pedCells = stimCells;
    for n = 1:nStimCells
-      stimCells(n, :) = CenterRectOnPoint(rectStim, ...
-                                          centerX + round(radiusStimCells * sin((n - 1) * 2 * pi / nStimCells)), ...
-                                          centerY + round(radiusStimCells * cos((n - 1) * 2 * pi / nStimCells)));
-      pedCells(n, :) = CenterRectOnPoint(rectPedestal, ...
-                                          centerX + round(radiusStimCells * sin((n - 1) * 2 * pi / nStimCells)), ...
-                                          centerY + round(radiusStimCells * cos((n - 1) * 2 * pi / nStimCells)));
+      stimCells(n, :) = CenterRectOnPoint(rectPedestal, ...
+                                          centerX + round(pedestalRadius * sin((n - 1) * 2 * pi / nStimCells)), ...
+                                          centerY + round(pedestalRadius * cos((n - 1) * 2 * pi / nStimCells)));
    end
    
    % compute square rect needed to contain all stimulus cells
-   extraRadius = ceil( sqrt( (.5 * RectWidth(pedCells(1, :)))^2 + (.5 * RectHeight(pedCells(1, :)))^2 ) );
-   stimAreaDiameter = ceil(2 * expansionFactor * (radiusStimCells + extraRadius));
+   extraRadius = ceil( sqrt( (.5 * RectWidth(stimCells(1, :)))^2 + (.5 * RectHeight(stimCells(1, :)))^2 ) );
+   stimAreaDiameter = ceil(2 * expansionFactor * (pedestalRadius + extraRadius));
    rectDisplay = CenterRect([0 0 stimAreaDiameter stimAreaDiameter], rectMain);
 
    % draw a sample of the display area
@@ -238,39 +238,48 @@ try
    Screen('FillOval', winMain, colFixation, CenterRect([0 0 10 10], rectMain));
    for n = 1:nStimCells
       Screen('FillRect', winMain, colForeground, stimCells(n, :));
-      Screen('DrawText', winMain, int2str(n), stimCells(n, RectLeft) + 30, stimCells(n, RectBottom) - 50, colBackground);
+      Screen('DrawText', winMain, sprintf('%d', n), stimCells(n, RectLeft) + 30, stimCells(n, RectBottom) - 50, colBackground);
    end
    Screen('FrameOval', winMain, colRed, rectDisplay);
    Screen('Flip', winMain);
    WaitSecs(.25);
 
-   sx = RectWidth(rectDisplay);
-   sy = RectHeight(rectDisplay);
-   %matTransparency = repmat(255, 
-   if noiseFlag == 1
-      matNoise = repmat(colWhite*rand(sy, sx), [1, 1, 3]);
-      matNoiseMask = repmat(1, [sy, sx]);
-      radius = stimAreaDiameter / 2;
-      for x = 1:sx
-         for y = 1:sy
-            if floor(sqrt( (x - sx / 2)^2 + (y - sy / 2)^2 )) > radius
-               matNoiseMask(y, x) = 0;
+   % define transparency masks for noise field
+   if noiseType == 1
+      % each cell gets its own noise field
+      matNoiseTransparency = repmat(255, [pedestalSize, pedestalSize]);
+      if pedestalShape == 2
+         radius = stimAreaDiameter / 2;
+         for x = 1:pedestalSize
+            for y = 1:pedestalSize
+               if floor(sqrt( (x - pedestalSize / 2)^2 + (y - pedestalSize / 2)^2 )) > radius
+                  matNoiseTransparency(y, x) = 0;
+               end
             end
          end
       end
    else
-      error('obscureflag = %d is not supported', obscureFlag);
+      % one noise field for the whole display
+      matNoiseTransparency = repmat(255, [stimAreaDiameter, stimAreaDiameter]);
+      if pedestalShape == 2
+         radius = stimAreaDiameter / 2;
+         for x = 1:stimAreaDiameter
+            for y = 1:stimAreaDiameter
+               if floor(sqrt( (x - stimAreaDiameter / 2)^2 + (y - stimAreaDiameter / 2)^2 )) > radius
+                  matNoiseTransparency(y, x) = 0;
+               end
+            end
+         end
+      end
    end
 
    % set-up pedestal drawings
-   if pedestalFlag == 1
-      drawPedestals = 1;
+   if pedestalShape == 1
       pedestalCommand = 'FillRect';
-   elseif pedestalFlag == 2
-      drawPedestals = 1;
+   elseif pedestalShape == 2
       pedestalCommand = 'FillOval';
    else
-      drawPedestals = 0;
+      error('pedestal shape of %d is not supported', pedestalShape);
    end
 
    Screen('FillRect', winMain, colBackground);
@@ -279,7 +288,13 @@ try
    Screen('Flip', winMain);
    %    KbWait;
 
-   for subBlock = 1:2
+   if staircaseFlag
+      subBlockList = 2;
+   else
+      subBlockList = 1:2;
+   end
+
+   for subBlock = subBlockList
       
       if subBlock == 1
          prac = 1;
@@ -291,16 +306,35 @@ try
       
       if nTrials <= 0, continue; end
 
+      if staircaseFlag
+         nTrials = nReversals * nStaircases * 8; % might want to adjust the factor to get enough trials to run a complete staircase
+         prac = 1;
+
+         % set up staircase
+         scLabels = cell(nStaircases, 1); for i = 1:nStaircases, scLabels{i} = i; end;
+         staircase = struct('label', scLabels, ...
+                            'value', noiseLevel, ...
+                            'counter', 1, ...
+                            'lastacc', []);
+         staircaseReversals = zeros(nReversals, nStaircases);
+         clear scLabels;
+
+         fprintf('\nInitial staircase info:\n');
+         for i = 1:length(staircase)
+            staircase(i)
+         end
+      end
+
       % balance independent variables
       NumberOfTrials = nTrials;
-      if nStaircases < 1
+      if staircaseFlag
          IVs = {'target'            , targetList;
                 'setSize'           , setSizeList;
-                'noiseLevel'        , noiseLevelList;
                };
       else
          IVs = {'target'            , targetList;
                 'setSize'           , setSizeList;
+                'noiseLevel'        , noiseLevelList;
                };
       end      
       nVariables = size(IVs, 1);
@@ -337,6 +371,17 @@ try
          ss = setSize(trial);
          noise = noiseLevel(trial);
          targ = target(trial);
+
+         if staircaseFlag
+            thisStaircase = Randi(nStaircases);
+            staircaseValue = staircase(thisStaircase).value;
+            staircaseLabel = staircase(thisStaircase).label;
+            noise = staircaseValue;
+         else
+            thisStaircase = 0;
+            staircaseValue = noise;
+            staircaseLabel = 0;
+         end
 
          if balanceFlag == 0
             stimloc = stimCells(randperm(nStimCells), :);
@@ -383,7 +428,7 @@ try
 
          % pretrial blank
          Screen('FillRect', winMain, colBackground);
-         if drawPedestals
+         if pedestalFlag
             for n = 1:nStimCells
                Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
             end
@@ -396,7 +441,7 @@ try
          % fixation
          t1 = GetSecs;
          Screen('FillRect', winMain, colBackground, rectDisplay);
-         if drawPedestals
+         if pedestalFlag
             for n = 1:nStimCells
                Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
             end
@@ -415,7 +460,7 @@ try
          % draw display
          t1 = GetSecs;
          Screen('FillRect', winMain, colBackground, rectDisplay);
-         if drawPedestals
+         if pedestalFlag
             for n = 1:nStimCells
                Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
             end
@@ -433,7 +478,7 @@ try
          % ISI
          t1 = GetSecs;
          Screen('FillRect', winMain, colBackground, rectDisplay);
-         if drawPedestals
+         if pedestalFlag
             for n = 1:nStimCells
                Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
             end
@@ -464,9 +509,11 @@ try
 
          % process response
          rt = (responseOnsetTime - displayOnsetTime) * 1000;
-         if numel(responseCode) > 1
+         acc = -1;
+         if isempty(responseCode)
+            responseString = 'none';
+         elseif numel(responseCode) > 1
             responseString = 'multi';
-            acc = -1;
          elseif responseCode == response0
             responseString = responseString0;
             if targ
@@ -484,7 +531,6 @@ try
          else
             % non-response key pressed
             responseString = KbName(responseCode);
-            acc = -1;
          end
 
          % prepare feedback
@@ -499,9 +545,36 @@ try
             feedback = sprintf('YOU PRESSED A BAD KEY', trial);
          end
          
+         % update staircase
+         reversal = 0;
+         if staircaseFlag
+            if ~isempty(staircase(thisStaircase).lastacc) && acc >= 0 && acc ~= staircase(thisStaircase).lastacc
+               reversal = 1;
+               staircaseReversals(staircase(thisStaircase).counter, thisStaircase) = staircase(thisStaircase).value;
+               staircase(thisStaircase).counter = staircase(thisStaircase).counter + 1;
+            end
+            % update staircase value
+            if acc == 0
+               % make it easier
+               staircase(thisStaircase).value = staircase(thisStaircase).value + staircaseStepError;
+            elseif acc == 1
+               % make it harder
+               staircase(thisStaircase).value = staircase(thisStaircase).value + staircaseStepCorrect;
+            end
+            if staircase(thisStaircase).value > max(staircaseRange)
+               staircase(thisStaircase).value = max(staircaseRange);
+            end
+            if staircase(thisStaircase).value < min(staircaseRange)
+               staircase(thisStaircase).value = min(staircaseRange);
+            end
+            if acc >= 0
+               staircase(thisStaircase).lastacc = acc;
+            end
+         end
+
          % present feedback
-         Screen('FillRect', winMain, colBackground, rectDisplayCentered);
-         Screen('FrameRect', winMain, colFrame, rectDisplayCentered);
+         Screen('FillRect', winMain, colBackground, rectDisplay);
+         Screen('FrameRect', winMain, colFrame, rectDisplay);
          CenterText(winMain, feedback, colFeedback, 0, -50);
          [t1, lastOnsetTime] = Screen('Flip', winMain);
          feedbackOnsetTime = lastOnsetTime;
@@ -544,13 +617,35 @@ try
 %%%          fclose(dataFile);
 
          % clear screen after feedback duration
-         Screen('FillRect', winMain, colBackground, rectDisplayCentered);
-         Screen('FrameRect', winMain, colFrame, rectDisplayCentered);
+         Screen('FillRect', winMain, colBackground, rectDisplay);
+         Screen('FrameRect', winMain, colFrame, rectDisplay);
          Screen('Flip', winMain, lastOnsetTime + durFeedback + durExtraFeedback);
+
+         % clean out any completed staircases
+         if staircaseFlag
+            if staircase(thisStaircase).counter > nReversals
+               % this staircase is done
+               if thisStaircase ~= nStaircases
+                  % rearrange the staircases so the active ones are at the beginning
+                  tmp = staircaseReversals(:, nStaircases);
+                  staircaseReversals(:, nStaircases) = staircaseReversals(:, thisStaircase);
+                  staircaseReversals(:, thisStaircase) = tmp;
+
+                  tmp = staircase(nStaircases);
+                  staircase(nStaircases) = staircase(thisStaircase);
+                  staircase(thisStaircase) = tmp;
+               end
+               nStaircases = nStaircases - 1;
+            end
+
+            if nStaircases <= 0
+               break;
+            end
+         end
 
       end % for trial = 1:nTrials
       Priority(0);
-   end % for subBlock = 1:2
+   end % for subBlock = 1:subBlockList
 
 catch
    %this "catch" section executes in case of an error in the "try" section
