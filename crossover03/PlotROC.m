@@ -111,7 +111,7 @@ for nsub = 1:length(Subjects)
               'Color', colors(counter));
       end
       axis([0 1 0 1], 'square');
-      title(sprintf('Subject %s', sub, cond));
+      title(sprintf('Subject %s', sub));
       xlabel('False-alarm rate');
       ylabel('Hit rate');
       plot([0 1], [0 1], 'k:');
