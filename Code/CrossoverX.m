@@ -6,7 +6,7 @@ function CrossoverX
 % $LastChangedDate$
 
 experiment = 'Test01';
-Version = '0.4';
+Version = '0.5';
 
 %%% %%% Dialog box
 %%% dlgParam = {'subject'           , 'Subject'                          , 'xxx';
@@ -54,6 +54,7 @@ precueFlag      = 0; % 0 = none, 1 = square, 2 = arc
 allstimFlag     = 0; % 0 = only show S stim, 1 = always fill all cue locations
 balanceFlag     = 0; % 0 = random stim locations, 1 = balanced L-R locations
 noiseType       = 1; % 0 = whole display, 1 = per cell, 2 = just stimuli
+maskFlag        = 0; % 0 = none, 1 = mask only stim, 2 = mask all cells, 3 = mask whole display
 
 % define timings (sec)
 durPreTrial   = 0.745;
@@ -235,7 +236,7 @@ try
 
    % draw a sample of the display area
    Screen('FillRect', winMain, colBackground);
-   Screen('FillOval', winMain, colFixation, CenterRect([0 0 10 10], rectMain));
+   Screen('FillOval', winMain, colFixation, rectFixation);
    for n = 1:nStimCells
       Screen('FillRect', winMain, colForeground, stimCells(n, :));
       Screen('DrawText', winMain, sprintf('%d', n), stimCells(n, RectLeft) + 30, stimCells(n, RectBottom) - 50, colBackground);
@@ -244,7 +245,7 @@ try
    Screen('Flip', winMain);
    WaitSecs(.25);
 
-   % define transparency masks for noise field
+   % define matrices for alpha channel of noise fields, to restrict their shape
    if noiseType == 1 || noiseType == 2
       % each cell gets its own noise field
       matNoiseTransparency = repmat(255, [pedestalSize, pedestalSize]);
@@ -275,6 +276,23 @@ try
       error('noise type %d not supported', noiseType);
    end
 
+   % generate mask textures
+   nMaskTextures = 50;
+   texMasks = zeros(nMaskTextures, 1);
+   win = Screen('OpenOffscreenWindow', winMain, [], [0 0 pedestalSize pedestalSize]);
+   for n = 1:nMaskTextures
+      Screen('FillRect', win, colBackground);
+      for i = 1:30
+         Screen('DrawLine', win, Randi(256, [1, 3]) - 1, ...
+                Randi(pedestalSize + 1) - 1, Randi(pedestalSize + 1) - 1, ...
+                Randi(pedestalSize + 1) - 1, Randi(pedestalSize + 1) - 1, Randi(10));
+      end
+      mat = Screen('GetImage', win);
+      texMasks(n) = Screen('MakeTexture', winMain, mat);
+   end
+   Screen('Close', win);
+   clear mat;
+   
    % set-up pedestal drawings
    if pedestalShape == 1
       pedestalCommand = 'FillRect';
@@ -283,6 +301,14 @@ try
    else
       error('pedestal shape of %d is not supported', pedestalShape);
    end
+
+   Screen('FillRect', winMain, colBackground);
+   for n = 1:nStimCells
+      Screen('DrawTexture', winMain, texMasks(n), [], stimCells(n, :));
+   end
+   Screen('FillOval', winMain, colFixation, rectFixation);
+   Screen('Flip', winMain);
+   WaitSecs(.25);
 
    Screen('FillRect', winMain, colBackground);
    %    CenterText(winMain, 'Press any key to begin.', colForeground);
@@ -439,6 +465,11 @@ try
                texNoise(i) = Screen('MakeTexture', winMain, matNoise);
             end
          end
+         
+         % generate indexes for mask textures
+         if any(maskFlag == [1 2])
+            maskIndex = randperm(nMaskTextures);
+         end
 
          prepDur = (GetSecs - prepStartTime) * 1000;
 
@@ -493,13 +524,11 @@ try
          end
          if noiseType == 0
             Screen('DrawTexture', winMain, texNoise, [], rectDisplay, [], [], noise);
-         elseif noiseType == 1
-            for n = 1:nStimCells
-               Screen('DrawTexture', winMain, texNoise(n), [], stimCells(n, :), [], [], noise);
-            end
-         elseif noiseType == 2
-            for n = 1:nStim
-               Screen('DrawTexture', winMain, texNoise(n), [], stimCells(n, :), [], [], noise);
+         elseif any(noiseType == [1 2])
+            n = nStim;
+            if noiseType == 1, n = nStimCells; end
+            for i = 1:n
+               Screen('DrawTexture', winMain, texNoise(i), [], stimloc(i, :), [], [], noise);
             end
          end
          Screen('FillOval', winMain, colFixation, rectFixation);
@@ -513,8 +542,8 @@ try
          t1 = GetSecs;
          Screen('FillRect', winMain, colBackground, rectDisplay);
          if pedestalFlag
-            for n = 1:nStimCells
-               Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
+            for i = 1:nStimCells
+               Screen(pedestalCommand, winMain, colPedestal, stimCells(i, :));
             end
          end
          Screen('FillOval', winMain, colFixation, rectFixation);
@@ -525,6 +554,25 @@ try
          tNextOnset = tLastOnset + durISI;
          
          % mask
+         t1 = GetSecs;
+         Screen('FillRect', winMain, colBackground, rectDisplay);
+         if pedestalFlag && maskFlag ~= 2 && nStim ~= nStimCells
+            for i = 1:nStimCells
+               Screen(pedestalCommand, winMain, colPedestal, stimCells(i, :));
+            end
+         end
+         if any(maskFlag == [1 2])
+            n = nStim;
+            if maskFlag == 2, n = nStimCells; end
+            for i = 1:n
+               Screen('DrawTexture', winMain, texMasks(maskIndex(i)), [], stimloc(i, :));
+            end
+         end
+         Screen('FillOval', winMain, colFixation, rectFixation);
+         Screen('DrawingFinished', winMain);
+         maskDrawDur = GetSecs - t1;
+         [t1, tLastOnset] = Screen('Flip', winMain, tNextOnset);
+         maskOnsetTime = tLastOnset;
 
          % collect response
          while 1
