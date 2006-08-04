@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# $LastChangedDate$
+
+EXPERIMENT=SatSearch01
+PUBLICDIR=~/Public/Experiments/$EXPERIMENT
+FILES="DeadlineSearchX.m"
+
+# make sure public directory exists
+if [ ! -d $PUBLICDIR ]; then
+    mkdir -p $PUBLICDIR
+fi
+
+for f in $(/bin/ls $FILES); do
+    if [ ! -f $f ]; then
+        echo "File $f not found"
+    else
+        if [ $f -nt $PUBLICDIR/$f ]; then
+            echo cp -a $f $PUBLICDIR/$f
+            cp -a $f $PUBLICDIR/$f
+        fi
+    fi
+done
