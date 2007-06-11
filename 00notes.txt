@@ -14,3 +14,5 @@ List of folders:
   change is that only S stimuli appear on each trial (S = set-size),
   instead of there being 8 stimuli on all trials
 
+* satsearch01: first speed-accuracy tradeoff search experiment,
+  looking at orientation feature search and TvL search
