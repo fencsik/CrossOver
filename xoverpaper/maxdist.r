@@ -54,19 +54,17 @@ maxdist <- function () {
    ## plot max empirical distributions
    h1 <- hist(maxval[target == 0], plot = F, breaks = "FD");
    h2 <- hist(maxval[target == 1], plot = F, breaks = "FD");
-   print(length(h1$mids));
-   print(length(h2$mids));
    lines(h1$mids, h1$density, col = col.max[1], lwd = lwd.obse, lty = 1);
    lines(h2$mids, h2$density, col = col.max[2], lwd = lwd.obse, lty = 1);
 
    ## plot max theoretical distributions
-   lines(xval, setsize * dnorm(xval) * pnorm(xval) ^ (setsize - 1),
+   pred1 <- setsize * dnorm(xval) * pnorm(xval) ^ (setsize - 1);
+   pred2 <- dnorm(xval, mean = dprime) * pnorm(xval) ^ (setsize - 1) +
+      (setsize - 1) * dnorm(xval) * pnorm(xval, mean = dprime) * pnorm(xval) ^ (setsize - 2);
+   lines(xval, pred1,
          col = col.max[1], lwd = lwd.pred, lty = 1);
-   lines(xval,
-         dnorm(xval, mean = dprime) * pnorm(xval) ^ (setsize - 1) +
-         (setsize - 1) * dnorm(xval) * pnorm(xval, mean = dprime) * pnorm(xval) ^ (setsize - 2),
+   lines(xval, pred2,
          col = col.max[2], lwd = lwd.pred, lty = 1);
-
 }
 
 maxdist();
