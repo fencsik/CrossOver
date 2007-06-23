@@ -9,7 +9,7 @@ function testmaxdist
 dprime = 4.0;
 criterion = 2.0;
 setsize = 8;
-ntrials = 100000;
+ntrials = 100;
 k = 5;
 
 % plot settings
@@ -34,15 +34,17 @@ response = maxval > criterion;
 fa = sum(response(target == 0)) / ntrials;
 hr = sum(response(target == 1)) / ntrials;
 
+% compute predicted values
 n = setsize;
 c = criterion;
 k = min(k, n);
 predFA = 1 - normcdf(c) .^ k;
-predHR = 1 - k / n * normcdf(c - dprime) * normcdf(c).^(k - 1) - ...
-         (n - k) / n * normcdf(c).^k;
+predHR = 1 - k / n * normcdf(c - dprime) * normcdf(c) .^ (k - 1) - ...
+         (n - k) / n * normcdf(c) .^ k;
+[d, c] = maxdprime(hr, fa, setsize, k);
 
-disp([predHR, hr]);
-disp([predFA, fa]);
-
-[d, c] = maxdprime(hr, fa, setsize, k),
-
+fprintf('        Simulated  Estimated\n');
+fprintf('d''   %10.3f %10.3f\n', dprime, d);
+fprintf('crit %10.3f %10.3f\n', criterion, c);
+fprintf('HR   %10.3f %10.3f\n', hr, predHR);
+fprintf('FA   %10.3f %10.3f\n', fa, predFA);
