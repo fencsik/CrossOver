@@ -9,11 +9,11 @@ function testsumdist
 % $LastChangedDate$
 
 % adjustable settings
-dprime = 3.0;
-criterion = 2.5;
-setsize = 10;
-ntrials = 100000;
-k = 100;
+dprime = 4.0;
+criterion = 2.0;
+setsize = 8;
+ntrials = 100;
+k = 5;
 
 % plot settings
 ylim = [0, .6];
@@ -38,6 +38,7 @@ response = sumval > criterion;
 fa = sum(response(target == 0)) / ntrials;
 hr = sum(response(target == 1)) / ntrials;
 
+% plot histogram of simulated sum distribution
 [yn, xn] = hist(sumval(target == 0), 100);
 [yt, xt] = hist(sumval(target == 1), 100);
 yn = yn / sum(yn);
@@ -45,6 +46,8 @@ yt = yt / sum(yt);
 plot(xn, yn, 'color', [1 0 0], 'linewidth', 3); hold on;
 plot(xt, yt, 'color', [0 1 0], 'linewidth', 3);
 
+% plot histogram of theoretical sum distribution (only works for
+% unlimited-capacity models)
 yn = normpdf(xn, 0, sqrt(k));
 yt = normpdf(xt, dprime, sqrt(k));
 yn = yn / sum(yn);
@@ -54,13 +57,17 @@ plot(xt, yt, 'color', [0 .5 0], 'linewidth', 2);
 axis([-12 15 0 .05]);
 hold off;
 
+% compute predicted values
 n = setsize;
 c = criterion;
-k = min([k, n]);
+k = min(k, n);
 predFA = 1 - normcdf(c, 0, sqrt(k));
-predHR = k / n * (1 - normcdf(c, dprime, sqrt(k))) + (n - k) / n * (1 - normcdf(c, 0, sqrt(k)));
+predHR = k / n * (1 - normcdf(c, dprime, sqrt(k))) + ...
+         (n - k) / n * (1 - normcdf(c, 0, sqrt(k)));
+[d, c] = sumdprime(hr, fa, setsize, k);
 
-disp([predHR, hr]);
-disp([predFA, fa]);
-
-% [d, c] = maxdprime(hr, fa, setsize, k),
+fprintf('        Simulated  Estimated\n');
+fprintf('d''   %10.3f %10.3f\n', dprime, d);
+fprintf('crit %10.3f %10.3f\n', criterion, c);
+fprintf('HR   %10.3f %10.3f\n', hr, predHR);
+fprintf('FA   %10.3f %10.3f\n', fa, predFA);
