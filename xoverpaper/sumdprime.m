@@ -40,10 +40,8 @@ end
 % set each k to minimum of k and n
 k = min(n, k);
 % compute criterion
-%c = Finv((1 - fa) .^ (1 ./ k));
 c = Finv(1 - fa, k);
 % compute d'
-%d = c - Finv(n .* (1 - hr) ./ k ./ (F(c) .^ (k - 1)) - (n - k) ./ k .* F(c));
 d = c - Finv((1 - n ./ k) .* F(c, k) + n ./ k .* (1 - hr), k);
 
 if nargout == 0
