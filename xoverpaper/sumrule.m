@@ -46,9 +46,6 @@ end
 % set each k to minimum of k and n
 k = min(n, k);
 
-fprintf('min(k, n) = \n');
-disp(min(k, n));
-
 % compute false-alarm rate
 fa = 1 - F(c, k);
 % compute hit rate
