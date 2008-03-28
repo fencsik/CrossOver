@@ -49,7 +49,7 @@ k = min(n, k);
 % compute false-alarm rate
 fa = 1 - F(c) .^ k;
 % compute hit rate
-hr = 1 - k ./ n .* F(c - s) .* (F(c) .^ k) - (n - k) ./ n .* (F(c) .^ k);
+hr = 1 - k ./ n .* F(c - s) .* (F(c) .^ (k - 1)) - (n - k) ./ n .* (F(c) .^ k);
 
 function p = F(x)
 p = normcdf(x, 0, 1);
