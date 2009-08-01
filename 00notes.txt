@@ -13,3 +13,7 @@ List of folders:
 * crossover03: replication of above with continuous staircasing; only
   change is that only S stimuli appear on each trial (S = set-size),
   instead of there being 8 stimuli on all trials
+
+* crossover04: actual experiment with initial staircasing followed by
+  constant noise level; vary setsize (1, 2, 4, 8) and whether setsize is
+  physical or cued; orientation feature search vs. 2v5 search
