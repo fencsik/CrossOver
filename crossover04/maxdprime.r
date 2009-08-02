@@ -1,5 +1,5 @@
-### Calculate d' and criterion for a search task assuming that response is
-### based on the maximum of target and distractor signals.
+### Calculate sensitivity and criterion for a search task assuming that
+### response is based on the maximum of target and distractor signals.
 ###
 ### Currently, requires hit rate (hr), false-alarm rate (fa), and setsize
 ### to be vectors of length N such that N is the same for each.  Capacity
@@ -23,11 +23,11 @@ maxdprime <- function (hr, fa, setsize, capacity=NULL) {
 
     crit <- qnorm((1 - fa) ^ (1 / k))
     p <- pnorm(crit)
-    dp <- crit -
+    sens <- crit -
         qnorm(n * (1 - hr) / k / (p ^ (k - 1)) - (n - k) / k * p)
 
     if (!limitedCapacity)
         capacity <- NULL
 
-    return(list(dprime=dp, criterion=crit, capacity=capacity, rule="max"))
+    return(list(sensitivity=sens, criterion=crit, capacity=capacity, rule="max"))
 }
