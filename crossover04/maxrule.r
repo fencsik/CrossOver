@@ -7,12 +7,14 @@
 maxrule <- function (sensitivity, criterion, setsize, capacity=NULL) {
 
     ## Error-checking
-    if (length(sensitivity) != 1 || !is.numeric(sensitivity))
+    if (missing(sensitivity) || length(sensitivity) != 1 ||
+        !is.numeric(sensitivity))
         stop("sensitivity must be a single numeric value")
-    if (length(criterion) != 1 || !is.numeric(criterion))
+    if (missing(criterion) || length(criterion) != 1 ||
+        !is.numeric(criterion))
         stop("criterion must be a single numeric value")
-    if (length(setsize) < 1 || (!is.null(dim(setsize)) &&
-                                length(setsize) != max(dim(setsize))))
+    if (missing(setsize) || length(setsize) < 1 ||
+        (!is.null(dim(setsize)) &&length(setsize) != max(dim(setsize))))
         stop("setsize must be an Nx1 vector, with N >= 1")
     if (!is.null(capacity) && (length(capacity) != 1 || !is.numeric(capacity))) {
         stop("capacity must be a single numeric value or NULL")
