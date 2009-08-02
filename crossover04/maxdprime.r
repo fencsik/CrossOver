@@ -29,5 +29,5 @@ maxdprime <- function (hr, fa, setsize, capacity=NULL) {
     if (!limitedCapacity)
         capacity <- NULL
 
-    return(list(sensitivity=sens, criterion=crit, capacity=capacity, rule="max"))
+    return(list(sensitivity=sens, criterion=crit))
 }
