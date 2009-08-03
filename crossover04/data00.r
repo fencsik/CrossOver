@@ -17,18 +17,17 @@ f.data00 <- function () {
     data00$palmer <- factor(data00$palmer)
 
     ## compute rates and SDT measures
-    data00$pHit <- with(data00, nHits / nPos)
-    data00$pCR <- with(data00, nCR / nNeg)
-    pFA <- 1 - data00$pCR
-    data00$dprime <- with(data00, qnorm(pHit) - qnorm(pFA))
-    data00$crit <- with(data00, -0.5 * (qnorm(pHit) + qnorm(pFA)))
+    data00$hr <- with(data00, nhits / npos)
+    data00$fa <- with(data00, 1 - ntneg / nneg)
+    data00$dprime <- with(data00, qnorm(hr) - qnorm(fa))
+    data00$crit <- with(data00, -0.5 * (qnorm(hr) + qnorm(fa)))
 
     ## compute CI around d'
-    phiFA <- with(data00, 1 / sqrt(2 * pi) * exp(-0.5 * qnorm(pFA)))
-    phiHR <- with(data00, 1 / sqrt(2 * pi) * exp(-0.5 * qnorm(pHit)))
+    phiFA <- with(data00, 1 / sqrt(2 * pi) * exp(-0.5 * qnorm(fa)))
+    phiHR <- with(data00, 1 / sqrt(2 * pi) * exp(-0.5 * qnorm(hr)))
     data00$dpci <- with(data00,
-                        1.96 * sqrt(pHit * (1 - pHit) / nPos / (phiHR^2) +
-                                    pFA * (1 - pFA) / nNeg / (phiFA^2)))
+                        1.96 * sqrt(hr * (1 - hr) / npos / (phiHR^2) +
+                                    fa * (1 - fa) / nneg / (phiFA^2)))
 
     save(data00, file=outfile)
 }
