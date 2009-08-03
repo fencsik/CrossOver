@@ -2,7 +2,8 @@
 
 refresh <- function () {
     targetFiles <- c("data00.r",
-                     "FitMaxSSE.r")
+                     "FitMaxSSE.r",
+                     "FitMaxML.r")
 
     for (fname in targetFiles) {
         if (!file.exists(fname)) stop(paste("File", fname, "not found"))
