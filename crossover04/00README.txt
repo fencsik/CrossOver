@@ -14,6 +14,8 @@ Analyses:
    data by minimizing sum-squared error.
  - FitMaxML.r: Fits an unlimited-capacity max-rule search model to the data
    using a maximum likelihood procedure.
+ - FitMaxCapML.r: Fits a limited-capacity max-rule search model to the data
+   using a maximum likelihood procedure.
  - PlotFits.r: Plots the observed and predicted hit rates and false-alarm
    rates from all the fitting procedures.
 

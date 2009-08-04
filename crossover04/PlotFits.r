@@ -3,7 +3,8 @@
 
 PlotFits <- function () {
     analyses <- c("FitMaxSSE",
-                  "FitMaxML")
+                  "FitMaxML",
+                  "FitMaxCapML")
     
     thisfile <- "PlotFits.r"
     infiles <- paste(analyses, ".rda", sep="")
