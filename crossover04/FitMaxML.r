@@ -97,8 +97,10 @@ FitMaxML <- function () {
     }
 
 ### convert back to data frames
-    data <- as.data.frame(as.table(obs.hr))
-    names(data) <- c("sub", "cond", "setsize", "obs.hr")
+    data <- as.data.frame(as.table(obs.npos))
+    names(data) <- c("sub", "cond", "setsize", "npos")
+    data$nneg <- as.data.frame(as.table(obs.nneg))$Freq
+    data$obs.hr <- as.data.frame(as.table(obs.hr))$Freq
     data$obs.fa <- as.data.frame(as.table(obs.fa))$Freq
     data$pred.hr <- as.data.frame(as.table(pred.hr))$Freq
     data$pred.fa <- as.data.frame(as.table(pred.fa))$Freq
