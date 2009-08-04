@@ -80,8 +80,14 @@ FitMaxML <- function () {
             output[sub, "ml", cond] <- GoodnessOfFit(o$par, obs)
 
             pred <- maxrule(o$par[1], o$par[2], setsizes)
-            pred.hr[sub, cond, ] <- pred$hr * obs.npos[sub, cond, ]
-            pred.fa[sub, cond, ] <- pred$fa * obs.nneg[sub, cond, ]
+            pred.hr[sub, cond, ] <- pred$hr
+            pred.fa[sub, cond, ] <- pred$fa
+
+            ## convert observed hr and fa back to proportions
+            obs$hr <- obs$hr / obs.npos[sub, cond, ]
+            obs$fa <- obs$fa / obs.nneg[sub, cond, ]
+            obs.hr[sub, cond, ] <- obs$hr
+            obs.fa[sub, cond, ] <- obs$fa
 
             output[sub, "rmse", cond] <-
                 sqrt(mean((c(pred$hr, pred$fa) - c(obs$hr, obs$fa)) ^ 2))
@@ -92,10 +98,8 @@ FitMaxML <- function () {
     }
 
 ### convert back to data frames
-    data <- as.data.frame(as.table(obs.npos))
-    names(data) <- c("sub", "cond", "setsize", "obs.npos")
-    data$obs.nneg <- as.data.frame(as.table(obs.nneg))$Freq
-    data$obs.hr <- as.data.frame(as.table(obs.hr))$Freq
+    data <- as.data.frame(as.table(obs.hr))
+    names(data) <- c("sub", "cond", "setsize", "obs.hr")
     data$obs.fa <- as.data.frame(as.table(obs.fa))$Freq
     data$pred.hr <- as.data.frame(as.table(pred.hr))$Freq
     data$pred.fa <- as.data.frame(as.table(pred.fa))$Freq
