@@ -41,11 +41,10 @@ FitMaxML <- function () {
     nSetsizes <- length(setsizes)
 
     factors <- with(data00, list(sub, cond, setsize))
-    ceilsum <- function(x) ceiling(sum(x))
-    obs.npos <- with(data00, tapply(npos, factors, ceilsum))
-    obs.nneg <- with(data00, tapply(nneg, factors, ceilsum))
-    obs.hr <- with(data00, tapply(nhits, factors, ceilsum))
-    obs.fa <- obs.nneg - with(data00, tapply(ntneg, factors, ceilsum))
+    obs.npos <- with(data00, tapply(npos, factors, sum))
+    obs.nneg <- with(data00, tapply(nneg, factors, sum))
+    obs.hr <- with(data00, tapply(nhits, factors, sum))
+    obs.fa <- obs.nneg - with(data00, tapply(ntneg, factors, sum))
 
     pred.hr <- array(NA, dim(obs.hr), dimnames(obs.hr))
     pred.fa <- array(NA, dim(obs.fa), dimnames(obs.fa))
