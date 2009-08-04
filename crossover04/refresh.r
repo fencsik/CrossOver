@@ -3,6 +3,7 @@
 refresh <- function () {
     targetFiles <- c("data00.r",
                      "FitMaxSSE.r",
+                     "FitMaxCapSSE.r",
                      "FitMaxML.r",
                      "FitMaxCapML.r",
                      "PlotFits.r")

@@ -12,6 +12,8 @@ Analyses:
    standard SDT measures of performance.
  - FitMaxSSE.r: Fits an unlimited-capacity max-rule search model to the
    data by minimizing sum-squared error.
+ - FitMaxCapSSE.r: Fits a limited-capacity max-rule search model to the
+   data by minimizing sum-squared error.
  - FitMaxML.r: Fits an unlimited-capacity max-rule search model to the data
    using a maximum likelihood procedure.
  - FitMaxCapML.r: Fits a limited-capacity max-rule search model to the data
@@ -31,7 +33,6 @@ Support files:
    sensitivity, criterion, and, optionally a capacity limit.
 
 To-do:
- - Fit capacity-limited models.
  - Compute generalized likelihood ratio tests between unlimited- and
    limited-capacity models.
  - Fit both types of models allowing criterion to change with setsize.

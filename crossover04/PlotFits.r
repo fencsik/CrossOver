@@ -3,6 +3,7 @@
 
 PlotFits <- function () {
     analyses <- c("FitMaxSSE",
+                  "FitMaxCapSSE",
                   "FitMaxML",
                   "FitMaxCapML")
     
