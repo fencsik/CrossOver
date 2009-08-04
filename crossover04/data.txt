@@ -1,4 +1,4 @@
-sub	palmer	cond	setsize	npos	nneg	nhits	ntneg
+sub	palmer	cond	setsize	npos	nneg	nhits	ncr
 AES	0	2v5	1	100	100	95	97
 AES	0	2v5	2	100	100	89	66
 AES	0	2v5	4	99	99	66	71
