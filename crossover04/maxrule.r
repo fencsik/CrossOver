@@ -1,10 +1,11 @@
-### Calculate hit rate and false-alarm rate for a max-rule based search
-### model, given sensitivity, criterion, setsize, and an optional capacity.
+### Calculate predicted hit rate and false-alarm rate for a max-rule based
+### search model, given sensitivity, criterion, setsize, and an optional
+### capacity.
 ###
 ### Sensitivity and criterion must be scalar, capacity can be scalar or
 ### empty, and setsize can be a vector of any length greater than 0.
 
-maxrule <- function (sensitivity, criterion, setsize, capacity=NULL) {
+maxrule <- function (sensitivity, criterion, setsize, capacity) {
 
     ## Error-checking
     if (missing(sensitivity) || length(sensitivity) != 1 ||
@@ -18,7 +19,8 @@ maxrule <- function (sensitivity, criterion, setsize, capacity=NULL) {
         stop("setsize must be an Nx1 vector, with N >= 1")
     if (!is.null(capacity) && (length(capacity) != 1 || !is.numeric(capacity))) {
         stop("capacity must be a single numeric value or NULL")
-    } else if (is.null(capacity) || capacity < 0) {
+    } else if (missing(capacity) || is.null(capacity) ||
+               !is.finite(capacity) || capacity < 0) {
         capacity <- max(setsize)
         limitedCapacity <- FALSE
     } else {
