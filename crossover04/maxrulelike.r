@@ -14,7 +14,7 @@ maxrulelike <- function(hit, fa, npos, nneg, setsize,
                      "if (missing(%s)) stop(\"argument %s missing\")",
                      arg, arg)))
     }
-    if (missing(capacity)) capacity <- NULL
+    if (missing(capacity) || !is.finite(capacity)) capacity <- NULL
 
     if (length(hit) != length(fa))
         stop("hit rate and false-alarm rate must be the same length")
