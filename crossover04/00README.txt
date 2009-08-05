@@ -35,6 +35,7 @@ Support files:
    sensitivity, criterion, and, optionally a capacity limit.
 
 To-do:
+ - Create files to generate the max-rule model parameters described in the
+   first submitted draft of the paper.
  - Fit both types of models allowing criterion to change with setsize.
- - Compute Akaike information criterion (AIC) for all the models.
  - Fit models using a genetic algorithm instead of gradient descent.
