@@ -6,7 +6,7 @@ refresh <- function () {
                      "FitMaxCapSSE.r",
                      "FitMaxML.r",
                      "FitMaxCapML.r",
-                     "GLRT-Max.r",
+                     "TestFits.r",
                      "PlotFits.r")
 
     for (fname in targetFiles) {

@@ -18,7 +18,7 @@ Analyses:
    using a maximum likelihood procedure.
  - FitMaxCapML.r: Fits a limited-capacity max-rule search model to the data
    using a maximum likelihood procedure.
- - GLRT-Max.r: Runs a generalized likelihood ratio test comparing the
+ - TestFits.r: Runs various goodness-of-fit tests comparing the
    limited-capacity models to the unlimited capacity models.
  - PlotFits.r: Plots the observed and predicted hit rates and false-alarm
    rates from all the fitting procedures.

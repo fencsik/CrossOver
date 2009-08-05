@@ -5,14 +5,14 @@
 ### Analyses are specified in pairs, with the first member of each pair
 ### being the numerator and the second being the denominator in the ratio.
 
-GLRT.Max <- function () {
+TestFits <- function () {
     analyses <- matrix(c("FitMaxSSE", "FitMaxCapSSE",
                          "FitMaxML", "FitMaxCapML"),
                        nrow=2)
 
-    thisfile <- "GLRT-Max.r"
+    thisfile <- "TestFits.r"
     infiles <- paste(analyses, ".rda", sep="")
-    outfile <- "GLRT-Max.txt"
+    outfile <- "TestFits.txt"
 
     on.exit(while (sink.number() > 0) sink())
     on.exit(while (substr(search()[2], 1, 7) != "package") detach())
@@ -85,5 +85,5 @@ GLRT.Max <- function () {
     sink()
 }
 
-GLRT.Max()
-rm(GLRT.Max)
+TestFits()
+rm(TestFits)
