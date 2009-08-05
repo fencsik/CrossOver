@@ -110,7 +110,6 @@ FitMaxSSE <- function () {
                   cor(c(obs.nhits, obs.nfa), c(pred.nhits, pred.nfa))^2),
                 rule="max", crit="SSE")
     save(fit, file=outfile)
-    print(output)
 }
 
 FitMaxSSE()
