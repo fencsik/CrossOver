@@ -1,4 +1,4 @@
-### Add hit and CR rates, and standard d' and criterion, to raw data
+### Tweak the data and add standard SDT measures to raw data
 
 f.data00 <- function () {
     thisfile <- "data00.r"
@@ -16,9 +16,13 @@ f.data00 <- function () {
     ## create factors where needed
     data00$palmer <- factor(data00$palmer)
 
+    ## convert CR to FA
+    data00$nfa <- with(data00, nneg - ncr)
+    data00 <- data00[, -which(names(data00) == "ncr")]
+
     ## compute rates
-    data00$hr <- with(data00, nhits / npos)
-    data00$fa <- with(data00, 1 - ntneg / nneg)
+    hr <- with(data00, nhits / npos)
+    fa <- with(data00, nfa / nneg)
 
     ## correct HR for p={0,1}
     adjHR <- data00$nhits
@@ -29,7 +33,7 @@ f.data00 <- function () {
     adjHR <- adjHR / data00$npos
 
     ## correct CR for p={0,1}
-    adjFA <- data00$nneg - data00$ntneg
+    adjFA <- data00$nfa
     index <- adjFA == 0
     if (any(index)) adjFA[index] <- 0.5
     index <- adjFA == data00$nneg

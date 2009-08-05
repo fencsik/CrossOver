@@ -37,13 +37,13 @@ PlotFits <- function () {
 
         factors <- with(fit$data, list(setsize, cond))
         obs.hr <- with(fit$data,
-                       tapply(obs.hr, factors, mean))
+                       tapply(obs.nhits / npos, factors, mean))
         obs.fa <- with(fit$data,
-                       tapply(obs.fa, factors, mean))
+                       tapply(obs.nfa / nneg, factors, mean))
         pred.hr <- with(fit$data,
-                        tapply(pred.hr, factors, mean))
+                        tapply(pred.nhits / npos, factors, mean))
         pred.fa <- with(fit$data,
-                        tapply(pred.fa, factors, mean))
+                        tapply(pred.nfa / nneg, factors, mean))
         x <- as.numeric(dimnames(obs.hr)[[1]])
 
         for (j in seq_along(dimnames(obs.hr)[[2]])) {

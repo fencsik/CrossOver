@@ -41,13 +41,13 @@ FitMaxML <- function () {
     nSetsizes <- length(setsizes)
 
     factors <- with(data00, list(sub, cond, setsize))
-    obs.npos <- with(data00, tapply(npos, factors, sum))
-    obs.nneg <- with(data00, tapply(nneg, factors, sum))
-    obs.hr <- with(data00, tapply(nhits, factors, sum))
-    obs.fa <- obs.nneg - with(data00, tapply(ntneg, factors, sum))
+    npos <- with(data00, tapply(npos, factors, sum))
+    nneg <- with(data00, tapply(nneg, factors, sum))
+    obs.nhits <- with(data00, tapply(nhits, factors, sum))
+    obs.nfa <- with(data00, tapply(nfa, factors, sum))
 
-    pred.hr <- array(NA, dim(obs.hr), dimnames(obs.hr))
-    pred.fa <- array(NA, dim(obs.fa), dimnames(obs.fa))
+    pred.nhits <- array(NA, dim(obs.nhits), dimnames(obs.nhits))
+    pred.nfa <- array(NA, dim(obs.nfa), dimnames(obs.nfa))
 
     output <- array(NA, dim=c(nSubjects, 9, nStimsets),
                     dimnames=list(subjects,
@@ -57,7 +57,7 @@ FitMaxML <- function () {
 
 ### Fit function
     GoodnessOfFit <- function (p, obs) {
-        return(-1 * maxrulelike(obs$hr, obs$fa, obs$npos, obs$nneg,
+        return(-1 * maxrulelike(obs$nhits, obs$nfa, obs$npos, obs$nneg,
                                 setsizes, p[1], p[2]))
     }
 
@@ -66,9 +66,10 @@ FitMaxML <- function () {
     for (sub in subjects) {
         for (cond in stimsets) {
             p <- c(3, 2) # sensitivity and criterion
-            obs <- list(hr=obs.hr[sub, cond, ], fa=obs.fa[sub, cond, ],
-                        npos=obs.npos[sub, cond, ],
-                        nneg=obs.nneg[sub, cond, ])
+            obs <- list(nhits=obs.nhits[sub, cond, ],
+                        nfa=obs.nfa[sub, cond, ],
+                        npos=npos[sub, cond, ],
+                        nneg=nneg[sub, cond, ])
             o <- nlminb(p, GoodnessOfFit, obs=obs)
 
             output[sub, "s", cond] <- o$par[1]
@@ -78,37 +79,35 @@ FitMaxML <- function () {
             output[sub, "code", cond] <- o$convergence
             output[sub, "ml", cond] <- GoodnessOfFit(o$par, obs)
 
+            ## Store predicted counts
             pred <- maxrule(o$par[1], o$par[2], setsizes)
-            pred.hr[sub, cond, ] <- pred$hr
-            pred.fa[sub, cond, ] <- pred$fa
-
-            ## convert observed hr and fa back to proportions
-            obs$hr <- obs$hr / obs.npos[sub, cond, ]
-            obs$fa <- obs$fa / obs.nneg[sub, cond, ]
-            obs.hr[sub, cond, ] <- obs$hr
-            obs.fa[sub, cond, ] <- obs$fa
+            pred$nhits <- pred$hr * npos[sub, cond, ]
+            pred$nfa <- pred$fa * nneg[sub, cond, ]
+            pred.nhits[sub, cond, ] <- pred$nhits
+            pred.nfa[sub, cond, ] <- pred$nfa
 
             output[sub, "rmse", cond] <-
-                sqrt(mean((c(pred$hr, pred$fa) - c(obs$hr, obs$fa)) ^ 2))
+                sqrt(mean((c(pred$nhits, pred$nfa) -
+                           c(obs$nhits, obs$nfa)) ^ 2))
             output[sub, "r", cond] <-
-                cor(c(pred$hr, pred$fa), c(obs$hr, obs$fa))
+                cor(c(pred$nhits, pred$nfa), c(obs$nhits, obs$nfa))
             output[sub, "rsq", cond] <- output[sub, "r", cond] ^ 2
         }
     }
 
 ### convert back to data frames
-    data <- as.data.frame(as.table(obs.npos))
+    data <- as.data.frame(as.table(npos))
     names(data) <- c("sub", "cond", "setsize", "npos")
-    data$nneg <- as.data.frame(as.table(obs.nneg))$Freq
-    data$obs.hr <- as.data.frame(as.table(obs.hr))$Freq
-    data$obs.fa <- as.data.frame(as.table(obs.fa))$Freq
-    data$pred.hr <- as.data.frame(as.table(pred.hr))$Freq
-    data$pred.fa <- as.data.frame(as.table(pred.fa))$Freq
+    data$nneg <- as.data.frame(as.table(nneg))$Freq
+    data$obs.nhits <- as.data.frame(as.table(obs.nhits))$Freq
+    data$obs.nfa <- as.data.frame(as.table(obs.nfa))$Freq
+    data$pred.nhits <- as.data.frame(as.table(pred.nhits))$Freq
+    data$pred.nfa <- as.data.frame(as.table(pred.nfa))$Freq
     data <- data[with(data, order(sub, cond, setsize)), ]
 
     fit <- list(data=data, out=output,
                 rsq=with(data,
-                  cor(c(obs.hr, obs.fa), c(pred.hr, pred.fa))^2),
+                  cor(c(obs.nhits, obs.nfa), c(pred.nhits, pred.nfa))^2),
                 rule="max", crit="ML")
     save(fit, file=outfile)
     print(output)
