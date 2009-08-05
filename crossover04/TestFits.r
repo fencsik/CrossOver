@@ -13,7 +13,7 @@ TestFits <- function () {
                        ncol=4, byrow=T)
 
     thisfile <- "TestFits.r"
-    infiles <- paste(analyses, ".rda", sep="")
+    infiles <- paste(analyses[, 1:2], ".rda", sep="")
     outfile <- "TestFits.txt"
 
     on.exit(while (sink.number() > 0) sink())
