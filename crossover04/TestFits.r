@@ -9,7 +9,8 @@
 
 TestFits <- function () {
     analyses <- matrix(c("FitMaxSSE", "FitMaxCapSSE", 2, 3,
-                         "FitMaxML", "FitMaxCapML", 2, 3),
+                         "FitMaxML", "FitMaxCapML", 2, 3,
+                         "FitMaxPaper", "FitMaxCapPaper", 2, 3),
                        ncol=4, byrow=T)
 
     thisfile <- "TestFits.r"
@@ -91,7 +92,7 @@ TestFits <- function () {
                 stats[s, "p", stim] <- 1 - pchisq(x, 1)
             }
         }
-        cat(analyses[1, i], "vs.", analyses[2, i], "\n")
+        cat(analyses[i, 1], "vs.", analyses[i, 2], "\n")
         print(round(stats, 6))
         cat("\n\n")
     }
