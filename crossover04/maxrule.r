@@ -17,12 +17,12 @@ maxrule <- function (sensitivity, criterion, setsize, capacity) {
     if (missing(setsize) || length(setsize) < 1 ||
         (!is.null(dim(setsize)) &&length(setsize) != max(dim(setsize))))
         stop("setsize must be an Nx1 vector, with N >= 1")
-    if (!is.null(capacity) && (length(capacity) != 1 || !is.numeric(capacity))) {
-        stop("capacity must be a single numeric value or NULL")
-    } else if (missing(capacity) || is.null(capacity) ||
-               !is.finite(capacity) || capacity < 0) {
+    if (missing(capacity) || is.null(capacity) ||
+        !is.finite(capacity) || capacity < 0) {
         capacity <- max(setsize)
         limitedCapacity <- FALSE
+    } else if (length(capacity) != 1 || !is.numeric(capacity)) {
+        stop("capacity must be a single value that is numeric, non-finite, or NULL")
     } else {
         limitedCapacity <- TRUE
     }
