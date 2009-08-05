@@ -36,4 +36,5 @@ Support files:
 
 To-do:
  - Fit both types of models allowing criterion to change with setsize.
+ - Compute Akaike information criterion (AIC) for all the models.
  - Fit models using a genetic algorithm instead of gradient descent.
