@@ -21,6 +21,7 @@ Analyses:
  - FitMaxPaper.r: Fits an unlimited-capacity max-rule search model using
    the parameters listed in Table 1 of the first submitted draft of the
    Crossover paper.
+ - FitMaxCapPaper.r: Same as above, but for the limited-capacity model.
  - TestFits.r: Runs various goodness-of-fit tests comparing the
    limited-capacity models to the unlimited capacity models.
  - PlotFits.r: Plots the observed and predicted hit rates and false-alarm
@@ -38,7 +39,5 @@ Support files:
    sensitivity, criterion, and, optionally a capacity limit.
 
 To-do:
- - Create files to generate the max-rule model parameters described in the
-   first submitted draft of the paper.
  - Fit both types of models allowing criterion to change with setsize.
  - Fit models using a genetic algorithm instead of gradient descent.
