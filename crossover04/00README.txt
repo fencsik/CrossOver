@@ -18,6 +18,9 @@ Analyses:
    using a maximum likelihood procedure.
  - FitMaxCapML.r: Fits a limited-capacity max-rule search model to the data
    using a maximum likelihood procedure.
+ - FitMaxPaper.r: Fits an unlimited-capacity max-rule search model using
+   the parameters listed in Table 1 of the first submitted draft of the
+   Crossover paper.
  - TestFits.r: Runs various goodness-of-fit tests comparing the
    limited-capacity models to the unlimited capacity models.
  - PlotFits.r: Plots the observed and predicted hit rates and false-alarm
