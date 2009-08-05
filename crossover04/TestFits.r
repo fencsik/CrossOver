@@ -1,21 +1,23 @@
-### Perform a generalized likelihood ratio test comparing the unlimited
-### capacity max-rule models to the limited capacity max-rule models to
-### determine whether the additional capacity parameter is justified.
+### Perform various goodness-of-fit tests comparing limited-capacity and
+### unlimited-capacity models.  Tests include the generalized likelihood
+### ratio test, Akaike information criterion (AIC), and Bayes information
+### criterion (BIC).
 ###
-### Analyses are specified in pairs, with the first member of each pair
-### being the numerator and the second being the denominator in the ratio.
+### Analyses are specified in rows, with each row containing the two models
+### to compare, followed by the respective number of parameters of each
+### model.
 
 TestFits <- function () {
-    analyses <- matrix(c("FitMaxSSE", "FitMaxCapSSE",
-                         "FitMaxML", "FitMaxCapML"),
-                       nrow=2)
+    analyses <- matrix(c("FitMaxSSE", "FitMaxCapSSE", 2, 3,
+                         "FitMaxML", "FitMaxCapML", 2, 3),
+                       ncol=4, byrow=T)
 
     thisfile <- "TestFits.r"
     infiles <- paste(analyses, ".rda", sep="")
     outfile <- "TestFits.txt"
 
     on.exit(while (sink.number() > 0) sink())
-    on.exit(while (substr(search()[2], 1, 7) != "package") detach())
+    on.exit(while (substr(search()[2], 1, 7) != "package") detach(), TRUE)
 
     if (IsFileUpToDate(outfile, c(thisfile, infiles))) {
         warning("Output file is up to date, no action taken")
@@ -27,9 +29,9 @@ TestFits <- function () {
 
     sink(outfile)
 
-    for (i in 1:ncol(analyses)) {
+    for (i in 1:nrow(analyses)) {
         ## extract information from first analysis
-        load(paste(analyses[1, i], ".rda", sep=""))
+        load(paste(analyses[i, 1], ".rda", sep=""))
         attach(fit$data)
         factors <- list(sub, cond, setsize)
         npos1 <- tapply(npos, factors, sum)
@@ -40,7 +42,7 @@ TestFits <- function () {
         out1 <- fit$out
 
         ## extract information from second analysis
-        load(paste(analyses[2, i], ".rda", sep=""))
+        load(paste(analyses[i, 2], ".rda", sep=""))
         attach(fit$data)
         factors <- list(sub, cond, setsize)
         npos2 <- tapply(npos, factors, sum)
@@ -50,11 +52,15 @@ TestFits <- function () {
         detach()
         out2 <- fit$out
 
+        k1 <- as.numeric(analyses[i, 3])
+        k2 <- as.numeric(analyses[i, 4])
+
         subjects <- dimnames(npos1)[[1]]
         stimsets <- dimnames(npos1)[[2]]
         setsizes <- as.numeric(dimnames(npos1)[[3]])
-        stats <- array(NA, dim=c(length(subjects), 2, length(stimsets)),
-                       dimnames=list(subjects, c("ratio", "p"),
+        stats <- array(NA, dim=c(length(subjects), 6, length(stimsets)),
+                       dimnames=list(subjects,
+                         c("glrt", "p", "aic1", "aic2", "bic1", "bic2"),
                          stimsets))
 
         for (s in subjects) {
@@ -66,6 +72,10 @@ TestFits <- function () {
                                 out1[s, "s", stim],
                                 out1[s, "c", stim],
                                 out1[s, "k", stim])
+                stats[s, "aic1", stim] <- 2 * k1 - 2 * llike1
+                stats[s, "bic1", stim] <-
+                    k1 * log(200) - 2 * llike1
+
                 llike2 <-
                     maxrulelike(nhits2[s, stim, ], nfa2[s, stim, ],
                                 npos2[s, stim, ], nneg2[s, stim, ],
@@ -73,9 +83,12 @@ TestFits <- function () {
                                 out2[s, "s", stim],
                                 out2[s, "c", stim],
                                 out2[s, "k", stim])
-                stats[s, "ratio", stim] <- x <- -2 * (llike1 - llike2)
-                stats[s, "p", stim] <-
-                    1 - pchisq(stats[s, "ratio", stim], 1)
+                stats[s, "aic2", stim] <- 2 * k2 - 2 * llike2
+                stats[s, "bic2", stim] <-
+                    k2 * log(200) - 2 * llike2
+
+                stats[s, "glrt", stim] <- x <- -2 * (llike1 - llike2)
+                stats[s, "p", stim] <- 1 - pchisq(x, 1)
             }
         }
         cat(analyses[1, i], "vs.", analyses[2, i], "\n")
