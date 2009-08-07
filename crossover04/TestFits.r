@@ -9,6 +9,7 @@
 
 TestFits <- function () {
     analyses <- matrix(c("FitMaxSSE", "FitMaxCapSSE", 2, 3,
+                         "FitMaxCritSSE", "FitMaxCapCritSSE", 5, 6,
                          "FitMaxML", "FitMaxCapML", 2, 3,
                          "FitMaxPaper", "FitMaxCapPaper", 2, 3),
                        ncol=4, byrow=T)
@@ -56,6 +57,9 @@ TestFits <- function () {
         k1 <- as.numeric(analyses[i, 3])
         k2 <- as.numeric(analyses[i, 4])
 
+        indexc1 <- grep("c[1-9]{0,3}$", dimnames(out1)[[2]])
+        indexc2 <- grep("c[1-9]{0,3}$", dimnames(out2)[[2]])
+
         subjects <- dimnames(npos1)[[1]]
         stimsets <- dimnames(npos1)[[2]]
         setsizes <- as.numeric(dimnames(npos1)[[3]])
@@ -71,7 +75,7 @@ TestFits <- function () {
                                 npos1[s, stim, ], nneg1[s, stim, ],
                                 setsizes,
                                 out1[s, "s", stim],
-                                out1[s, "c", stim],
+                                out1[s, indexc1, stim],
                                 out1[s, "k", stim])
                 stats[s, "aic1", stim] <- 2 * k1 - 2 * llike1
                 stats[s, "bic1", stim] <-
@@ -82,7 +86,7 @@ TestFits <- function () {
                                 npos2[s, stim, ], nneg2[s, stim, ],
                                 setsizes,
                                 out2[s, "s", stim],
-                                out2[s, "c", stim],
+                                out2[s, indexc2, stim],
                                 out2[s, "k", stim])
                 stats[s, "aic2", stim] <- 2 * k2 - 2 * llike2
                 stats[s, "bic2", stim] <-

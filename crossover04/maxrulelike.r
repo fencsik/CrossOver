@@ -20,6 +20,10 @@ maxrulelike <- function(hit, fa, npos, nneg, setsize,
         stop("hit rate and false-alarm rate must be the same length")
     if (length(hit) != length(setsize))
         stop("hit rate and setsize must be the same length")
+    if (length(criterion) != 1 && length(criterion) != length(setsize)) {
+        print(criterion)
+        stop("length of criterion must be 1 or the same as setsize")
+    }
 
     if (!file.exists("maxrule.r"))
         stop("cannot find file maxrule.r")

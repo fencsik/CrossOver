@@ -16,6 +16,8 @@ Analyses:
    data by minimizing sum-squared error.
  - FitMaxCritSSE.r: Fits an unlimited-capacity max-rule search model to the
    data by minimizing SSE and allowing criterion to vary with setsize.
+ - FitMaxCapCritSSE.r: Fits a limited-capacity max-rule search model to the
+   data by minimizing SSE and allowing criterion to vary with setsize.
  - FitMaxML.r: Fits an unlimited-capacity max-rule search model to the data
    using a maximum likelihood procedure.
  - FitMaxCapML.r: Fits a limited-capacity max-rule search model to the data
@@ -45,5 +47,5 @@ To-do:
    tricky: it's unclear how to compute the likelihood of the model because
    averaging across subjects yields non-integer values, and you can't just
    sum up totals across subjects.
- - Fit both types of models allowing criterion to change with setsize.
  - Fit models using a genetic algorithm instead of gradient descent.
+ - In the variable criterion model, what the heck is going on with RER?
