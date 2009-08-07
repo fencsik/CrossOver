@@ -28,6 +28,8 @@ Analyses:
  - FitMaxCapPaper.r: Same as above, but for the limited-capacity model.
  - TestFits.r: Runs various goodness-of-fit tests comparing the
    limited-capacity models to the unlimited capacity models.
+ - FitPMaxSSE.r: Fits an unlimited-capacity max-rule search model to the
+   proportions using SSE minimization.
  - PlotFits.r: Plots the observed and predicted hit rates and false-alarm
    rates from all the fitting procedures.
  - PlotFitsSub.r: Same as above, but generates a separate plot for each
