@@ -26,8 +26,8 @@ TestFits <- function () {
         return(invisible(NULL))
     }
 
-    if (!file.exists("maxrulelike.r")) stop("cannot find maxrulelike.r")
-    source("maxrulelike.r")
+    if (!file.exists("logLikeBinom.r")) stop("cannot find logLikeBinom.r")
+    source("logLikeBinom.r")
 
     sink(outfile)
 
@@ -71,23 +71,23 @@ TestFits <- function () {
         for (s in subjects) {
             for (stim in stimsets) {
                 llike1 <-
-                    maxrulelike(nhits1[s, stim, ], nfa1[s, stim, ],
-                                npos1[s, stim, ], nneg1[s, stim, ],
-                                setsizes,
-                                out1[s, "s", stim],
-                                out1[s, indexc1, stim],
-                                out1[s, "k", stim])
+                    logLikeBinom(nhits1[s, stim, ], nfa1[s, stim, ],
+                                 npos1[s, stim, ], nneg1[s, stim, ],
+                                 setsizes,
+                                 out1[s, "s", stim],
+                                 out1[s, indexc1, stim],
+                                 out1[s, "k", stim])
                 stats[s, "aic1", stim] <- 2 * k1 - 2 * llike1
                 stats[s, "bic1", stim] <-
                     k1 * log(200) - 2 * llike1
 
                 llike2 <-
-                    maxrulelike(nhits2[s, stim, ], nfa2[s, stim, ],
-                                npos2[s, stim, ], nneg2[s, stim, ],
-                                setsizes,
-                                out2[s, "s", stim],
-                                out2[s, indexc2, stim],
-                                out2[s, "k", stim])
+                    logLikeBinom(nhits2[s, stim, ], nfa2[s, stim, ],
+                                 npos2[s, stim, ], nneg2[s, stim, ],
+                                 setsizes,
+                                 out2[s, "s", stim],
+                                 out2[s, indexc2, stim],
+                                 out2[s, "k", stim])
                 stats[s, "aic2", stim] <- 2 * k2 - 2 * llike2
                 stats[s, "bic2", stim] <-
                     k2 * log(200) - 2 * llike2

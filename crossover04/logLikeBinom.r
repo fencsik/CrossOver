@@ -4,8 +4,8 @@
 ###
 ### The arguments hit and fa must be provided as counts, not proportions
 
-maxrulelike <- function(hit, fa, npos, nneg, setsize,
-                        sensitivity, criterion, capacity) {
+logLikeBinom <- function(hit, fa, npos, nneg, setsize,
+                         sensitivity, criterion, capacity) {
 
     ## Make sure all necessary arguments were provided
     for (arg in names(formals())) {

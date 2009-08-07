@@ -23,9 +23,9 @@ FitMaxCapML <- function () {
     if (!file.exists("maxrule.r"))
         stop("cannot open file maxrule.r")
     source("maxrule.r")
-    if (!file.exists("maxrulelike.r"))
-        stop("cannot open file maxrulelike.r")
-    source("maxrulelike.r")
+    if (!file.exists("logLikeBinom.r"))
+        stop("cannot open file logLikeBinom.r")
+    source("logLikeBinom.r")
 
 ### Prepare data and output
 
@@ -57,8 +57,8 @@ FitMaxCapML <- function () {
 
 ### Fit function
     GoodnessOfFit <- function (p, obs) {
-        return(-1 * maxrulelike(obs$nhits, obs$nfa, obs$npos, obs$nneg,
-                                setsizes, p[1], p[2], p[3]))
+        return(-1 * logLikeBinom(obs$nhits, obs$nfa, obs$npos, obs$nneg,
+                                 setsizes, p[1], p[2], p[3]))
     }
 
 ### Actual fitting
