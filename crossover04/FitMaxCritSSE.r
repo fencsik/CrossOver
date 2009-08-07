@@ -111,7 +111,7 @@ FitMaxCritSSE <- function () {
     fit <- list(data=data, out=output,
                 rsq=with(data,
                   cor(c(obs.nhits, obs.nfa), c(pred.nhits, pred.nfa))^2),
-                rule="max", crit="SSE")
+                rule="max", crit="SSE", type="counts")
     save(fit, file=outfile)
 }
 
