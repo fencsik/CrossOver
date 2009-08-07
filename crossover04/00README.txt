@@ -14,6 +14,8 @@ Analyses:
    data by minimizing sum-squared error.
  - FitMaxCapSSE.r: Fits a limited-capacity max-rule search model to the
    data by minimizing sum-squared error.
+ - FitMaxCritSSE.r: Fits an unlimited-capacity max-rule search model to the
+   data by minimizing SSE and allowing criterion to vary with setsize.
  - FitMaxML.r: Fits an unlimited-capacity max-rule search model to the data
    using a maximum likelihood procedure.
  - FitMaxCapML.r: Fits a limited-capacity max-rule search model to the data

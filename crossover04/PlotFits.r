@@ -4,6 +4,7 @@
 PlotFits <- function () {
     analyses <- c("FitMaxSSE",
                   "FitMaxCapSSE",
+                  "FitMaxCritSSE",
                   "FitMaxML",
                   "FitMaxCapML",
                   "FitMaxPaper",
