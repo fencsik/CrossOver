@@ -30,6 +30,8 @@ Analyses:
    limited-capacity models to the unlimited capacity models.
  - PlotFits.r: Plots the observed and predicted hit rates and false-alarm
    rates from all the fitting procedures.
+ - PlotFitsSub.r: Same as above, but generates a separate plot for each
+   subject.
 
 Support files:
  - maxdprime.r: Computes the underlying sensitivity and criterion for a
@@ -43,7 +45,6 @@ Support files:
    sensitivity, criterion, and, optionally a capacity limit.
 
 To-do:
- - Plot individual fits.
  - Fit models to averaged data instead of individual data.  This could be
    tricky: it's unclear how to compute the likelihood of the model because
    averaging across subjects yields non-integer values, and you can't just

@@ -11,7 +11,8 @@ refresh <- function () {
                      "FitMaxPaper.r",
                      "FitMaxCapPaper.r",
                      "TestFits.r",
-                     "PlotFits.r")
+                     "PlotFits.r",
+                     "PlotFitsSub.r")
 
     for (fname in targetFiles) {
         if (!file.exists(fname)) stop(paste("File", fname, "not found"))
