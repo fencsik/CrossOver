@@ -11,9 +11,10 @@ maxrule <- function (sensitivity, criterion, setsize, capacity) {
     if (missing(sensitivity) || length(sensitivity) != 1 ||
         !is.numeric(sensitivity))
         stop("sensitivity must be a single numeric value")
-    if (missing(criterion) || length(criterion) != 1 ||
-        !is.numeric(criterion))
-        stop("criterion must be a single numeric value")
+    if (missing(criterion) || length(criterion) < 1 ||
+        !is.numeric(criterion) ||
+        (!is.null(dim(criterion)) && length(setsize) != max(dim(setsize))))
+        stop("criterion must be an Nx1 vector, with N >= 1")
     if (missing(setsize) || length(setsize) < 1 ||
         (!is.null(dim(setsize)) &&length(setsize) != max(dim(setsize))))
         stop("setsize must be an Nx1 vector, with N >= 1")
@@ -25,6 +26,9 @@ maxrule <- function (sensitivity, criterion, setsize, capacity) {
         stop("capacity must be a single value that is numeric, non-finite, or NULL")
     } else {
         limitedCapacity <- TRUE
+    }
+    if (length(criterion) > 1 && length(criterion) != length(setsize)) {
+        stop("criterion must be either a single value, or one per setsize")
     }
 
     k <- pmin(setsize, capacity)
