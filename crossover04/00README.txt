@@ -44,10 +44,15 @@ Support files:
  - maxrule.r: Computes the hit rates and false-alarm rates predicted by a
    max-rule search model based on a sensitivity and criterion at several
    setsizes.  Optionally includes a capacity limit.
- - logLikeBinom.r: Computes the log-likelihood of observing a set of hit
-   rates and false-alarm rates under a max-rule search model, given a
-   particular sensitivity, criterion, and, optionally a capacity limit.
-   Uses a binomial distribution, so requires counts, not proportions.
+ - logLikeBinom.r: Computes the log-likelihood of observing a set of hits
+   and false-alarms under a max-rule search model, given a particular
+   sensitivity, criterion, and, optionally a capacity limit.  Uses a
+   binomial distribution, so requires counts, not proportions.
+ - logLikeNorm.r: Computes the log-likelihood of observing a set of hits
+   and false-alarms under a max-rule search model, given a particular
+   sensitivity, criterion, and, optionally a capacity limit.  Uses a normal
+   approximation to the binomial distribution, but requires counts, not
+   proportions.
 
 To-do:
  - Fit models to averaged data instead of individual data.  This could be
