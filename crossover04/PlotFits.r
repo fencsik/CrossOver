@@ -10,7 +10,8 @@ PlotFits <- function () {
                   "FitMaxCapML",
                   "FitMaxPaper",
                   "FitMaxCapPaper",
-                  "FitPMaxSSE")
+                  "FitPMaxSSE",
+                  "FitPMaxCapSSE")
     
     thisfile <- "PlotFits.r"
     infiles <- paste(analyses, ".rda", sep="")

@@ -11,6 +11,7 @@ refresh <- function () {
                      "FitMaxPaper.r",
                      "FitMaxCapPaper.r",
                      "FitPMaxSSE.r",
+                     "FitPMaxCapSSE",
                      "TestFits.r",
                      "PlotFits.r",
                      "PlotFitsSub.r")
