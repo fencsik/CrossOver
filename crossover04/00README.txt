@@ -39,5 +39,9 @@ Support files:
    sensitivity, criterion, and, optionally a capacity limit.
 
 To-do:
+ - Fit models to averaged data instead of individual data.  This could be
+   tricky: it's unclear how to compute the likelihood of the model because
+   averaging across subjects yields non-integer values, and you can't just
+   sum up totals across subjects.
  - Fit both types of models allowing criterion to change with setsize.
  - Fit models using a genetic algorithm instead of gradient descent.
