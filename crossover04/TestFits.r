@@ -10,6 +10,8 @@
 TestFits <- function () {
     analyses <- matrix(c("FitMaxSSE", "FitMaxCapSSE", 2, 3,
                          "FitMaxCritSSE", "FitMaxCapCritSSE", 5, 6,
+                         "FitMaxSSE", "FitMaxCritSSE", 2, 5,
+                         "FitMaxCapSSE", "FitMaxCapCritSSE", 3, 6,
                          "FitMaxML", "FitMaxCapML", 2, 3,
                          "FitMaxPaper", "FitMaxCapPaper", 2, 3),
                        ncol=4, byrow=T)
