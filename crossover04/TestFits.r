@@ -76,7 +76,7 @@ TestFits <- function () {
                                  setsizes,
                                  out1[s, "s", stim],
                                  out1[s, indexc1, stim],
-                                 out1[s, "k", stim])
+                                 out1[s, "k", stim], correct=0.5)
                 stats[s, "aic1", stim] <- 2 * k1 - 2 * llike1
                 stats[s, "bic1", stim] <-
                     k1 * log(200) - 2 * llike1
@@ -87,7 +87,7 @@ TestFits <- function () {
                                  setsizes,
                                  out2[s, "s", stim],
                                  out2[s, indexc2, stim],
-                                 out2[s, "k", stim])
+                                 out2[s, "k", stim], correct=0.5)
                 stats[s, "aic2", stim] <- 2 * k2 - 2 * llike2
                 stats[s, "bic2", stim] <-
                     k2 * log(200) - 2 * llike2

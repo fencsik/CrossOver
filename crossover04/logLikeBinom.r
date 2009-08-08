@@ -5,11 +5,12 @@
 ### The arguments hit and fa must be provided as counts, not proportions
 
 logLikeBinom <- function(hit, fa, npos, nneg, setsize,
-                         sensitivity, criterion, capacity) {
+                         sensitivity, criterion, capacity,
+                         correct=NULL) {
 
     ## Make sure all necessary arguments were provided
     for (arg in names(formals())) {
-        if (arg == "capacity") next
+        if (arg == "capacity" || arg == "correct") next
         eval(parse(text=sprintf(
                      "if (missing(%s)) stop(\"argument %s missing\")",
                      arg, arg)))
@@ -30,6 +31,20 @@ logLikeBinom <- function(hit, fa, npos, nneg, setsize,
     source("maxrule.r")
 
     pred <- maxrule(sensitivity, criterion, setsize, capacity)
+
+    if (!is.null(correct)) {
+        if (correct == TRUE)
+            correct <- 0.5
+        ## correct 0s and 1s
+        index <- round(pred$fa, 6) == 0
+        if (any(index)) pred$fa[index] <- correct / nneg[index]
+        index <- round(pred$fa, 6)  == 1
+        if (any(index)) pred$fa[index] <- 1 - correct / nneg[index]
+        index <- round(pred$hr, 6) == 0
+        if (any(index)) pred$hr[index] <- correct / npos[index]
+        index <- round(pred$hr, 6) == 1
+        if (any(index)) pred$hr[index] <- 1 - correct / npos[index]
+    }
 
     return(sum(log(dbinom(c(hit, fa), c(npos, nneg), c(pred$hr, pred$fa)))))
 }

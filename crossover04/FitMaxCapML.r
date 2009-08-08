@@ -58,7 +58,7 @@ FitMaxCapML <- function () {
 ### Fit function
     GoodnessOfFit <- function (p, obs) {
         return(-1 * logLikeBinom(obs$nhits, obs$nfa, obs$npos, obs$nneg,
-                                 setsizes, p[1], p[2], p[3]))
+                                 setsizes, p[1], p[2], p[3], correct=TRUE))
     }
 
 ### Actual fitting
