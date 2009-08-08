@@ -21,7 +21,7 @@ TestFits <- function () {
     on.exit(while (sink.number() > 0) sink())
     on.exit(while (substr(search()[2], 1, 7) != "package") detach(), TRUE)
 
-    if (IsFileUpToDate(outfile, c(thisfile, infiles))) {
+    if (IsFileUpToDate(outfile, c(thisfile, infiles, "logLikeBinom.r"))) {
         warning("Output file is up to date, no action taken")
         return(invisible(NULL))
     }
