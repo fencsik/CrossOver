@@ -63,9 +63,10 @@ TestFits <- function () {
         subjects <- dimnames(npos1)[[1]]
         stimsets <- dimnames(npos1)[[2]]
         setsizes <- as.numeric(dimnames(npos1)[[3]])
-        stats <- array(NA, dim=c(length(subjects), 6, length(stimsets)),
+        stats <- array(NA, dim=c(length(subjects), 7, length(stimsets)),
                        dimnames=list(subjects,
-                         c("glrt", "p", "aic1", "aic2", "bic1", "bic2"),
+                         c("glrt", "df", "p",
+                           "aic1", "aic2", "bic1", "bic2"),
                          stimsets))
 
         for (s in subjects) {
@@ -93,7 +94,8 @@ TestFits <- function () {
                     k2 * log(200) - 2 * llike2
 
                 stats[s, "glrt", stim] <- x <- -2 * (llike1 - llike2)
-                stats[s, "p", stim] <- 1 - pchisq(x, 1)
+                stats[s, "df", stim] <- df <- k2 - k1
+                stats[s, "p", stim] <- 1 - pchisq(x, df)
             }
         }
         cat(analyses[i, 1], "vs.", analyses[i, 2], "\n")
