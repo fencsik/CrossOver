@@ -38,5 +38,8 @@ maxrule <- function (sensitivity, criterion, setsize, capacity) {
         (pnorm(criterion) ^ (k - 1)) - (setsize - k) / setsize *
             (pnorm(criterion) ^ k)
 
+    names(fa) <- NULL
+    names(hr) <- NULL
+
     return(list(hr=hr, fa=fa))
 }
