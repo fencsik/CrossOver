@@ -42,13 +42,14 @@ switch command
 end
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Staircaser('Create')
 
 function argout = StaircaserCreate(argin)
 
 function Help
-fprintf('\nid = Staircaser(''Create'', type, nReversals, initial, steps, [nReversalsDropped], [nTracks], [range]);\n\n');
+fprintf(['\nid = Staircaser(''Create'', type, nReversals, initial, ', ...
+         'steps, [nReversalsDropped], [nTracks], [range]);\n\n']);
 end
 
 if printHelp
@@ -67,7 +68,9 @@ elseif nargs > 7
     error('too many input arguments');
 end
 type = argin{1};
-if (type ~= 1), error('staircase types other than 1 are not yet supported'); end
+if (type ~= 1)
+    error('staircase types other than 1 are not yet supported');
+end
 nReversals = argin{2};
 initialValue = argin{3};
 steps = argin{4};
@@ -106,13 +109,19 @@ end
 if isempty(idList)
     % idList has not been initialized
     idList = zeros(idListBase, 1);
-    if debug >= 1, fprintf('%s: initialized idList to length %d\n', mfilename, numel(idList)); end
+    if debug >= 1
+        fprintf('%s: initialized idList to length %d\n', mfilename, ...
+                numel(idList));
+    end
 elseif sum(idList) == numel(idList)
     % idList is full
     newStaircaseList = zeros(numel(idList) + idListBase, 1);
     newStaircaseList(1:numel(idList)) = idList;
     idList = newStaircaseList;
-    if debug >= 1, fprintf('%s: expanded idList to length %d\n', mfilename, numel(idList)); end
+    if debug >= 1
+        fprintf('%s: expanded idList to length %d\n', mfilename, ...
+                numel(idList));
+    end
 end
 
 % pick first available id
@@ -134,7 +143,10 @@ staircase(id).finalValue = [];
 staircase(id).reversals = [];
 staircase(id).values = [];
 staircase(id).responses = [];
-scLabels = cell(nTracks, 1); for i = 1:nTracks, scLabels{i} = i; end;
+scLabels = cell(nTracks, 1);
+for i = 1:nTracks
+    scLabels{i} = i;
+end;
 staircase(id).tracks = struct('label', scLabels, ...
                               'value', initialValue, ...
                               'counter', 0, ...
@@ -145,8 +157,9 @@ staircase(id).tracks = struct('label', scLabels, ...
                               'nTrials', 0);
 idList(id) = 1;
 if debug >= 1
-    fprintf('%s: created staircase %d with %d reversals, %d reversals dropped, %d tracks\n', ...
-            mfilename, id, nReversals, nReversalsDropped, nTracks);
+    fprintf(['%s: created staircase %d with %d reversals, %d ', ...
+             'reversals dropped, %d tracks\n'], mfilename, id, ...
+            nReversals, nReversalsDropped, nTracks);
     fprintf('%s: and range of \n');
     disp(range);
 end
@@ -157,7 +170,7 @@ argout = {id, 4};
 
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Staircaser('Delete')
 
 function argout = StaircaserDelete(argin)
@@ -216,16 +229,21 @@ if numel(idList) >= idListBase && sum(idList) <= numel(idList) / 2.0 && ...
     i = numel(idList);
     while idList(i) == 0, i = i - 1; end
     idList = idList(1:i);
-    if debug >= 1, fprintf('%s: shrunk idList to length %d\n', mfilename, numel(idList)); end
+    if debug >= 1
+        fprintf('%s: shrunk idList to length %d\n', mfilename, ...
+                numel(idList));
+    end
 end
 
-if debug >= 1, fprintf('%s: deleted staircase %d\n', mfilename, id); end
+if debug >= 1
+    fprintf('%s: deleted staircase %d\n', mfilename, id);
+end
 argout = {success};
 
 end
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Staircaser('StartTrial')
 
 function argout = StaircaserStartTrial(argin)
@@ -260,21 +278,30 @@ if staircase(id).isDone
     success = 1;
     label = 0;
     value = staircase(id).finalValue;
-    if debug >= 1, fprintf('%s: staircase %d is complete\n', mfilename, id); end
+    if debug >= 1
+        fprintf('%s: staircase %d is complete\n', mfilename, id);
+    end
 elseif staircase(id).inTrial
     success = 0;
     label = [];
     value = [];
-    if debug >= 2, fprintf('%s: trial already started for staircase %d\n', mfilename, id); end
+    if debug >= 2
+        fprintf('%s: trial already started for staircase %d\n', ...
+                mfilename, id);
+    end
 else
     staircase(id).inTrial = 1;
     % pick the next remaining track
-    currentTrack = mod(staircase(id).lastTrack, staircase(id).nTracksRemaining) + 1;
+    currentTrack = mod(staircase(id).lastTrack, ...
+                       staircase(id).nTracksRemaining) + 1;
     staircase(id).currentTrack = currentTrack;
     value = staircase(id).tracks(currentTrack).value;
     success = 1;
     label = staircase(id).tracks(currentTrack).label;
-    if debug >= 2, fprintf('%s: started trial for staircase %d, track %d\n', mfilename, id, label); end
+    if debug >= 2
+        fprintf('%s: started trial for staircase %d, track %d\n', ...
+                mfilename, id, label);
+    end
 end
 
 argout = {success, value, label};
@@ -282,13 +309,14 @@ argout = {success, value, label};
 end
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Staircaser('EndTrial')
 
 function argout = StaircaserEndTrial(argin);
 
 function Help
-fprintf('\n[success, isDone, reversal] = Staircaser(''EndTrial'', id, response);\n\n');
+fprintf(['\n[success, isDone, reversal] = Staircaser(''EndTrial'', ' ...
+         'id, response);\n\n']);
 end
 
 if printHelp
@@ -313,8 +341,8 @@ if ~staircase(id).inTrial
     isDone = staircase(id).isDone;
     reversal = 0;
 elseif response < 0 || response > numel(staircase(id).steps)
-    error('invalid response code; for staircase %d, must be in range [0, %d]', ...
-          id, numel(staircase(id).steps));
+    error(['invalid response code; for staircase %d, must be in range ' ...
+           '[0, %d]'], id, numel(staircase(id).steps));
 elseif staircase(id).isDone
     success = 1;
     isDone = 1;
@@ -334,12 +362,17 @@ else
     if n > numel(staircase(id).tracks(ctrack).values)
         % need more room in values and responses array
         x = nan(n + nTrialsBase - 1, 1);
-        x(1:numel(staircase(id).tracks(ctrack).values)) = staircase(id).tracks(ctrack).values;
+        x(1:numel(staircase(id).tracks(ctrack).values)) = ...
+            staircase(id).tracks(ctrack).values;
         staircase(id).tracks(ctrack).values = x;
         x = nan(n + nTrialsBase - 1, 1);
-        x(1:numel(staircase(id).tracks(ctrack).responses)) = staircase(id).tracks(ctrack).responses;
+        x(1:numel(staircase(id).tracks(ctrack).responses)) = ...
+            staircase(id).tracks(ctrack).responses;
         staircase(id).tracks(ctrack).responses = x;
-        if debug >= 1, fprintf('%s: expanded data matrix to length %d\n', mfilename, numel(x)); end
+        if debug >= 1
+            fprintf('%s: expanded data matrix to length %d\n', ...
+                    mfilename, numel(x));
+        end
     end
     staircase(id).tracks(ctrack).values(n) = curval;
     staircase(id).tracks(ctrack).responses(n) = response;
@@ -382,18 +415,26 @@ else
     % clean out completed tracks
     if staircase(id).tracks(ctrack).counter >= staircase(id).nReversals
         % this track is done
-        if debug >= 1, fprintf('%s: completed track %d for staircase %d\n', mfilename, label, id); end
+        if debug >= 1
+            fprintf('%s: completed track %d for staircase %d\n', ...
+                    mfilename, label, id);
+        end
         nTracksRemaining = staircase(id).nTracksRemaining;
         if ctrack ~= nTracksRemaining
-            % move this track to the end of the list so the active ones are at the beginning
+            % move this track to the end of the list so the active ones are
+            % at the beginning
             tmp = staircase(id).tracks(nTracksRemaining);
-            staircase(id).tracks(nTracksRemaining) = staircase(id).tracks(ctrack);
+            staircase(id).tracks(nTracksRemaining) = ...
+                staircase(id).tracks(ctrack);
             staircase(id).tracks(ctrack) = tmp;
         end
         staircase(id).nTracksRemaining = nTracksRemaining - 1;
         staircase(id).lastTrack = 0;
     end
-    if debug >= 2, fprintf('%s: ended trial for staircase %d, track %d\n', mfilename, id, label); end
+    if debug >= 2
+        fprintf('%s: ended trial for staircase %d, track %d\n', ...
+                mfilename, id, label);
+    end
     isDone = (staircase(id).nTracksRemaining == 0);
     if isDone
         FinalizeStaircase(id);
@@ -405,7 +446,7 @@ argout = {success, isDone, reversal};
 end
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Staircaser('FinalValue')
 
 function argout = StaircaserFinalValue(argin)
@@ -439,7 +480,7 @@ argout = {value};
 end
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Staircaser('GetReversals')
 
 function argout = StaircaserGetReversals(argin)
@@ -473,7 +514,7 @@ argout = {reversals};
 end
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Staircaser('Plot')
 
 function argout = StaircaserPlot(argin)
@@ -537,7 +578,8 @@ hold all;
 if isempty(staircase(id).range)
     axis([1, max(nTrials)+1, min(min(y)), max(max(y))]);
 else
-    axis([1, max(nTrials)+1, min(staircase(id).range), max(staircase(id).range)]);
+    axis([1, max(nTrials)+1, ...
+          min(staircase(id).range), max(staircase(id).range)]);
 end        
 if ~isempty(plotTitle), title(plotTitle); end
 
@@ -557,7 +599,7 @@ hold off;
 end
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Staircaser('Progress')
 
 function argout = StaircaserProgress(argin)
@@ -565,7 +607,8 @@ function argout = StaircaserProgress(argin)
     argout = {[]};
 
     function Help
-        fprintf('\n[progress, stepsize] = Staircaser(''Progress'', id);\n\n');
+        fprintf(['\n[progress, stepsize] = ' ...
+                 'Staircaser(''Progress'', id);\n\n']);
     end
     if printHelp
         Help;
@@ -594,7 +637,7 @@ end
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Private support functions
 
 function FinalizeStaircase (id)
@@ -633,7 +676,8 @@ function val = GatherValues (id)
     val = nan(max(nTrials), nTracks);
     for t = 1:nTracks
         if nTrials(t) > 0
-            val(1:nTrials(t), t) = staircase(id).tracks(t).values(1:nTrials(t));
+            val(1:nTrials(t), t) = ...
+                staircase(id).tracks(t).values(1:nTrials(t));
         end
     end
 
@@ -652,7 +696,8 @@ function resp = GatherResponses (id)
     resp = nan(max(nTrials), nTracks);
     for t = 1:nTracks
         if nTrials(t) > 0
-            resp(1:nTrials(t), t) = staircase(id).tracks(t).responses(1:nTrials(t));
+            resp(1:nTrials(t), t) = ...
+                staircase(id).tracks(t).responses(1:nTrials(t));
         end
     end
 
