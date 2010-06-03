@@ -665,11 +665,6 @@ try
             Snd('Play', sndBeep);
          end
 
-         % compute durations and convert to milliseconds
-         durFixation = (tOnsetDisplay - tOnsetFixation) * 1000;
-         durDisplay = (isiOnsetTime - tOnsetDisplay) * 1000;
-         durISI = 0; %(displayOnsetTime - isiOnsetTime) * 1000;
-
 %%%          % output data
 %%%          dataFile = fopen(dataFileName, 'r');
 %%%          if dataFile == -1
