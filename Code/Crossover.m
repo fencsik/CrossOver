@@ -7,28 +7,15 @@ function Crossover
 experiment = 'Test01';
 Version = '0.5';
 
-%%% %%% Dialog box
-%%% dlgParam = {'subject'           , 'Subject'                          , 'xxx';
-%%%             'practiceBlock'     , 'Practice block? (1 = yes)'        , '0';
-%%%             'praTrials'         , 'No. of practice trials'           , '8';
-%%%             'expTrials'         , 'Exp trials per cell'              , '2';
-%%%             };
-%%% param = inputdlg(dlgParam(:, 2), [experiment ' Parameters'], 1, dlgParam(:, 3));
-%%% if size(param) < 1
-%%%    return
-%%% end
-%%% for a = 1:length(param)
-%%%    p = param{a};
-%%%    n = str2num(p);
-%%%    if isempty(n)
-%%%       str = 'p';
-%%%    else
-%%%       str = 'n';
-%%%    end
-%%%    eval([dlgParam{a, 1} ' = ' str ';']);
-%%% end
+% get user input
+[subject, practiceBlock, praTrials, expTrials] = ...
+    DialogBox(sprintf('%s Parameters', experiment), ...
+              'Subject:', 'xxx', 0, ...
+              'Practice block? (1 = yes)', '0', 1, ...
+              'No. of practice trials', '8', 1, ...
+              'Exp trials per cell', '2', 1);
 
-% Set any remaining parameters
+%% Set any remaining parameters
 subject = 'def';
 taskflag = 7;
 expTrials = 2;
@@ -875,3 +862,36 @@ end
 yOffset = yOffset - (rect1(RectTop) - rect2(RectTop)) / 2; % compensate for baseline
 rect = OffsetRect(CenterRect(rect1, Screen('Rect', win)), xOffset, yOffset);
 Screen('DrawText', win, string, rect(RectLeft), rect(RectTop), color);
+
+
+function varargout = DialogBox (title, varargin)
+    n = (nargin - 1);
+    if nargout ~= n / 3
+        error('input and output arguments must match');
+    end
+    prompt = varargin(1:3:n);
+    defaults = varargin(2:3:n);
+    toNum = varargin(3:3:n);
+    param = inputdlg(prompt, title, 1, defaults);
+    if isempty(param)
+        error('Dialog box cancelled');
+    end
+    varargout = cell(1, nargout);
+    for i = 1:length(param)
+        p = param{i};
+        if toNum{i}
+            n = [];
+            if ~exist(p)
+                n = str2num(p);
+                if ~isempty(n)
+                    varargout{i} = n;
+                end
+            end
+            if isempty(n)
+                error(['parameter ''%s'' value ''%s'' could not be ', ...
+                       'converted to numeric as requested'], prompt{i}, p);
+            end
+        else
+            varargout{i} = p;
+        end
+    end
