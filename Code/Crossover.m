@@ -263,21 +263,22 @@ try
    end
 
    % generate mask textures
-   nMaskTextures = 50;
+   nMaskTextures = nStimCells * 2;
+   nLines = 100;
    texMasks = zeros(nMaskTextures, 1);
-   win = Screen('OpenOffscreenWindow', winMain, [], [0 0 pedestalSize pedestalSize]);
    for n = 1:nMaskTextures
-      Screen('FillRect', win, colBackground);
-      for i = 1:30
-         Screen('DrawLine', win, Randi(256, [1, 3]) - 1, ...
-                Randi(pedestalSize + 1) - 1, Randi(pedestalSize + 1) - 1, ...
-                Randi(pedestalSize + 1) - 1, Randi(pedestalSize + 1) - 1, Randi(10));
-      end
-      mat = Screen('GetImage', win);
-      texMasks(n) = Screen('MakeTexture', winMain, mat);
+       texMasks(n) = Screen('OpenOffscreenWindow', winMain, [], ...
+                            [0 0 pedestalSize pedestalSize]);
+       Screen('BlendFunction', texMasks(n), ...
+              GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+       Screen('FillRect', texMasks(n), colBackground);
+       Screen('DrawLines', texMasks(n), ...
+              Randi(pedestalSize + 1, [2, nLines * 2]) - 1, ...
+              Randi(10, [1, nLines]), ...
+              reshape(repmat(Randi(256, [3, nLines]) - 1, [2, 1]), ...
+                      [3, nLines * 2]), ...
+              [], 1);
    end
-   Screen('Close', win);
-   clear mat;
    
    % set-up pedestal drawings
    if pedestalShape == 1
