@@ -1,6 +1,6 @@
-function CrossoverX
+function Crossover
 
-% CrossoverX
+% Crossover
 %
 % Authors: David E. Fencsik
 
