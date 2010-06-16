@@ -108,7 +108,7 @@ try
    Screen('Preference', 'VisualDebugLevel', 4);
    screenNumber=max(Screen('Screens'));
    [winMain, rectMain] = Screen('OpenWindow', screenNumber, 0, [], 32, 2);
-   [refreshDuration, dummy1, dummy2] = Screen('GetFlipInterval', winMain, 100);
+   refreshDuration = Screen('GetFlipInterval', winMain);
    Screen(winMain, 'BlendFunction', GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
    [centerX, centerY] = RectCenter(rectMain);
 
