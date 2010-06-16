@@ -105,7 +105,7 @@ AssertOpenGL;
 try
    % Open main window, double-buffered fullscreen window
    Screen('Preference', 'SkipSyncTests', 0);
-   Screen('Preference', 'VisualDebugLevel', 3);
+   Screen('Preference', 'VisualDebugLevel', 4);
    screenNumber=max(Screen('Screens'));
    [winMain, rectMain] = Screen('OpenWindow', screenNumber, 0, [], 32, 2);
    [refreshDuration, dummy1, dummy2] = Screen('GetFlipInterval', winMain, 100);
