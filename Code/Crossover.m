@@ -136,7 +136,7 @@ try
    colPedestal = colGray;
    colFixation = colRed;
    colStim = [170 170 170];
-   
+
    % other rects
    rectFixation = CenterRect([0 0 6 6], rectMain);
 
@@ -226,7 +226,7 @@ try
                                           centerX + round(pedestalRadius * sin((n - 1) * 2 * pi / nStimCells)), ...
                                           centerY + round(pedestalRadius * cos((n - 1) * 2 * pi / nStimCells)));
    end
-   
+
    % compute square rect needed to contain all stimulus cells
    extraRadius = ceil( sqrt( (.5 * RectWidth(stimCells(1, :)))^2 + (.5 * RectHeight(stimCells(1, :)))^2 ) );
    stimAreaDiameter = ceil(2 * expansionFactor * (pedestalRadius + extraRadius));
@@ -312,7 +312,7 @@ try
                       [3, nLines * 2]), ...
               [], 1);
    end
-   
+
    % set-up pedestal drawings
    if pedestalShape == 1
       pedestalCommand = 'FillRect';
@@ -338,7 +338,7 @@ try
 
    subBlockList = 1:2;
    for subBlock = subBlockList
-      
+
       if subBlock == 1
          prac = 1;
          nTrials = praTrials;
@@ -346,7 +346,7 @@ try
          prac = 0;
          nTrials = expTrials;
       end
-      
+
       if nTrials <= 0, continue; end
 
       if staircaseFlag
@@ -381,7 +381,7 @@ try
          [target, setSize, noiseLevel, stimSet] = ...
              BalanceFactors(n, 1, targetList, setSizeList, ...
                             noiseLevelList, 1:numel(stimSetList));
-      end      
+      end
 
       % set priority level
       priorityLevel = MaxPriority(winMain, 'KbCheck', 'GetSecs');
@@ -414,13 +414,13 @@ try
             error('balanceFlag values of %d are not supported', balanceFlag);
          end
          cueloc = stimloc(1:ss);
-         
+
          if allstimFlag == 0;
             nStim = ss;
          else
             nStim = nStimCells;
          end
-         
+
          texture = zeros(nStimCells, 1);
          angle = zeros(nStimCells, 1);
          if stim(stimIndex).mode == mdDetect
@@ -442,7 +442,7 @@ try
          else
             error('stim mode %d not supported', stimMode);
          end
-         
+
          % generate noise fields
          if noiseType == 0
             % whole display
@@ -463,7 +463,7 @@ try
                texNoise(i) = Screen('MakeTexture', winMain, matNoise);
             end
          end
-         
+
          % generate indexes for mask textures
          if any(maskFlag == [1 2])
             maskIndex = randperm(nMaskTextures);
@@ -550,7 +550,7 @@ try
          [t1, tLastOnset] = Screen('Flip', winMain, tNextOnset);
          isiOnsetTime = tLastOnset;
          tNextOnset = tLastOnset + durISI;
-         
+
          % mask
          t1 = GetSecs;
          Screen('FillRect', winMain, colBackground, rectDisplay);
@@ -583,7 +583,7 @@ try
          Screen('FillRect', winMain, colBackground, rectDisplay);
          [t1, lastOnsetTime] = Screen('Flip', winMain);
          maskOffsetTime = lastOnsetTime;
-      
+
          responseOnsetTime = keyTime;
          responseCode = find(keyCode);
 
@@ -624,7 +624,7 @@ try
             colFeedback = colRed;
             feedback = sprintf('YOU PRESSED A BAD KEY', trial);
          end
-         
+
          % update staircase
          reversal = 0;
          if staircaseFlag
@@ -658,7 +658,7 @@ try
          CenterText(winMain, feedback, colFeedback, 0, -50);
          [t1, lastOnsetTime] = Screen('Flip', winMain);
          feedbackOnsetTime = lastOnsetTime;
-         
+
          durExtraFeedback = 0;
          if acc == -1
             durExtraFeedback = 0.300;
@@ -737,8 +737,8 @@ clear all global
 function [pos, index] = MakeGrid (rect, rows, cols, stimrect, randomize, xnoise, ynoise)
 
 % MakeGrid generates a grid of equally-spaced rects within a
-% rectangle.  Each row of the returned matrix specifies one rect.  
-% 
+% rectangle.  Each row of the returned matrix specifies one rect.
+%
 % MAKEGRID (RECT, ROWS, COLS, STIMRECT, RANDOMIZES, XNOISE, YNOISE)
 % arranges rects of size STIMRECT within RECT in an equally spaced
 % ROWS X COLS grid.  Non-zero values of RANDOMIZE lead to
@@ -748,7 +748,7 @@ function [pos, index] = MakeGrid (rect, rows, cols, stimrect, randomize, xnoise,
 % distributed horizontal and vertical noise, respectively, added to
 % the centers of the rects (e.g., a value of 10 will lead add noise in
 % the range of [-5, 4]).
-% 
+%
 % Author: David E. Fencsik (fencsik@gmail.com)
 % $LastChangedDate$
 
@@ -783,7 +783,7 @@ for r = 1:rows
    for c = 1:cols
       pos(cols * (r - 1) + c, :) = ...
           [extBorderX + (smallW + intBorderX) * (c - 1), ...
-           extBorderY + (smallH + intBorderY) * (r - 1), ... 
+           extBorderY + (smallH + intBorderY) * (r - 1), ...
            extBorderX + (smallW + intBorderX) * (c - 1) + smallW, ...
            extBorderY + (smallH + intBorderY) * (r - 1) + smallH];
    end
@@ -809,10 +809,10 @@ end
 function [pos, index] = MakeRing (rect, stimrect, num, radius, randomize, equidistant)
 
 % MakeRing (RECT, STIMRECT, NUM, RADIUS, RANDOMIZE, EQUIDISTANT)
-% 
+%
 % Generates stimulus positions in a circle around the center of a
 % supplied display rect.
-% 
+%
 % Generates NUM positions, each with a rect the size of STIMRECT
 % located RADIUS pixels from the center of RECT.  If RANDOMIZE is 1,
 % then the order of the positions is randomized (default 0).  If
@@ -860,7 +860,7 @@ function CenterText (win, string, color, xOffset, yOffset)
 
 if nargin < 2 || numel(string) < 1
    error('Usage: %s (win, string, [color], [xOffset], [yOffset])', mfilename);
-end 
+end
 if nargin < 3 || isempty(color)
    color = BlackIndex(win);
 end
