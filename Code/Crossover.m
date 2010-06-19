@@ -243,6 +243,27 @@ try
    Screen('Flip', winMain);
    WaitSecs(.25);
 
+   % draw a sample of task stimuli
+   Screen('FillRect', winMain, colBackground);
+   Screen('FillOval', winMain, colFixation, rectFixation);
+   for n = 1:nStimCells
+       i = Randi(nStimSets);
+       if (Randi(2) == 1)
+           j = Randi(numel(stim(i).texT));
+           tex = stim(i).texT(j);
+           angle = stim(i).angleT(j);
+       else
+           j = Randi(numel(stim(i).texD));
+           tex = stim(i).texD(j);
+           angle = stim(i).angleD(j);
+       end
+       Screen('FillRect', winMain, colForeground, stimCells(n, :));
+       Screen('DrawTexture', winMain, tex, [], stimCells(n, :), angle);
+   end
+   Screen('FrameOval', winMain, colRed, rectDisplay);
+   Screen('Flip', winMain);
+   WaitSecs(.25);
+
    % define matrices for alpha channel of noise fields, to restrict their shape
    if noiseType == 1 || noiseType == 2
       % each cell gets its own noise field
