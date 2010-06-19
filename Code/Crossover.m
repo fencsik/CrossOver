@@ -336,38 +336,16 @@ try
       end
 
       % balance independent variables
-      NumberOfTrials = nTrials;
       if staircaseFlag
-         IVs = {'target'            , targetList;
-                'setSize'           , setSizeList;
-               };
+         n = ceil(nTrials / (numel(targetList) * numel(setSizeList)));
+         [target, setSize] = BalanceFactors(n, 1, targetList, setSizeList);
       else
-         IVs = {'target'            , targetList;
-                'setSize'           , setSizeList;
-                'noiseLevel'        , noiseLevelList;
-               };
+         n = ceil(nTrials / (numel(targetList) * numel(setSizeList) * ...
+                             numel(noiseLevelList)));
+         [target, setSize, noiseLevel] = ...
+             BalanceFactors(n, 1, targetList, setSizeList, noiseLevelList);
       end      
-      nVariables = size(IVs, 1);
-      varLength = zeros(nVariables, 1);
-      listLength = 1;
-      for v = 1:nVariables
-         varLength(v) = length(IVs{v, 2});
-         listLength = listLength * varLength(v);
-      end
-      nRepetitions = ceil(NumberOfTrials / listLength);
-      len1 = listLength;
-      len2 = 1;
-      [dummy, index] = sort(rand(listLength * nRepetitions, 1)); 
-      for v = 1:nVariables
-         len1 = len1 / varLength(v);
-         eval([IVs{v, 1} ' = repmat(reshape(repmat(IVs{v, 2}, len1, len2), listLength, 1), nRepetitions, 1);']);
-         eval([IVs{v, 1} ' = ' IVs{v, 1} '(index);']);
-         len2 = len2 * varLength(v);
-      end
-      if listLength * nRepetitions ~= NumberOfTrials
-         warning('unbalanced design');
-      end
-      clear NumberOfTrials IVs nVariables varLength listLength nRepetitions v dummy len1 len2 index;
+      disp([target, setSize, noiseLevel]);
 
       % set priority level
       priorityLevel = MaxPriority(winMain, 'KbCheck', 'GetSecs');
