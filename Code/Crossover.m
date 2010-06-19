@@ -361,7 +361,6 @@ try
              BalanceFactors(n, 1, targetList, setSizeList, ...
                             noiseLevelList, 1:numel(stimSetList));
       end      
-      disp([target, setSize, noiseLevel]);
 
       % set priority level
       priorityLevel = MaxPriority(winMain, 'KbCheck', 'GetSecs');
