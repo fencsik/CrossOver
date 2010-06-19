@@ -5,7 +5,7 @@ function Crossover
 % Authors: David E. Fencsik
 
 experiment = 'Test01';
-Version = '0.5';
+Version = '0.6';
 
 % get user input
 [subject, practiceBlock, praTrials, expTrials] = ...
