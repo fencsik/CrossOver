@@ -357,7 +357,6 @@ try
          trialtime = datestr(now);
 
          ss = setSize(trial);
-         noise = noiseLevel(trial);
          targ = target(trial);
 
          if staircaseFlag
@@ -366,6 +365,7 @@ try
             staircaseLabel = staircase(thisStaircase).label;
             noise = staircaseValue;
          else
+            noise = noiseLevel(trial);
             thisStaircase = 0;
             staircaseValue = noise;
             staircaseLabel = 0;
