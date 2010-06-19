@@ -17,7 +17,7 @@ Version = '0.5';
 
 %% Set any remaining parameters
 subject = 'def';
-taskflag = 7;
+stimSetList = [2 7];
 expTrials = 2;
 praTrials = 0;
 targetList = 1; %[0 1];
@@ -153,56 +153,68 @@ try
    edgeOffset = round((pedestalSize - stimSize) / 2); % distance from edge of pedestal to edge of stimulus
    middle = ceil(pedestalSize / 2); % middle of the pedestal
    stimRadius = stimWidth / 2; % distance from stimulus edge to its middle
-   if taskflag == 1
-      error('taskflag %d does not exist', taskflag);
-   elseif taskflag == 2
-      % orientation
-      mat = repmat(0, [pedestalSize, pedestalSize, 4]);
-      mat(edgeOffset+1:pedestalSize-edgeOffset, middle-stimRadius+1:middle+stimRadius, :) = ...
-          repmat(reshape([colStim 255], 1, 1, 4), [stimSize, stimWidth, 1]);
-
-      stimTextureT = Screen('MakeTexture', winMain, mat);
-      stimTextureD = stimTextureT;
-      stimAngleT = 20;
-      stimAngleD = 0;
-
-      stimMode = mdDetect;
-      responseString0 = 'absent';
-      responseString1 = 'present';
-      clear mat;
-   elseif taskflag == 7
-      %%% 2 vs. 5
-
-      % generate basic components
-      col = reshape([colStim 255], 1, 1, 4);
-      hbar = repmat(col, [stimWidth, stimSize, 1]);
-      vbar = repmat(col, [middle - edgeOffset,  stimWidth, 1]);
-      % generate common horizontal lines
-      mat = repmat(0, [pedestalSize, pedestalSize, 4]);
-      mat(edgeOffset+1:edgeOffset+stimWidth, edgeOffset+1:pedestalSize-edgeOffset, :) = hbar;
-      mat(middle-stimRadius+1:middle+stimRadius, edgeOffset+1:pedestalSize-edgeOffset, :) = hbar;
-      mat(pedestalSize-edgeOffset-stimWidth+1:pedestalSize-edgeOffset, edgeOffset+1:pedestalSize-edgeOffset, :) = hbar;
-
-      % generate 2
-      mat2 = mat;
-      mat2(edgeOffset+1:middle, pedestalSize-edgeOffset-stimWidth+1:pedestalSize-edgeOffset, :) = vbar;
-      mat2(middle+1:pedestalSize-edgeOffset, edgeOffset+1:edgeOffset+stimWidth, :) = vbar;
-      stimTextureT = Screen('MakeTexture', winMain, mat2);
-      stimAngleT = 0;
-      
-      % generate 5
-      mat5 = mat;
-      mat5(edgeOffset+1:middle, edgeOffset+1:edgeOffset+stimWidth, :) = vbar;
-      mat5(middle+1:pedestalSize-edgeOffset, pedestalSize-edgeOffset-stimWidth+1:pedestalSize-edgeOffset, :) = vbar;
-      stimTextureD = Screen('MakeTexture', winMain, mat5);
-      stimAngleD = 0;
-
-      stimMode = mdDetect;
-      responseString0 = 'absent';
-      responseString1 = 'present';
-      clear mat mat2 mat5;
-   else
-      error('taskflag %d does not exist', taskflag);
+   nStimSets = numel(stimSetList);
+   stim = struct('texT', cell(1, nStimSets), ...
+                 'texD', cell(1, nStimSets), ...
+                 'angleT', cell(1, nStimSets), ...
+                 'angleD', cell(1, nStimSets), ...
+                 'mode', cell(1, nStimSets), ...
+                 'resp', cell(1, nStimSets));
+   for i = 1:nStimSets
+       switch stimSetList(i)
+         case 2
+           % orientation
+           mat = repmat(0, [pedestalSize, pedestalSize, 4]);
+           mat(edgeOffset+1:pedestalSize-edgeOffset, ...
+               middle-stimRadius+1:middle+stimRadius, :) = ...
+               repmat(reshape([colStim 255], 1, 1, 4), [stimSize, stimWidth, 1]);
+           stim(i).texT = Screen('MakeTexture', winMain, mat);
+           stim(i).texD = stim(i).texT;
+           stim(i).angleT = 20;
+           stim(i).angleD = 0;
+           stim(i).mode = mdDetect;
+           stim(i).response = {'absent', 'present'};
+           clear mat;
+         case 7
+           %%% 2 vs. 5
+           % generate basic components
+           col = reshape([colStim 255], 1, 1, 4);
+           hbar = repmat(col, [stimWidth, stimSize, 1]);
+           vbar = repmat(col, [middle - edgeOffset,  stimWidth, 1]);
+           % generate common horizontal lines
+           mat = repmat(0, [pedestalSize, pedestalSize, 4]);
+           mat(edgeOffset+1:edgeOffset+stimWidth, ...
+               edgeOffset+1:pedestalSize-edgeOffset, :) = hbar;
+           mat(middle-stimRadius+1:middle+stimRadius, ...
+               edgeOffset+1:pedestalSize-edgeOffset, :) = hbar;
+           mat(pedestalSize-edgeOffset-stimWidth+1:...
+               pedestalSize-edgeOffset, ...
+               edgeOffset+1:pedestalSize-edgeOffset, :) = hbar;
+           % generate 2
+           mat2 = mat;
+           mat2(edgeOffset+1:middle, ...
+                pedestalSize-edgeOffset-stimWidth+1:...
+                pedestalSize-edgeOffset, :) = vbar;
+           mat2(middle+1:pedestalSize-edgeOffset, ...
+                edgeOffset+1:edgeOffset+stimWidth, :) = vbar;
+           stim(i).texT = Screen('MakeTexture', winMain, mat2);
+           stim(i).angleT = 0;
+           % generate 5
+           mat5 = mat;
+           mat5(edgeOffset+1:middle, ...
+                edgeOffset+1:edgeOffset+stimWidth, :) = vbar;
+           mat5(middle+1:pedestalSize-edgeOffset, ...
+                pedestalSize-edgeOffset-stimWidth+1:...
+                pedestalSize-edgeOffset, :) = vbar;
+           stim(i).texD = Screen('MakeTexture', winMain, mat5);
+           stim(i).angleD = 0;
+           % miscellaneous
+           stim(i).mode = mdDetect;
+           stim(i).response = {'absent', 'present'};
+           clear mat mat2 mat5;
+         otherwise
+           error('stimulus set %d does not exist', stimSetList(i));
+       end
    end
 
    % define stimulus presentation cells
@@ -337,13 +349,17 @@ try
 
       % balance independent variables
       if staircaseFlag
-         n = ceil(nTrials / (numel(targetList) * numel(setSizeList)));
-         [target, setSize] = BalanceFactors(n, 1, targetList, setSizeList);
+         n = ceil(nTrials / (numel(targetList) * numel(setSizeList) * ...
+                             numel(stimSetList)));
+         [target, setSize, stimSet] = ...
+             BalanceFactors(n, 1, targetList, setSizeList, ...
+                            1:numel(stimSetList));
       else
          n = ceil(nTrials / (numel(targetList) * numel(setSizeList) * ...
-                             numel(noiseLevelList)));
-         [target, setSize, noiseLevel] = ...
-             BalanceFactors(n, 1, targetList, setSizeList, noiseLevelList);
+                             numel(noiseLevelList) * numel(stimSetList)));
+         [target, setSize, noiseLevel, stimSet] = ...
+             BalanceFactors(n, 1, targetList, setSizeList, ...
+                            noiseLevelList, 1:numel(stimSetList));
       end      
       disp([target, setSize, noiseLevel]);
 
@@ -358,6 +374,7 @@ try
 
          ss = setSize(trial);
          targ = target(trial);
+         stimIndex = stimSet(trial);
 
          if staircaseFlag
             thisStaircase = Randi(nStaircases);
@@ -386,20 +403,21 @@ try
          
          texture = zeros(nStimCells, 1);
          angle = zeros(nStimCells, 1);
-         if stimMode == mdDetect
+         if stim(stimIndex).mode == mdDetect
             if targ
                % select target stimuli
-               index = Randi(length(stimTextureT));
-               texture(1) = stimTextureT(index);
-               angle(1) = stimAngleT(index);
+               index = Randi(length(stim(stimIndex).texT));
+               texture(1) = stim(stimIndex).texT(index);
+               angle(1) = stim(stimIndex).angleT(index);
                % define index for remaining stimuli
-               index = Randi(length(stimTextureD), size(texture));
-               texture(2:nStimCells) = stimTextureD(index(2:nStimCells));
-               angle(2:nStimCells) = stimAngleD(index(2:nStimCells));
+               index = Randi(length(stim(stimIndex).texD), ...
+                             [numel(texture) - 1, 1]);
+               texture(2:nStimCells) = stim(stimIndex).texD(index);
+               angle(2:nStimCells) = stim(stimIndex).angleD(index);
             else
-               index = Randi(length(stimTextureD), size(texture));
-               texture = stimTextureD(index);
-               angle = stimAngleD(index);
+               index = Randi(length(stim(stimIndex).texD), size(texture));
+               texture = stim(stimIndex).texD(index);
+               angle = stim(stimIndex).angleD(index);
             end
          else
             error('stim mode %d not supported', stimMode);
@@ -557,14 +575,14 @@ try
          elseif numel(responseCode) > 1
             responseString = 'multi';
          elseif responseCode == response0
-            responseString = responseString0;
+            responseString = stim(stimIndex).response{1};
             if targ
                acc = 0;
             else
                acc = 1;
             end
          elseif responseCode == response1
-            responseString = responseString1;
+            responseString = stim(stimIndex).response{2};
             if targ
                acc = 1;
             else
