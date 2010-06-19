@@ -704,18 +704,14 @@ try
 catch
    %this "catch" section executes in case of an error in the "try" section
    %above.  Importantly, it closes the onscreen window if its open.
-   Priority(0);
-   fprintf('error caught...\n\n');
-   Screen('CloseAll');
-   ShowCursor;
-   rethrow(lasterror);
+   ple();
 end %try..catch..
 
-Screen('CloseAll');
-ShowCursor;
 Priority(0);
-
-
+ShowCursor;
+fclose('all');
+Screen('CloseAll');
+clear all global
 
 function [pos, index] = MakeGrid (rect, rows, cols, stimrect, randomize, xnoise, ynoise)
 
