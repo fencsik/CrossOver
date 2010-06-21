@@ -82,8 +82,7 @@ mdDetect = 1; % target present on half of trials, remaining stim are distractors
 mdIdentify = 2; % two target classes, one present on every trial, remaining are distractors
 
 % misc set-up
-seed = sum(100*clock);
-rand('state', seed);
+rand('twister', 100 * sum(clock));
 dataFileName = sprintf('%sData-%s.txt', experiment, subject);
 [status, result] = system('echo $HOSTNAME');
 if status == 0
