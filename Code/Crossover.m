@@ -342,16 +342,17 @@ function Crossover
             if (phase == 1)
                 %% Initial practice trials
                 if praTrials > 0
-                    nTrials = praTrials;
                     phaseName = 'practice';
+                    nTrials = praTrials;
                 else
                     continue;
                 end
             elseif (phase == 2)
                 %% Optional staircasing trials
                 if doStaircase
-                    nTrials = 200;
                     phaseName = 'staircase';
+                    nTrials = 10 * numel(targetList) * ...
+                              numel(setSizeList) * numel(stimSetList);
                     %% initialize staircase
                     staircase = zeros(nStimSets, 1)
                     finalValue = nan(nStimSets, 1);
@@ -362,7 +363,7 @@ function Crossover
                                        nReversalsDropped, ...
                                        nStaircaseTracks, staircaseRange);
                     end
-                    staircaseTrialsRemaining = 0;
+                    staircaseTrialCounter = 0;
                 else
                     continue;
                 end
@@ -370,48 +371,19 @@ function Crossover
                 %% Experimental trials, with noise level determined by
                 %% staircase phase or by fixed values
                 if expTrials > 0
-                    nTrials = expTrials;
                     phaseName = 'fixed';
+                    nTrials = expTrials;
                 else
                     continue;
                 end
             end
 
-            if staircaseFlag
-                nTrials = nReversals * nStaircases * 8; % might want to adjust the factor to get enough trials to run a complete staircase
-                prac = 1;
-
-                % set up staircase
-                scLabels = cell(nStaircases, 1); for i = 1:nStaircases, scLabels{i} = i; end;
-                staircase = struct('label', scLabels, ...
-                                   'value', noiseLevelList(1), ...
-                                   'counter', 1, ...
-                                   'lastacc', []);
-                staircaseReversals = zeros(nReversals, nStaircases);
-                clear scLabels;
-
-                fprintf('\nInitial staircase info:\n');
-                for i = 1:length(staircase)
-                    staircase(i)
-                end
-            end
-
             % balance independent variables
-            if staircaseFlag
-                n = ceil(nTrials / (numel(targetList) * ...
-                                    numel(setSizeList) * ...
-                                    numel(stimSetList)));
-                [target, setSize, stimSet] = ...
-                    BalanceFactors(n, 1, targetList, setSizeList, ...
-                                   1:numel(stimSetList));
-            else
-                n = ceil(nTrials / (numel(targetList) * ...
-                                    numel(setSizeList) * ...
-                                    numel(noiseLevelList) * ...
-                                    numel(stimSetList)));
+            if ~doStaircase
                 [target, setSize, noiseLevel, stimSet] = ...
-                    BalanceFactors(n, 1, targetList, setSizeList, ...
-                                   noiseLevelList, 1:numel(stimSetList));
+                    BalanceFactors2(nTrials, 1, targetList, ...
+                                    setSizeList, noiseLevelList, ...
+                                    1:numel(stimSetList));
             end
 
             % set priority level
@@ -419,9 +391,21 @@ function Crossover
             % Priority(priorityLevel);
             Priority(0);
 
-            for trial = 1:nTrials
+            done = 0;
+            while (~done)
                 prepStartTime = GetSecs;
-                trialtime = datestr(now);
+                trialtime = datestr(now, 'yyyymmdd.HHMMSS');
+
+                if (doStaircase)
+                    staircaseTrialCounter = staircaseTrialCounter + 1;
+                    if (staircaseTrialCounter > nTrials)
+                        [target, setSize, stimSet] = ...
+                            BalanceFactors2(nTrials, 1, ...
+                                            targetList, setSizeList, ...
+                                            1:numel(stimSetList));
+                        staircaseTrialCounter = 1;
+                    end
+                        
 
                 ss = setSize(trial);
                 targ = target(trial);
