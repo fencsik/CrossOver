@@ -26,11 +26,11 @@ function Crossover
 
     % staircase parameters
     staircaseFlag = 0;
-    nStaircases = 1;
+    nStaircaseTracks = 1;
     nReversals = 20;
-    nReversalsUsed = 10;
-    staircaseStepError = -0.10;
-    staircaseStepCorrect = 0.025;
+    nReversalsDropped = 10;
+    staircaseStart = 0.5;
+    staircaseSteps = [0.025, -0.025]; % Correct, Error
     staircaseRange = [0 1];
 
     % control how stimuli are presented and cued
@@ -336,18 +336,46 @@ function Crossover
         Screen('Flip', winMain);
         %    KbWait;
 
-        subBlockList = 1:2;
-        for subBlock = subBlockList
-
-            if subBlock == 1
-                prac = 1;
-                nTrials = praTrials;
+        blockPhaseStrings = {'practice', 'staircase', 'fixed'};
+        blockPhases = 1:3;
+        for phase = blockPhases
+            if (phase == 1)
+                %% Initial practice trials
+                if praTrials > 0
+                    nTrials = praTrials;
+                    phaseName = 'practice';
+                else
+                    continue;
+                end
+            elseif (phase == 2)
+                %% Optional staircasing trials
+                if doStaircase
+                    nTrials = 200;
+                    phaseName = 'staircase';
+                    %% initialize staircase
+                    staircase = zeros(nStimSets, 1)
+                    finalValue = nan(nStimSets, 1);
+                    for i = 1:nStimSets
+                        staircase(i) = ...
+                            Staircaser('Create', 1, nReversals, ...
+                                       staircaseStart, staircaseSteps, ...
+                                       nReversalsDropped, ...
+                                       nStaircaseTracks, staircaseRange);
+                    end
+                    staircaseTrialsRemaining = 0;
+                else
+                    continue;
+                end
             else
-                prac = 0;
-                nTrials = expTrials;
+                %% Experimental trials, with noise level determined by
+                %% staircase phase or by fixed values
+                if expTrials > 0
+                    nTrials = expTrials;
+                    phaseName = 'fixed';
+                else
+                    continue;
+                end
             end
-
-            if nTrials <= 0, continue; end
 
             if staircaseFlag
                 nTrials = nReversals * nStaircases * 8; % might want to adjust the factor to get enough trials to run a complete staircase
