@@ -363,7 +363,7 @@ function Crossover
                                        nReversalsDropped, ...
                                        nStaircaseTracks, staircaseRange);
                     end
-                    staircaseTrialCounter = 0;
+                    staircaseTrialCounter = nTrials;
                 else
                     continue;
                 end
@@ -391,9 +391,11 @@ function Crossover
             % Priority(priorityLevel);
             Priority(0);
 
+            trial = 0;
             done = 0;
             while (~done)
                 prepStartTime = GetSecs;
+                trial = trial + 1;
                 trialtime = datestr(now, 'yyyymmdd.HHMMSS');
 
                 if (doStaircase)
@@ -405,24 +407,24 @@ function Crossover
                                             1:numel(stimSetList));
                         staircaseTrialCounter = 1;
                     end
-                        
-
-                ss = setSize(trial);
-                targ = target(trial);
-                stimIndex = stimSet(trial);
-
-                if staircaseFlag
-                    thisStaircase = Randi(nStaircases);
-                    staircaseValue = staircase(thisStaircase).value;
-                    staircaseLabel = staircase(thisStaircase).label;
-                    noise = staircaseValue;
+                    ss = setSize(staircaseTrialCounter);
+                    targ = target(staircaseTrialCounter);
+                    stimIndex = stimSet(staircaseTrialCounter);
+                    [success, noise, trackLabel] = ...
+                        Staircaser('StartTrial', staircase(stimIndex));
+                    if (~success)
+                        error('Staircaser StartTrial failed on trial %d', ...
+                              trial);
+                    end
                 else
+                    ss = setSize(trial);
+                    targ = target(trial);
+                    stimIndex = stimSet(trial);
                     noise = noiseLevel(trial);
-                    thisStaircase = 0;
-                    staircaseValue = noise;
-                    staircaseLabel = 0;
+                    trackLabel = 0;
                 end
 
+                %% Setup display layout
                 if balanceFlag == 0
                     stimloc = stimCells(randperm(nStimCells), :);
                 else
