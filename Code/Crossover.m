@@ -4,6 +4,13 @@ function Crossover
 %
 % Authors: David E. Fencsik
 
+% 2010-06 revision to manipulate stim-sets within block
+% Todo:
+%  - Revise staircase code
+%  - Output data
+%  - Cleanup keypress handling
+%  - Test
+
     experiment = 'Test01';
     Version = '0.6';
 
