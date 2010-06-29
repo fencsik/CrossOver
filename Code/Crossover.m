@@ -8,6 +8,8 @@ function Crossover
 % Todo:
 %  - Revise staircase code
 %  - Output data
+%  - Palmer-style setsize manipulation: show all stim with precue
+%  - Fix pedestal/stim size (stim are currently too big)
 %  - Cleanup keypress handling
 %  - Test
 
