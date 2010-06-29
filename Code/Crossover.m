@@ -735,9 +735,9 @@ function Crossover
                     end
                 end
 
-            end % for trial = 1:nTrials
+            end % trial loop
             Priority(0);
-        end % for subBlock = 1:subBlockList
+        end % block loop
 
     catch
         %this "catch" section executes in case of an error in the "try" section
