@@ -673,7 +673,7 @@ function Crossover
                 reversal = 0;
                 if doStaircase
                     if any(acc == [0 1])
-                        r = acc + 1
+                        r = acc + 1;
                     else
                         r = 0;
                     end
