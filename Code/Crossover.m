@@ -616,11 +616,12 @@ function Crossover
 
                 % process response
                 rt = (responseOnsetTime - tOnsetDisplay) * 1000;
-                acc = -1;
                 if isempty(responseCode)
                     responseString = 'none';
+                    acc = -1;
                 elseif numel(responseCode) > 1
                     responseString = 'multi';
+                    acc = -2;
                 elseif responseCode == response0
                     responseString = stim(stimIndex).response{1};
                     if targ
@@ -637,7 +638,8 @@ function Crossover
                     end
                 else
                     % non-response key pressed
-                    responseString = KbName(responseCode);
+                    responseString = sprintf('%d', responseCode);
+                    acc = -3;
                 end
 
                 % prepare feedback
