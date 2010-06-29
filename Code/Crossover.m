@@ -358,6 +358,7 @@ function Crossover
                           numel(setSizeList) * numel(stimSetList);
                 %% initialize staircase
                 staircase = zeros(nStimSets, 1);
+                staircaseIsDone = zeros(nStimSets, 1);
                 for i = 1:nStimSets
                     staircase(i) = ...
                         Staircaser('Create', 1, nReversals, ...
@@ -681,6 +682,8 @@ function Crossover
                     if (~success)
                         error('Staircaser EndTrial failed on trial %d', ...
                               trial);
+                    elseif (done)
+                        staircaseIsDone(stimIndex) = 1;
                     end
                 end
 
