@@ -643,15 +643,22 @@ function Crossover
                 end
 
                 % prepare feedback
-                if acc == 0
+                switch acc
+                  case 0
                     feedback = sprintf('TRIAL %d - ERROR', trial);
                     colFeedback = colRed;
-                elseif acc == 1
+                  case 1
                     feedback = sprintf('TRIAL %d - CORRECT', trial);
                     colFeedback = colGreen;
-                else
+                  case -1
+                    feedback = 'NO RESPONSE';
                     colFeedback = colRed;
-                    feedback = sprintf('YOU PRESSED A BAD KEY', trial);
+                  case -2
+                    feedback = 'MULTIPLE KEYS PRESSED';
+                    colFeedback = colRed;
+                  case -3
+                    feedback = 'NON-RESPONSE KEY PRESSED';
+                    colFeedback = colRed;
                 end
 
                 % update staircase
