@@ -653,33 +653,6 @@ function Crossover
                     colFeedback = colRed;
                 end
 
-                % update staircase
-                reversal = 0;
-                if staircaseFlag
-                    if ~isempty(staircase(thisStaircase).lastacc) && acc >= 0 && acc ~= staircase(thisStaircase).lastacc
-                        reversal = 1;
-                        staircaseReversals(staircase(thisStaircase).counter, thisStaircase) = staircase(thisStaircase).value;
-                        staircase(thisStaircase).counter = staircase(thisStaircase).counter + 1;
-                    end
-                    % update staircase value
-                    if acc == 0
-                        % make it easier
-                        staircase(thisStaircase).value = staircase(thisStaircase).value + staircaseStepError;
-                    elseif acc == 1
-                        % make it harder
-                        staircase(thisStaircase).value = staircase(thisStaircase).value + staircaseStepCorrect;
-                    end
-                    if staircase(thisStaircase).value > max(staircaseRange)
-                        staircase(thisStaircase).value = max(staircaseRange);
-                    end
-                    if staircase(thisStaircase).value < min(staircaseRange)
-                        staircase(thisStaircase).value = min(staircaseRange);
-                    end
-                    if acc >= 0
-                        staircase(thisStaircase).lastacc = acc;
-                    end
-                end
-
                 % present feedback
                 Screen('FillRect', winMain, colBackground, rectDisplay);
                 Screen('FrameRect', winMain, colFrame, rectDisplay);
@@ -693,6 +666,22 @@ function Crossover
                     Snd('Play', sndBeep);
                     Snd('Play', sndBeep);
                     Snd('Play', sndBeep);
+                end
+
+                % update staircase
+                reversal = 0;
+                if doStaircase
+                    if any(acc == [0 1])
+                        r = acc + 1
+                    else
+                        r = 0;
+                    end
+                    [success, done, reversal] = ...
+                        Staircaser('EndTrial', staircase(stimIndex), r);
+                    if (~success)
+                        error('Staircaser EndTrial failed on trial %d', ...
+                              trial);
+                    end
                 end
 
                 %%%          % output data
