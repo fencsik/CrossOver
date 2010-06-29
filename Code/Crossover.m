@@ -346,43 +346,33 @@ function Crossover
         blockPhaseStrings = {'practice', 'staircase', 'fixed'};
         blockPhases = 1:3;
         for phase = blockPhases
-            if (phase == 1)
-                %% Initial practice trials
-                if praTrials > 0
-                    phaseName = 'practice';
-                    nTrials = praTrials;
-                else
-                    continue;
-                end
-            elseif (phase == 2)
+            if (phase == 1 && praTrials > 0)
+                phaseName = 'practice';
+                nTrials = praTrials;
+            elseif (phase == 2 && staircaseFlag)
                 %% Optional staircasing trials
-                if doStaircase
-                    phaseName = 'staircase';
-                    nTrials = 10 * numel(targetList) * ...
-                              numel(setSizeList) * numel(stimSetList);
-                    %% initialize staircase
-                    staircase = zeros(nStimSets, 1)
-                    finalValue = nan(nStimSets, 1);
-                    for i = 1:nStimSets
-                        staircase(i) = ...
-                            Staircaser('Create', 1, nReversals, ...
-                                       staircaseStart, staircaseSteps, ...
-                                       nReversalsDropped, ...
-                                       nStaircaseTracks, staircaseRange);
-                    end
-                    staircaseTrialCounter = nTrials;
-                else
-                    continue;
+                phaseName = 'staircase';
+                doStaircase = 1;
+                nTrials = 10 * numel(targetList) * ...
+                          numel(setSizeList) * numel(stimSetList);
+                %% initialize staircase
+                staircase = zeros(nStimSets, 1)
+                for i = 1:nStimSets
+                    staircase(i) = ...
+                        Staircaser('Create', 1, nReversals, ...
+                                   staircaseStart, staircaseSteps, ...
+                                   nReversalsDropped, ...
+                                   nStaircaseTracks, staircaseRange);
                 end
-            else
+                staircaseTrialCounter = nTrials;
+            elseif (phase == 3 && expTrials > 0)
                 %% Experimental trials, with noise level determined by
                 %% staircase phase or by fixed values
-                if expTrials > 0
-                    phaseName = 'fixed';
-                    nTrials = expTrials;
-                else
-                    continue;
-                end
+                phaseName = 'fixed';
+                nTrials = expTrials;
+            else
+                % none of the phases are applicable
+                continue;
             end
 
             % balance independent variables
