@@ -716,26 +716,11 @@ function Crossover
                 Screen('FrameRect', winMain, colFrame, rectDisplay);
                 Screen('Flip', winMain, lastOnsetTime + durFeedback + durExtraFeedback);
 
-                % clean out any completed staircases
-                if staircaseFlag
-                    if staircase(thisStaircase).counter > nReversals
-                        % this staircase is done
-                        if thisStaircase ~= nStaircases
-                            % rearrange the staircases so the active ones are at the beginning
-                            tmp = staircaseReversals(:, nStaircases);
-                            staircaseReversals(:, nStaircases) = staircaseReversals(:, thisStaircase);
-                            staircaseReversals(:, thisStaircase) = tmp;
-
-                            tmp = staircase(nStaircases);
-                            staircase(nStaircases) = staircase(thisStaircase);
-                            staircase(thisStaircase) = tmp;
-                        end
-                        nStaircases = nStaircases - 1;
-                    end
-
-                    if nStaircases <= 0
-                        break;
-                    end
+                % Check whether block is done
+                if (any(phase == [1 3]) && trial >= nTrials)
+                    blockDone = 1;
+                elseif (phase == 2 && doStaircase && all(staircaseIsDone))
+                    blockDone = 1;
                 end
 
             end % trial loop
