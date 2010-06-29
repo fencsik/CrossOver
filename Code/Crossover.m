@@ -392,8 +392,8 @@ function Crossover
             Priority(0);
 
             trial = 0;
-            done = 0;
-            while (~done)
+            blockDone = 0;
+            while (~blockDone)
                 prepStartTime = GetSecs;
                 trial = trial + 1;
                 trialtime = datestr(now, 'yyyymmdd.HHMMSS');
