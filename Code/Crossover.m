@@ -349,6 +349,7 @@ function Crossover
             if (phase == 1 && praTrials > 0)
                 phaseName = 'practice';
                 nTrials = praTrials;
+                doStaircase = 0;
             elseif (phase == 2 && staircaseFlag)
                 %% Optional staircasing trials
                 phaseName = 'staircase';
@@ -370,6 +371,7 @@ function Crossover
                 %% staircase phase or by fixed values
                 phaseName = 'fixed';
                 nTrials = expTrials;
+                doStaircase = 0;
             else
                 % none of the phases are applicable
                 continue;
