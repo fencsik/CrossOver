@@ -37,7 +37,7 @@ function Crossover
     nReversals = 20;
     nReversalsDropped = 10;
     staircaseStart = 0.5;
-    staircaseSteps = [0.025, -0.025]; % Correct, Error
+    staircaseSteps = [-0.1, 0.025]; % Error, Correct
     staircaseRange = [0 1];
 
     % control how stimuli are presented and cued
