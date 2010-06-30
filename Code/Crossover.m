@@ -10,9 +10,9 @@ function Crossover
 %  + Output data
 %  - Palmer-style setsize manipulation: show all stim with precue
 %  + Fix pedestal/stim size (stim are currently too big)
-%  - Cleanup keypress handling
+%  + Cleanup keypress handling
 %    + Switch loops to KbStrokeWait or the like
-%    - Process response more intelligently
+%    + Process response more intelligently
 %  - Calculate and save actual exposure duration
 %  - Change sound to PortAudio
 %  - Test
@@ -598,19 +598,17 @@ function Crossover
                 maskOnsetTime = tLastOnset;
 
                 % collect response
-                while 1
-                    [keyDown, keyTime, keyCode] = KbCheck;
-                    if keyDown && any(keyCode(allowedResponses))
-                        break;
-                    end
-                    WaitSecs(0.001); % free up CPU for other tasks
-                end
+                [keyTime, keyCode] = KbStrokeWait();
                 Screen('FillRect', winMain, colBackground, rectDisplay);
                 [t1, lastOnsetTime] = Screen('Flip', winMain);
                 maskOffsetTime = lastOnsetTime;
 
                 responseOnsetTime = keyTime;
                 responseCode = find(keyCode);
+
+                if (responseCode == respQuit)
+                    error('Abort key pressed');
+                end
 
                 % process response
                 rt = (responseOnsetTime - tOnsetDisplay) * 1000;
