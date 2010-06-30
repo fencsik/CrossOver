@@ -11,7 +11,7 @@ function Crossover
 %  - Palmer-style setsize manipulation: show all stim with precue
 %  + Fix pedestal/stim size (stim are currently too big)
 %  - Cleanup keypress handling
-%    - Switch loops to KbStrokeWait or the like
+%    + Switch loops to KbStrokeWait or the like
 %    - Process response more intelligently
 %  - Calculate and save actual exposure duration
 %  - Change sound to PortAudio
@@ -501,11 +501,7 @@ function Crossover
                 prepDur = (GetSecs - prepStartTime) * 1000;
 
                 % make sure no keys are pressed
-                [keyDown, keyTime, keyCode] = KbCheck;
-                while keyDown
-                    [keyDown, keyTime, keyCode] = KbCheck;
-                    WaitSecs(0.001); % free up CPU for other tasks
-                end
+                KbReleaseWait();
 
                 % pretrial blank
                 Screen('FillRect', winMain, colBackground);
