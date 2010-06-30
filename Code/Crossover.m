@@ -13,9 +13,14 @@ function Crossover
 %  + Cleanup keypress handling
 %    + Switch loops to KbStrokeWait or the like
 %    + Process response more intelligently
+%  - Reduce response set-up code and switch to a/' keys
 %  - Calculate and save actual exposure duration
+%  - Use bulk texture etc. drawing functions wherever possible
 %  - Change sound to PortAudio
 %  - Use new DrawFormattedText for all text drawing
+%  - Generate masks only when needed
+%  - Remove test drawing commands
+%  - Adjust timing for refresh duration
 %  - Test
 
     experiment = 'Test01';
