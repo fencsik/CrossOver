@@ -9,7 +9,7 @@ function Crossover
 %  + Revise staircase code
 %  + Output data
 %  - Palmer-style setsize manipulation: show all stim with precue
-%  - Fix pedestal/stim size (stim are currently too big)
+%  + Fix pedestal/stim size (stim are currently too big)
 %  - Cleanup keypress handling
 %    - Switch loops to KbStrokeWait or the like
 %    - Process response more intelligently
@@ -71,7 +71,7 @@ function Crossover
     %  53 cm -> 30.07 pix/deg ---  52 cm -> 29.50 pix/deg
     nStimCells = 8;
     pedestalRadius = 256;
-    pedestalSize = 128; % make sure pedestalSize - stimulusSize >= 0 and is even
+    pedestalSize = 150; % make sure pedestalSize - stimulusSize >= 0 and is even
     stimSize = 100;
     stimWidth = 20;
 
