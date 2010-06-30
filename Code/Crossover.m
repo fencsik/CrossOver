@@ -14,6 +14,7 @@ function Crossover
 %    - Switch loops to KbStrokeWait or the like
 %    - Process response more intelligently
 %  - Calculate and save actual exposure duration
+%  - Change sound to PortAudio
 %  - Test
 
     experiment = 'Test01';
