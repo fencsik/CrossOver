@@ -29,6 +29,8 @@ switch command
     varargout = StaircaserPlot(varargin);
   case 'Progress'
     varargout = StaircaserProgress(varargin);
+  case 'List'
+    varargout = StaircaserList(varargin);
     %  case 'PrintTracks'
     %    varargout = StaircasePrintTracks(varargin);
     %   case 'GetValue'
@@ -635,6 +637,41 @@ function argout = StaircaserProgress(argin)
 
 end
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Staircaser('List')
+
+function argout = StaircaserList(argin)
+
+function Help
+fprintf(['\nid = Staircaser(''List'');\n\n']);
+end
+
+if printHelp
+    Help;
+    argout = {[]};
+    return
+end
+
+% process input arguments
+nargs = numel(argin);
+if nargs > 0
+    Help;
+    error('too many input arguments');
+end
+% process output arguments
+if nOutputArgs > 1
+    Help;
+    error('too many output arguments');
+end
+
+if isempty(idList) || all(idList == 0)
+    argout = {[]};
+else
+    argout = {find(idList == 1)};
+end
+
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
