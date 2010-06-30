@@ -15,6 +15,7 @@ function Crossover
 %    + Process response more intelligently
 %  - Calculate and save actual exposure duration
 %  - Change sound to PortAudio
+%  - Use new DrawFormattedText for all text drawing
 %  - Test
 
     experiment = 'Test01';
