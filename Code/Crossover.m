@@ -6,8 +6,8 @@ function Crossover
 
 % 2010-06 revision to manipulate stim-sets within block
 % Todo:
-%  - Revise staircase code
-%  - Output data
+%  + Revise staircase code
+%  + Output data
 %  - Palmer-style setsize manipulation: show all stim with precue
 %  - Fix pedestal/stim size (stim are currently too big)
 %  - Cleanup keypress handling
