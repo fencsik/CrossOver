@@ -11,6 +11,9 @@ function Crossover
 %  - Palmer-style setsize manipulation: show all stim with precue
 %  - Fix pedestal/stim size (stim are currently too big)
 %  - Cleanup keypress handling
+%    - Switch loops to KbStrokeWait or the like
+%    - Process response more intelligently
+%  - Calculate and save actual exposure duration
 %  - Test
 
     experiment = 'Test01';
