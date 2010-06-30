@@ -168,10 +168,12 @@ function Crossover
                       'angleD', cell(1, nStimSets), ...
                       'mode', cell(1, nStimSets), ...
                       'resp', cell(1, nStimSets));
+        stimString = cell(nStimSets, 1);
         for i = 1:nStimSets
             switch stimSetList(i)
               case 2
                 % orientation
+                stimString{i} = 'orientation';
                 mat = repmat(0, [pedestalSize, pedestalSize, 4]);
                 mat(edgeOffset+1:pedestalSize-edgeOffset, ...
                     middle-stimRadius+1:middle+stimRadius, :) = ...
@@ -186,6 +188,7 @@ function Crossover
                 clear mat;
               case 7
                 %%% 2 vs. 5
+                stimString{i} = '2v5';
                 % generate basic components
                 col = reshape([colStim 255], 1, 1, 4);
                 hbar = repmat(col, [stimWidth, stimSize, 1]);
