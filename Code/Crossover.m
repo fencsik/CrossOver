@@ -690,9 +690,8 @@ function Crossover
                     if (~success)
                         error('Staircaser EndTrial failed on trial %d', ...
                               trial);
-                    elseif (done)
-                        staircaseIsDone(stimIndex) = 1;
                     end
+                    staircaseIsDone(stimIndex) = done;
                 end
 
                 %% output data
