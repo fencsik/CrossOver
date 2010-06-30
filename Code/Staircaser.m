@@ -338,17 +338,17 @@ end
 id = argin{1};
 response = argin{2};
 AssertValidId(id);
-if ~staircase(id).inTrial
+if staircase(id).isDone
+    success = 1;
+    isDone = 1;
+    reversal = 0;
+elseif ~staircase(id).inTrial
     success = 0;
     isDone = staircase(id).isDone;
     reversal = 0;
 elseif response < 0 || response > numel(staircase(id).steps)
     error(['invalid response code; for staircase %d, must be in range ' ...
            '[0, %d]'], id, numel(staircase(id).steps));
-elseif staircase(id).isDone
-    success = 1;
-    isDone = 1;
-    reversal = 0;
 else
     reversal = 0;
     % reset staircase
