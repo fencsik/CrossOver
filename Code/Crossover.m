@@ -20,7 +20,7 @@ function Crossover
 %  - Use new DrawFormattedText for all text drawing
 %  - Generate masks only when needed
 %  - Remove test drawing commands
-%  - Adjust timing for refresh duration
+%  + Adjust timing for refresh duration
 %  - Test
 
     experiment = 'Test01';
@@ -127,6 +127,7 @@ function Crossover
         screenNumber=max(Screen('Screens'));
         [winMain, rectMain] = Screen('OpenWindow', screenNumber, 0, [], 32, 2);
         refreshDuration = Screen('GetFlipInterval', winMain);
+        durSlack = refreshDuration / 2.0;
         Screen(winMain, 'BlendFunction', GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         [centerX, centerY] = RectCenter(rectMain);
 
@@ -409,7 +410,6 @@ function Crossover
             trial = 0;
             blockDone = 0;
             while (~blockDone)
-                prepStartTime = GetSecs;
                 trial = trial + 1;
                 trialtime = datestr(now, 'yyyymmdd.HHMMSS');
 
@@ -504,8 +504,6 @@ function Crossover
                     maskIndex = randperm(nMaskTextures);
                 end
 
-                prepDur = (GetSecs - prepStartTime) * 1000;
-
                 % make sure no keys are pressed
                 KbReleaseWait();
 
@@ -517,12 +515,10 @@ function Crossover
                     end
                 end
                 Screen('DrawingFinished', winMain);
-                [t1, tLastOnset] = Screen('Flip', winMain);
-                tOnsetTrial = tLastOnset;
-                tNextOnset = tLastOnset + durPreTrial;
+                tLastOnset = Screen('Flip', winMain);
+                tNextOnset = tLastOnset + durPreTrial - durSlack;
 
                 % fixation
-                t1 = GetSecs;
                 Screen('FillRect', winMain, colBackground, rectDisplay);
                 if pedestalFlag
                     for n = 1:nStimCells
@@ -531,17 +527,14 @@ function Crossover
                 end
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
-                durDrawFixation = GetSecs - t1;
-                [t1, tLastOnset] = Screen('Flip', winMain, tNextOnset);
+                tLastOnset = Screen('Flip', winMain, tNextOnset);
                 Snd('Play', sndClick);
-                tOnsetFixation = tLastOnset;
-                tNextOnset = tLastOnset + durFixation;
+                tNextOnset = tLastOnset + durFixation - durSlack;
 
                 % draw pre-cues
 
 
                 % draw display
-                t1 = GetSecs;
                 Screen('FillRect', winMain, colBackground, rectDisplay);
                 if pedestalFlag
                     for n = 1:nStimCells
@@ -562,13 +555,11 @@ function Crossover
                 end
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
-                displayDrawDur = GetSecs - t1;
-                [t1, tLastOnset] = Screen('Flip', winMain, tNextOnset);
-                tOnsetDisplay = tLastOnset;
-                tNextOnset = tLastOnset + durStim;
+                tLastOnset = Screen('Flip', winMain, tNextOnset);
+                tOnsetStimuli = tLastOnset;
+                tNextOnset = tLastOnset + durStim - durSlack;
 
                 % ISI
-                t1 = GetSecs;
                 Screen('FillRect', winMain, colBackground, rectDisplay);
                 if pedestalFlag
                     for i = 1:nStimCells
@@ -577,13 +568,11 @@ function Crossover
                 end
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
-                isiDrawDur = GetSecs - t1;
-                [t1, tLastOnset] = Screen('Flip', winMain, tNextOnset);
-                isiOnsetTime = tLastOnset;
-                tNextOnset = tLastOnset + durISI;
+                tLastOnset = Screen('Flip', winMain, tNextOnset);
+                tOffsetStimuli = tLastOnset;
+                tNextOnset = tLastOnset + durISI - durSlack;
 
                 % mask
-                t1 = GetSecs;
                 Screen('FillRect', winMain, colBackground, rectDisplay);
                 if pedestalFlag && maskFlag ~= 2 && nStim ~= nStimCells
                     for i = 1:nStimCells
@@ -599,19 +588,14 @@ function Crossover
                 end
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
-                maskDrawDur = GetSecs - t1;
-                [t1, tLastOnset] = Screen('Flip', winMain, tNextOnset);
-                maskOnsetTime = tLastOnset;
+                tLastOnset = Screen('Flip', winMain, tNextOnset);
 
                 % collect response
                 [keyTime, keyCode] = KbStrokeWait();
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                [t1, lastOnsetTime] = Screen('Flip', winMain);
-                maskOffsetTime = lastOnsetTime;
-
+                tLastOnset = Screen('Flip', winMain);
                 responseOnsetTime = keyTime;
                 responseCode = find(keyCode);
-
                 if (responseCode == respQuit)
                     error('Abort key pressed');
                 end
@@ -667,16 +651,17 @@ function Crossover
                 Screen('FillRect', winMain, colBackground, rectDisplay);
                 Screen('FrameRect', winMain, colFrame, rectDisplay);
                 CenterText(winMain, feedback, colFeedback, 0, -50);
-                [t1, lastOnsetTime] = Screen('Flip', winMain);
-                feedbackOnsetTime = lastOnsetTime;
+                tLastOnset = Screen('Flip', winMain);
 
                 durExtraFeedback = 0;
-                if acc == -1
+                if acc < 0
                     durExtraFeedback = 0.300;
                     Snd('Play', sndBeep);
                     Snd('Play', sndBeep);
                     Snd('Play', sndBeep);
                 end
+                tNextOnset = tLastOnset + durFeedback + ...
+                    durExtraFeedback - durSlack;
 
                 % update staircase
                 reversal = 0;
@@ -723,7 +708,7 @@ function Crossover
                 % clear screen after feedback duration
                 Screen('FillRect', winMain, colBackground, rectDisplay);
                 Screen('FrameRect', winMain, colFrame, rectDisplay);
-                Screen('Flip', winMain, lastOnsetTime + durFeedback + durExtraFeedback);
+                Screen('Flip', winMain, tNextOnset);
 
                 % Check whether block is done
                 if (any(phase == [1 3]) && trial >= nTrials)
