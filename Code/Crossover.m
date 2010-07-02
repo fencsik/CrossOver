@@ -24,7 +24,7 @@ function Crossover
 %  - Test
 
     experiment = 'Test01';
-    Version = '0.8';
+    Version = '0.9';
 
     % get user input
     [subject, practiceBlock, praTrials, expTrials, palmerFlag] = ...
