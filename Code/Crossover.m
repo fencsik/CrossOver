@@ -131,6 +131,7 @@ function Crossover
         [centerX, centerY] = RectCenter(rectMain);
 
         HideCursor;
+        ListenChar(2); % no keypresses on the command window
         Snd('Play', sndBeep);
 
         % Some window set-up
@@ -510,6 +511,10 @@ function Crossover
                     maskIndex = randperm(nMaskTextures);
                 end
 
+                % Reset suppression of keypress output on every trial,
+                % since Windows intermittently resets suppression.
+                ListenChar(2);
+
                 % make sure no keys are pressed
                 KbReleaseWait();
 
@@ -740,6 +745,7 @@ function Crossover
     end %try..catch..
 
     Priority(0);
+    ListenChar();
     ShowCursor;
     fclose('all');
     Screen('CloseAll');
