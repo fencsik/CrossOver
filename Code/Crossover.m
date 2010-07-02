@@ -513,7 +513,7 @@ function Crossover
                 % pretrial blank
                 Screen('FillRect', winMain, colBackground);
                 for n = 1:nStimCells
-                    Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
+                    Screen(pedestalCommand, winMain, colPedestal, stimloc(n, :));
                 end
                 Screen('DrawingFinished', winMain);
                 tLastOnset = Screen('Flip', winMain);
@@ -522,7 +522,7 @@ function Crossover
                 % fixation
                 Screen('FillRect', winMain, colBackground, rectDisplay);
                 for n = 1:nStimCells
-                    Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
+                    Screen(pedestalCommand, winMain, colPedestal, stimloc(n, :));
                 end
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
@@ -536,7 +536,7 @@ function Crossover
                 % draw display
                 Screen('FillRect', winMain, colBackground, rectDisplay);
                 for n = 1:nStimCells
-                    Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
+                    Screen(pedestalCommand, winMain, colPedestal, stimloc(n, :));
                 end
                 for n = 1:nStim
                     Screen('DrawTexture', winMain, texture(n), [], stimloc(n, :), angle(n));
@@ -559,7 +559,7 @@ function Crossover
                 % ISI
                 Screen('FillRect', winMain, colBackground, rectDisplay);
                 for i = 1:nStimCells
-                    Screen(pedestalCommand, winMain, colPedestal, stimCells(i, :));
+                    Screen(pedestalCommand, winMain, colPedestal, stimloc(i, :));
                 end
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
@@ -571,7 +571,7 @@ function Crossover
                 Screen('FillRect', winMain, colBackground, rectDisplay);
                 if maskFlag ~= 2 && nStim ~= nStimCells
                     for i = 1:nStimCells
-                        Screen(pedestalCommand, winMain, colPedestal, stimCells(i, :));
+                        Screen(pedestalCommand, winMain, colPedestal, stimloc(i, :));
                     end
                 end
                 if any(maskFlag == [1 2])
