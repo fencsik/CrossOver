@@ -13,7 +13,7 @@ function Crossover
 %  + Cleanup keypress handling
 %    + Switch loops to KbStrokeWait or the like
 %    + Process response more intelligently
-%  - Reduce response set-up code and switch to a/' keys
+%  + Reduce response set-up code and switch to a/' keys
 %  - Calculate and save actual exposure duration
 %  - Use bulk texture etc. drawing functions wherever possible
 %  - Change sound to PortAudio
@@ -82,18 +82,10 @@ function Crossover
     stimWidth = 20;
 
     % response set-up
-    response0 = 227;   % 'LeftGUI'  == left Apple-key
-    response1 = 231;   % 'RightGUI' == right Apple-key
-    respUp3 = 228;     % RightControl
-    respUp2 = 230;     % RightAlt
-    respUp1 = 231;     % RightGUI
-    respDown1 = 227;   % LeftGUI
-    respDown2 = 226;   % LeftAlt
-    respDown3 = 224;   % LeftControl
-    respQuit = 41;     % ESCAPE
-                       % response0 = 4;  % 'a'  == "a" key
-                       % response1 = 52; % ''"' == quote key
-    allowedResponses = [response0 response1];
+    KbName('UnifyKeyNames'); % standardize across Mac, Win, and Linux
+    response0 = KbName('a'); % absent
+    response1 = KbName('''"'); % present
+    respQuit = KbName('ESCAPE');
 
     % stimulus presentation modes
     mdDetect = 1; % target present on half of trials, remaining stim are distractors
