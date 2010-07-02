@@ -596,7 +596,7 @@ function Crossover
                 end
 
                 % process response
-                rt = (responseOnsetTime - tOnsetDisplay) * 1000;
+                rt = (responseOnsetTime - tOnsetStimuli) * 1000;
                 if isempty(responseCode)
                     responseString = 'none';
                     acc = -1;
