@@ -69,7 +69,7 @@ function Crossover
     durFixation   = 0.745;
     durSSCues     = 0.160;
     durPostSSCues = 0.440;
-    durStim       = 0.500;
+    durStim       = 0.080;
     durISI        = 0.080;
     durFeedback   = 0.745;
     durPostTrial  = 0.745;
