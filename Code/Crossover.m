@@ -63,8 +63,8 @@ function Crossover
     % define timings (sec)
     durPreTrial   = 0.745;
     durFixation   = 0.745;
-    durSSCues     = 0.080;
-    durPostSSCues = 0.240;
+    durSSCues     = 0.160;
+    durPostSSCues = 0.440;
     durStim       = 0.500;
     durISI        = 0.080;
     durFeedback   = 0.745;
