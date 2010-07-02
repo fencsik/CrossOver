@@ -14,7 +14,7 @@ function Crossover
 %    + Switch loops to KbStrokeWait or the like
 %    + Process response more intelligently
 %  + Reduce response set-up code and switch to a/' keys
-%  - Calculate and save actual exposure duration
+%  + Calculate and save actual exposure duration
 %  - Use bulk texture etc. drawing functions wherever possible
 %  - Change sound to PortAudio
 %  - Use new DrawFormattedText for all text drawing
@@ -578,7 +578,7 @@ function Crossover
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
                 tLastOnset = Screen('Flip', winMain, tNextOnset);
-                tOffsetStimuli = tLastOnset;
+                actualExposureDur = 1000 * (tLastOnset - tOnsetStimuli);
                 tNextOnset = tLastOnset + durISI - durSlack;
 
                 % mask
@@ -711,7 +711,7 @@ function Crossover
                         blockPhaseStrings{phase}, trial, targ, ss, ...
                         stimString{stimIndex}, noise, palmerFlag, ...
                         trackLabel, reversal, responseString, acc, rt, ...
-                        0);
+                        actualExposureDur);
                 fclose(fid);
 
                 % clear screen after feedback duration
