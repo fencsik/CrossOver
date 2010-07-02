@@ -21,6 +21,9 @@ function Crossover
 %  - Generate masks only when needed
 %  - Remove test drawing commands
 %  + Adjust timing for refresh duration
+%  - Allow responses during stimulus presentation?
+%  - Finalize dialog box parameters
+%  - Set fixed parameters to reasonable values
 %  - Test
 
     experiment = 'Test01';
