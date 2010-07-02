@@ -15,7 +15,7 @@ function Crossover
 %    + Process response more intelligently
 %  + Reduce response set-up code and switch to a/' keys
 %  + Calculate and save actual exposure duration
-%  - Use bulk texture etc. drawing functions wherever possible
+%  + Use bulk texture etc. drawing functions wherever possible
 %  - Change sound to PortAudio
 %  - Use new DrawFormattedText for all text drawing
 %  - Generate masks only when needed
@@ -513,18 +513,14 @@ function Crossover
 
                 % pretrial blank
                 Screen('FillRect', winMain, colBackground);
-                for n = 1:nStimCells
-                    Screen(pedestalCommand, winMain, colPedestal, stimloc(n, :));
-                end
+                Screen(pedestalCommand, winMain, colPedestal, stimloc');
                 Screen('DrawingFinished', winMain);
                 tLastOnset = Screen('Flip', winMain);
                 tNextOnset = tLastOnset + durPreTrial - durSlack;
 
                 % fixation
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                for n = 1:nStimCells
-                    Screen(pedestalCommand, winMain, colPedestal, stimloc(n, :));
-                end
+                Screen(pedestalCommand, winMain, colPedestal, stimloc');
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
                 tLastOnset = Screen('Flip', winMain, tNextOnset);
@@ -550,20 +546,15 @@ function Crossover
 
                 % draw display
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                for n = 1:nStimCells
-                    Screen(pedestalCommand, winMain, colPedestal, stimloc(n, :));
-                end
-                for n = 1:nStim
-                    Screen('DrawTexture', winMain, texture(n), [], stimloc(n, :), angle(n));
-                end
+                Screen(pedestalCommand, winMain, colPedestal, stimloc');
+                Screen('DrawTextures', winMain, texture(1:nStim), [], ...
+                       stimloc(1:nStim, :)', angle(1:nStim));
                 if noiseType == 0
-                    Screen('DrawTexture', winMain, texNoise, [], rectDisplay, [], [], noise);
+                    Screen('DrawTexture', winMain, texNoise, [], ...
+                           rectDisplay, [], [], noise);
                 elseif any(noiseType == [1 2])
-                    n = nStim;
-                    if noiseType == 1, n = nStimCells; end
-                    for i = 1:n
-                        Screen('DrawTexture', winMain, texNoise(i), [], stimloc(i, :), [], [], noise);
-                    end
+                    Screen('DrawTextures', winMain, texNoise, [], ...
+                           stimloc(1:numel(texNoise), :)', [], [], noise);
                 end
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
@@ -573,9 +564,7 @@ function Crossover
 
                 % ISI
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                for i = 1:nStimCells
-                    Screen(pedestalCommand, winMain, colPedestal, stimloc(i, :));
-                end
+                Screen(pedestalCommand, winMain, colPedestal, stimloc');
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
                 tLastOnset = Screen('Flip', winMain, tNextOnset);
@@ -584,17 +573,12 @@ function Crossover
 
                 % mask
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                if maskFlag ~= 2 && nStim ~= nStimCells
-                    for i = 1:nStimCells
-                        Screen(pedestalCommand, winMain, colPedestal, stimloc(i, :));
-                    end
-                end
+                Screen(pedestalCommand, winMain, colPedestal, stimloc');
                 if any(maskFlag == [1 2])
                     n = nStim;
                     if maskFlag == 2, n = nStimCells; end
-                    for i = 1:n
-                        Screen('DrawTexture', winMain, texMasks(maskIndex(i)), [], stimloc(i, :));
-                    end
+                    Screen('DrawTextures', winMain, ...
+                           texMasks(maskIndex(1:n)), [], stimloc(1:n, :)');
                 end
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
