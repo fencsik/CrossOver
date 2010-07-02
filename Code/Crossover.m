@@ -8,7 +8,7 @@ function Crossover
 % Todo:
 %  + Revise staircase code
 %  + Output data
-%  - Palmer-style setsize manipulation: show all stim with precue
+%  + Palmer-style setsize manipulation: show all stim with precue
 %  + Fix pedestal/stim size (stim are currently too big)
 %  + Cleanup keypress handling
 %    + Switch loops to KbStrokeWait or the like
@@ -27,12 +27,13 @@ function Crossover
     Version = '0.8';
 
     % get user input
-    [subject, practiceBlock, praTrials, expTrials] = ...
+    [subject, practiceBlock, praTrials, expTrials, palmerFlag] = ...
         DialogBox(sprintf('%s Parameters', experiment), ...
                   'Subject:', 'xxx', 0, ...
                   'Practice block? (1 = yes)', '0', 1, ...
                   'No. of practice trials', '8', 1, ...
-                  'Exp trials per cell', '2', 1);
+                  'Exp trials per cell', '2', 1, ...
+                  'Palmer-style precues? (1=yes,0=no)', '0', 1);
 
     %% Set any remaining parameters
     subject = 'def';
@@ -55,8 +56,6 @@ function Crossover
     % control how stimuli are presented and cued
     pedestalFlag    = 1; % 0 = no pedestals, 1 = pedestals
     pedestalShape   = 2; % 1 = square, 2 = circle
-    precueFlag      = 0; % 0 = none, 1 = square, 2 = arc
-    allstimFlag     = 0; % 0 = only show S stim, 1 = always fill all cue locations
     balanceFlag     = 0; % 0 = random stim locations, 1 = balanced L-R locations
     noiseType       = 1; % 0 = whole display, 1 = per cell, 2 = just stimuli
     maskFlag        = 0; % 0 = none, 1 = mask only stim, 2 = mask all cells, 3 = mask whole display
@@ -154,6 +153,7 @@ function Crossover
         colFrame = colBackground;
         colPedestal = colGray;
         colFixation = colRed;
+        colCue = colBlack;
         colStim = [170 170 170];
         if (~pedestalFlag)
             colPedestal = colBackground;
@@ -448,12 +448,15 @@ function Crossover
                 else
                     error('balanceFlag values of %d are not supported', balanceFlag);
                 end
-                cueloc = stimloc(1:ss);
 
-                if allstimFlag == 0;
-                    nStim = ss;
-                else
+                colCueMatrix = repmat(colPedestal', 1, nStimCells);
+                if palmerFlag
+                    % present all stimuli, regardless of setsize
                     nStim = nStimCells;
+                    colCueMatrix(:, 1:ss) = repmat(colCue', 1, ss);
+                else
+                    % present only SS stimuli
+                    nStim = ss;
                 end
 
                 texture = zeros(nStimCells, 1);
@@ -530,8 +533,22 @@ function Crossover
                 Snd('Play', sndClick);
                 tNextOnset = tLastOnset + durFixation - durSlack;
 
-                % draw pre-cues
+                % draw pre-cues; note that when palmerFlags == 0, then
+                % colCueMatrix is just colPedestal
+                Screen('FillRect', winMain, colBackground, rectDisplay);
+                Screen(pedestalCommand, winMain, colCueMatrix, stimloc');
+                Screen('FillOval', winMain, colFixation, rectFixation);
+                Screen('DrawingFinished', winMain);
+                tLastOnset = Screen('Flip', winMain, tNextOnset);
+                tNextOnset = tLastOnset + durSSCues - durSlack;
 
+                % post pre-cue blank
+                Screen('FillRect', winMain, colBackground, rectDisplay);
+                Screen(pedestalCommand, winMain, colPedestal, stimloc');
+                Screen('FillOval', winMain, colFixation, rectFixation);
+                Screen('DrawingFinished', winMain);
+                tLastOnset = Screen('Flip', winMain, tNextOnset);
+                tNextOnset = tLastOnset + durPostSSCues - durSlack;
 
                 % draw display
                 Screen('FillRect', winMain, colBackground, rectDisplay);
