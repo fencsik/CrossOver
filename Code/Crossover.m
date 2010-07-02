@@ -155,6 +155,9 @@ function Crossover
         colPedestal = colGray;
         colFixation = colRed;
         colStim = [170 170 170];
+        if (~pedestalFlag)
+            colPedestal = colBackground;
+        end
 
         % other rects
         rectFixation = CenterRect([0 0 6 6], rectMain);
@@ -509,10 +512,8 @@ function Crossover
 
                 % pretrial blank
                 Screen('FillRect', winMain, colBackground);
-                if pedestalFlag
-                    for n = 1:nStimCells
-                        Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
-                    end
+                for n = 1:nStimCells
+                    Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
                 end
                 Screen('DrawingFinished', winMain);
                 tLastOnset = Screen('Flip', winMain);
@@ -520,10 +521,8 @@ function Crossover
 
                 % fixation
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                if pedestalFlag
-                    for n = 1:nStimCells
-                        Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
-                    end
+                for n = 1:nStimCells
+                    Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
                 end
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
@@ -536,10 +535,8 @@ function Crossover
 
                 % draw display
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                if pedestalFlag
-                    for n = 1:nStimCells
-                        Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
-                    end
+                for n = 1:nStimCells
+                    Screen(pedestalCommand, winMain, colPedestal, stimCells(n, :));
                 end
                 for n = 1:nStim
                     Screen('DrawTexture', winMain, texture(n), [], stimloc(n, :), angle(n));
@@ -561,10 +558,8 @@ function Crossover
 
                 % ISI
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                if pedestalFlag
-                    for i = 1:nStimCells
-                        Screen(pedestalCommand, winMain, colPedestal, stimCells(i, :));
-                    end
+                for i = 1:nStimCells
+                    Screen(pedestalCommand, winMain, colPedestal, stimCells(i, :));
                 end
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
@@ -574,7 +569,7 @@ function Crossover
 
                 % mask
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                if pedestalFlag && maskFlag ~= 2 && nStim ~= nStimCells
+                if maskFlag ~= 2 && nStim ~= nStimCells
                     for i = 1:nStimCells
                         Screen(pedestalCommand, winMain, colPedestal, stimCells(i, :));
                     end
