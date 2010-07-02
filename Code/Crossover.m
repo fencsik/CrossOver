@@ -58,6 +58,7 @@ function Crossover
     pedestalShape   = 2; % 1 = square, 2 = circle
     balanceFlag     = 0; % 0 = random stim locations, 1 = balanced L-R locations
     noiseType       = 1; % 0 = whole display, 1 = per cell, 2 = just stimuli
+                         % with palmerFlag==1, noiseType 1 and 2 are both 1
     maskFlag        = 0; % 0 = none, 1 = mask only stim, 2 = mask all cells, 3 = mask whole display
 
     % define timings (sec)
@@ -485,7 +486,7 @@ function Crossover
                     texNoise = Screen('MakeTexture', winMain, matNoise);
                 else
                     % one per stim cell
-                    if noiseType == 1
+                    if noiseType == 1 || palmerFlag
                         n = nStimCells;
                     else
                         n = ss;
