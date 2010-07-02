@@ -140,11 +140,11 @@ function Crossover
         Screen('TextStyle', winMain, 1); % 0=normal, 1=bold, 2=italic, 4=underlined, 8=outline
 
         % Define colors
-        colWhite = WhiteIndex(winMain);
-        colBlack = BlackIndex(winMain);
-        colGray = GrayIndex(winMain);
-        colLightGray = round( (colWhite + colGray) / 2 ) + 1;
-        colDarkGray = round( (colBlack + colGray) / 2 );
+        colWhite = [255 255 255];
+        colBlack = [0 0 0];
+        colGray = [128 128 128];
+        colLightGray = round( (colWhite + colGray) ./ 2 ) + 1;
+        colDarkGray = round( (colBlack + colGray) ./ 2 );
         colRed = [255 0 0];
         colBlue = [0 0 255];
         colGreen = [0 150 0];
