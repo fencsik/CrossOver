@@ -22,7 +22,7 @@ function Crossover
 %  + Generate masks only when needed
 %  + Remove test drawing commands
 %  - Fix how noise level is controlled
-%    - noise is a settable parameter
+%    + noise is a settable parameter
 %    - Add noise-MCS variable to control how noise is manipulated on 
 %      non-staircase runs
 %    - On staircase runs, MCS variable is ignored and the first provided
@@ -40,25 +40,23 @@ function Crossover
     Version = '1.0-rc1';
 
     % get user input
-    [subject, practiceBlock, praTrials, expTrials, palmerFlag] = ...
+    [subject, praTrials, expTrialsPerCell, staircaseFlag, ...
+     noiseLevelList, stimSetList, setSizeList, palmerFlag] = ...
         DialogBox(sprintf('%s Parameters', experiment), ...
                   'Subject:', 'xxx', 0, ...
-                  'Practice block? (1 = yes)', '0', 1, ...
-                  'No. of practice trials', '8', 1, ...
+                  'Practice trials', '8', 1, ...
                   'Exp trials per cell', '2', 1, ...
+                  'Run staircase? (0=no)', '1', 1, ...
+                  'Noise levels', '0.5', 1, ...
+                  'Stimulus sets (2=ori,7=2v5)', '2 7', 1, ...
+                  'Set sizes', '1 2 4 8', 1, ...
                   'Palmer-style precues? (1=yes,0=no)', '0', 1);
 
     %% Set any remaining parameters
-    subject = 'def';
-    stimSetList = [2 7];
-    expTrials = 2;
-    praTrials = 0;
-    targetList = 1; %[0 1];
-    setSizeList = [4];
-    noiseLevelList = [.5 .25 .75];
+    expTrials = 4;
+    targetList = [0 1];
 
     % staircase parameters
-    staircaseFlag = 0;
     nStaircaseTracks = 1;
     nReversals = 20;
     nReversalsDropped = 10;
