@@ -17,7 +17,7 @@ function Crossover
 %  + Calculate and save actual exposure duration
 %  + Use bulk texture etc. drawing functions wherever possible
 %  + Change sound to PortAudio
-%  - Use new DrawFormattedText for all text drawing
+%  + Use new DrawFormattedText for all text drawing
 %  - Generate masks only when needed
 %  - Remove test drawing commands
 %  + Adjust timing for refresh duration
@@ -365,10 +365,13 @@ function Crossover
         WaitSecs(.25);
 
         Screen('FillRect', winMain, colBackground);
-        %    CenterText(winMain, 'Press any key to begin.', colForeground);
-        %    Screen('DrawLine', winMain, colForeground, 0, 427, 1280, 427);
+        DrawFormattedText(winMain, 'Press any key to begin', ...
+                          'center', 'center', colForeground);
         Screen('Flip', winMain);
-        %    KbWait;
+        [t, keyCode] = KbStrokeWait();
+        if (any(find(keyCode) == respQuit))
+            error('Abort key pressed');
+        end
 
         blockPhaseStrings = {'practice', 'staircase', 'fixed'};
         blockPhases = 1:3;
