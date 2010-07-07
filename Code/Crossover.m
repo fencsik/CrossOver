@@ -18,6 +18,7 @@ function Crossover
 %  + Use bulk texture etc. drawing functions wherever possible
 %  + Change sound to PortAudio
 %  + Use new DrawFormattedText for all text drawing
+%  - Allow for pauses ever so often
 %  - Generate masks only when needed
 %  - Remove test drawing commands
 %  + Adjust timing for refresh duration
