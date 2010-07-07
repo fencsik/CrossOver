@@ -26,8 +26,8 @@ function Crossover
 %  - Set fixed parameters to reasonable values
 %  - Test
 
-    experiment = 'Test01';
-    Version = '0.10';
+    experiment = 'Crossover05';
+    Version = '1.0-rc1';
 
     % get user input
     [subject, practiceBlock, praTrials, expTrials, palmerFlag] = ...
