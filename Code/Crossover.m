@@ -16,7 +16,7 @@ function Crossover
 %  + Reduce response set-up code and switch to a/' keys
 %  + Calculate and save actual exposure duration
 %  + Use bulk texture etc. drawing functions wherever possible
-%  - Change sound to PortAudio
+%  + Change sound to PortAudio
 %  - Use new DrawFormattedText for all text drawing
 %  - Generate masks only when needed
 %  - Remove test drawing commands
@@ -95,6 +95,15 @@ function Crossover
     mdDetect = 1; % target present on half of trials, remaining stim are distractors
     mdIdentify = 2; % two target classes, one present on every trial, remaining are distractors
 
+    % audio setup
+    InitializePsychSound;
+    samplingRate = 44100;
+    buzzerDuration = 1/5; % seconds
+    paClick = PsychPortAudio('Open', [], [], [], samplingRate, 1);
+    PsychPortAudio('FillBuffer', paClick, MakeBeep(1000, .01));
+    paBuzz = PsychPortAudio('Open', [], [], [], samplingRate, 1);
+    PsychPortAudio('FillBuffer', paBuzz, MakeBuzz(buzzerDuration, samplingRate));
+
     % misc set-up
     rand('twister', 100 * sum(clock));
     dataFileName = sprintf('%sData-%s.txt', experiment, subject);
@@ -106,8 +115,6 @@ function Crossover
         computer = 'unknown';
     end
     blocktime = now;
-    sndBeep = MakeBeep(880, .1);
-    sndClick = MakeBeep(1000, .01);
 
     % system tests
     if exist('IsOSX') ~= 2 || ~IsOSX
@@ -128,7 +135,10 @@ function Crossover
 
         HideCursor;
         ListenChar(2); % no keypresses on the command window
-        Snd('Play', sndBeep);
+
+        % signal end of graphics initialization
+        PsychPortAudio('Start', paClick);
+        PsychPortAudio('Stop', paClick, 1);
 
         % Some window set-up
         Screen('TextFont', winMain, 'Monaco');
@@ -527,7 +537,8 @@ function Crossover
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
                 tLastOnset = Screen('Flip', winMain, tNextOnset);
-                Snd('Play', sndClick);
+                PsychPortAudio('Start', paClick);
+                PsychPortAudio('Stop', paClick, 1);
                 tNextOnset = tLastOnset + durFixation - durSlack;
 
                 % draw pre-cues; note that when palmerFlags == 0, then
@@ -652,10 +663,9 @@ function Crossover
 
                 durExtraFeedback = 0;
                 if acc < 0
-                    durExtraFeedback = 0.300;
-                    Snd('Play', sndBeep);
-                    Snd('Play', sndBeep);
-                    Snd('Play', sndBeep);
+                    durExtraFeedback = buzzerDuration;
+                    PsychPortAudio('Start', paBuzz);
+                    PsychPortAudio('Stop', paBuzz, 1);
                 end
                 tNextOnset = tLastOnset + durFeedback + ...
                     durExtraFeedback - durSlack;
@@ -729,6 +739,7 @@ function Crossover
     ShowCursor;
     fclose('all');
     Screen('CloseAll');
+    PsychPortAudio('Close');
     clear all global
 
 function [pos, index] = MakeGrid (rect, rows, cols, stimrect, randomize, xnoise, ynoise)
