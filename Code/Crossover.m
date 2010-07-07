@@ -21,6 +21,7 @@ function Crossover
 %  - Allow for pauses ever so often
 %  - Generate masks only when needed
 %  - Remove test drawing commands
+%  - Fix how noise level is controlled
 %  + Adjust timing for refresh duration
 %  - Allow responses during stimulus presentation?
 %  - Finalize dialog box parameters
