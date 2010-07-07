@@ -381,7 +381,7 @@ function Crossover
                 doStaircase = 0;
             else
                 % none of the phases are applicable
-                error('block phase %d not supported', phase);
+                continue;
             end
 
             % balance independent variables
