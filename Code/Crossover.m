@@ -26,6 +26,7 @@ function Crossover
 %  - Allow responses during stimulus presentation?
 %  - Finalize dialog box parameters
 %  - Set fixed parameters to reasonable values
+%  - Add progress bar
 %  - Test
 
     experiment = 'Crossover05';
