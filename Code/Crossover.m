@@ -171,7 +171,8 @@ function Crossover
 
         % blank screen and issue wait notice
         Screen('FillRect', winMain, colBackground);
-        CenterText(winMain, 'Please wait...', colForeground);
+        DrawFormattedText(winMain, 'Please wait...', 'center', 'center', ...
+                          colForeground);
         Screen('Flip', winMain);
 
         % Generate stimuli
@@ -657,8 +658,8 @@ function Crossover
 
                 % present feedback
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                Screen('FrameRect', winMain, colFrame, rectDisplay);
-                CenterText(winMain, feedback, colFeedback, 0, -50);
+                DrawFormattedText(winMain, feedback, ...
+                                  'center', 'center', colFeedback);
                 tLastOnset = Screen('Flip', winMain);
 
                 durExtraFeedback = 0;
@@ -714,7 +715,6 @@ function Crossover
 
                 % clear screen after feedback duration
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                Screen('FrameRect', winMain, colFrame, rectDisplay);
                 Screen('Flip', winMain, tNextOnset);
 
                 % Check whether block is done
@@ -862,27 +862,6 @@ function [pos, index] = MakeRing (rect, stimrect, num, radius, randomize, equidi
         index = 1:n;
     end
 
-
-
-function CenterText (win, string, color, xOffset, yOffset)
-
-    if nargin < 2 || numel(string) < 1
-        error('Usage: %s (win, string, [color], [xOffset], [yOffset])', mfilename);
-    end
-    if nargin < 3 || isempty(color)
-        color = BlackIndex(win);
-    end
-    if nargin < 4 || numel(xOffset) ~= 1
-        xOffset = 0;
-    end
-    if nargin < 5 || numel(yOffset) ~= 1
-        yOffset = 0;
-    end
-
-    [rect1, rect2] = Screen('TextBounds', win, string);
-    yOffset = yOffset - (rect1(RectTop) - rect2(RectTop)) / 2; % compensate for baseline
-    rect = OffsetRect(CenterRect(rect1, Screen('Rect', win)), xOffset, yOffset);
-    Screen('DrawText', win, string, rect(RectLeft), rect(RectTop), color);
 
 
 function varargout = DialogBox (title, varargin)
