@@ -2,7 +2,7 @@ function Crossover
 
 % Crossover
 %
-% Authors: David E. Fencsik
+% Authors: David E. Fencsik, Evan M. Palmer, Jeremy M. Wolfe
 
 % 2010-06 revision to manipulate stim-sets within block
 % Todo:
