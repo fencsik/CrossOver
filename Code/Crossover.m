@@ -20,7 +20,7 @@ function Crossover
 %  + Use new DrawFormattedText for all text drawing
 %  - Allow for pauses ever so often
 %  - Generate masks only when needed
-%  - Remove test drawing commands
+%  + Remove test drawing commands
 %  - Fix how noise level is controlled
 %  + Adjust timing for refresh duration
 %  - Allow responses during stimulus presentation?
@@ -268,38 +268,6 @@ function Crossover
         stimAreaDiameter = ceil(2 * expansionFactor * (pedestalRadius + extraRadius));
         rectDisplay = CenterRect([0 0 stimAreaDiameter stimAreaDiameter], rectMain);
 
-        % draw a sample of the display area
-        Screen('FillRect', winMain, colBackground);
-        Screen('FillOval', winMain, colFixation, rectFixation);
-        for n = 1:nStimCells
-            Screen('FillRect', winMain, colForeground, stimCells(n, :));
-            Screen('DrawText', winMain, sprintf('%d', n), stimCells(n, RectLeft) + 30, stimCells(n, RectBottom) - 50, colBackground);
-        end
-        Screen('FrameOval', winMain, colRed, rectDisplay);
-        Screen('Flip', winMain);
-        WaitSecs(.25);
-
-        % draw a sample of task stimuli
-        Screen('FillRect', winMain, colBackground);
-        Screen('FillOval', winMain, colFixation, rectFixation);
-        for n = 1:nStimCells
-            i = Randi(nStimSets);
-            if (Randi(2) == 1)
-                j = Randi(numel(stim(i).texT));
-                tex = stim(i).texT(j);
-                angle = stim(i).angleT(j);
-            else
-                j = Randi(numel(stim(i).texD));
-                tex = stim(i).texD(j);
-                angle = stim(i).angleD(j);
-            end
-            Screen('FillRect', winMain, colForeground, stimCells(n, :));
-            Screen('DrawTexture', winMain, tex, [], stimCells(n, :), angle);
-        end
-        Screen('FrameOval', winMain, colRed, rectDisplay);
-        Screen('Flip', winMain);
-        WaitSecs(.25);
-
         % define matrices for alpha channel of noise fields, to restrict their shape
         if noiseType == 1 || noiseType == 2
             % each cell gets its own noise field
@@ -357,14 +325,6 @@ function Crossover
         else
             error('pedestal shape of %d is not supported', pedestalShape);
         end
-
-        Screen('FillRect', winMain, colBackground);
-        for n = 1:nStimCells
-            Screen('DrawTexture', winMain, texMasks(n), [], stimCells(n, :));
-        end
-        Screen('FillOval', winMain, colFixation, rectFixation);
-        Screen('Flip', winMain);
-        WaitSecs(.25);
 
         Screen('FillRect', winMain, colBackground);
         DrawFormattedText(winMain, 'Press any key to begin', ...
