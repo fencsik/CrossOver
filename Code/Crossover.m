@@ -141,7 +141,7 @@ function Crossover
         PsychPortAudio('Stop', paClick, 1);
 
         % Some window set-up
-        Screen('TextFont', winMain, 'Monaco');
+        Screen('TextFont', winMain, 'Arial');
         Screen('TextSize', winMain, 18);
         Screen('TextStyle', winMain, 1); % 0=normal, 1=bold, 2=italic, 4=underlined, 8=outline
 
