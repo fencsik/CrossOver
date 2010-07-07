@@ -19,7 +19,7 @@ function Crossover
 %  + Change sound to PortAudio
 %  + Use new DrawFormattedText for all text drawing
 %  - Allow for pauses ever so often
-%  - Generate masks only when needed
+%  + Generate masks only when needed
 %  + Remove test drawing commands
 %  - Fix how noise level is controlled
 %  + Adjust timing for refresh duration
@@ -300,21 +300,27 @@ function Crossover
         end
 
         % generate mask textures
-        nMaskTextures = nStimCells * 2;
-        nLines = 100;
-        texMasks = zeros(nMaskTextures, 1);
-        for n = 1:nMaskTextures
-            texMasks(n) = Screen('OpenOffscreenWindow', winMain, [], ...
-                                 [0 0 pedestalSize pedestalSize]);
-            Screen('BlendFunction', texMasks(n), ...
-                   GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            Screen('FillRect', texMasks(n), colBackground);
-            Screen('DrawLines', texMasks(n), ...
-                   Randi(pedestalSize + 1, [2, nLines * 2]) - 1, ...
-                   Randi(10, [1, nLines]), ...
-                   reshape(repmat(Randi(256, [3, nLines]) - 1, [2, 1]), ...
-                           [3, nLines * 2]), ...
-                   [], 1);
+        if (maskFlag == 0)
+            % do nothing
+        elseif (any(maskFlag == [1 2]))
+            nMaskTextures = nStimCells * 2;
+            nLines = 100;
+            texMasks = zeros(nMaskTextures, 1);
+            for n = 1:nMaskTextures
+                texMasks(n) = Screen('OpenOffscreenWindow', winMain, [], ...
+                                     [0 0 pedestalSize pedestalSize]);
+                Screen('BlendFunction', texMasks(n), ...
+                       GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                Screen('FillRect', texMasks(n), colBackground);
+                Screen('DrawLines', texMasks(n), ...
+                       Randi(pedestalSize + 1, [2, nLines * 2]) - 1, ...
+                       Randi(10, [1, nLines]), ...
+                       reshape(repmat(Randi(256, [3, nLines]) - 1, [2, 1]), ...
+                               [3, nLines * 2]), ...
+                       [], 1);
+            end
+        else
+            error('maskFlag values of %d are not supported', maskFlag);
         end
 
         % set-up pedestal drawings
