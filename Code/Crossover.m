@@ -22,6 +22,13 @@ function Crossover
 %  + Generate masks only when needed
 %  + Remove test drawing commands
 %  - Fix how noise level is controlled
+%    - noise is a settable parameter
+%    - Add noise-MCS variable to control how noise is manipulated on 
+%      non-staircase runs
+%    - On staircase runs, MCS variable is ignored and the first provided
+%      noise level is used to start the staircase
+%    - On non-staircase runs with MCS turned off, there can be one noise
+%      level or one per task
 %  + Adjust timing for refresh duration
 %  - Allow responses during stimulus presentation?
 %  - Finalize dialog box parameters
