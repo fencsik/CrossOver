@@ -472,7 +472,6 @@ function Crossover
                     end
                     i = Shuffle(mod(i - 1, nStimCells) + 1);
                     j = Shuffle(mod(j - 1, nStimCells) + 1);
-                    indexes = [i, j],
                     stimloc = stimCells([i, j], :);
                 else
                     error(['balanceFlag values of %d are not supported ' ...
