@@ -449,6 +449,7 @@ function Crossover
                 else
                     error('balanceFlag values of %d are not supported', balanceFlag);
                 end
+                stimloc = stimloc';
 
                 colCueMatrix = repmat(colPedestal', 1, nStimCells);
                 if palmerFlag
@@ -520,14 +521,14 @@ function Crossover
 
                 % pretrial blank
                 Screen('FillRect', winMain, colBackground);
-                Screen(pedestalCommand, winMain, colPedestal, stimloc');
+                Screen(pedestalCommand, winMain, colPedestal, stimloc);
                 Screen('DrawingFinished', winMain);
                 tLastOnset = Screen('Flip', winMain);
                 tNextOnset = tLastOnset + durPreTrial - durSlack;
 
                 % fixation
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                Screen(pedestalCommand, winMain, colPedestal, stimloc');
+                Screen(pedestalCommand, winMain, colPedestal, stimloc);
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
                 tLastOnset = Screen('Flip', winMain, tNextOnset);
@@ -538,7 +539,7 @@ function Crossover
                 % draw pre-cues; note that when palmerFlags == 0, then
                 % colCueMatrix is just colPedestal
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                Screen(pedestalCommand, winMain, colCueMatrix, stimloc');
+                Screen(pedestalCommand, winMain, colCueMatrix, stimloc);
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
                 tLastOnset = Screen('Flip', winMain, tNextOnset);
@@ -546,7 +547,7 @@ function Crossover
 
                 % post pre-cue blank
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                Screen(pedestalCommand, winMain, colPedestal, stimloc');
+                Screen(pedestalCommand, winMain, colPedestal, stimloc);
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
                 tLastOnset = Screen('Flip', winMain, tNextOnset);
@@ -554,15 +555,15 @@ function Crossover
 
                 % draw display
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                Screen(pedestalCommand, winMain, colPedestal, stimloc');
+                Screen(pedestalCommand, winMain, colPedestal, stimloc);
                 Screen('DrawTextures', winMain, texture(1:nStim), [], ...
-                       stimloc(1:nStim, :)', angle(1:nStim));
+                       stimloc(:, 1:nStim), angle(1:nStim));
                 if noiseType == 0
                     Screen('DrawTexture', winMain, texNoise, [], ...
                            rectDisplay, [], [], noise);
                 elseif any(noiseType == [1 2])
                     Screen('DrawTextures', winMain, texNoise, [], ...
-                           stimloc(1:numel(texNoise), :)', [], [], noise);
+                           stimloc(:, 1:numel(texNoise)), [], [], noise);
                 end
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
@@ -572,7 +573,7 @@ function Crossover
 
                 % ISI
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                Screen(pedestalCommand, winMain, colPedestal, stimloc');
+                Screen(pedestalCommand, winMain, colPedestal, stimloc);
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
                 tLastOnset = Screen('Flip', winMain, tNextOnset);
@@ -581,12 +582,12 @@ function Crossover
 
                 % mask
                 Screen('FillRect', winMain, colBackground, rectDisplay);
-                Screen(pedestalCommand, winMain, colPedestal, stimloc');
+                Screen(pedestalCommand, winMain, colPedestal, stimloc);
                 if any(maskFlag == [1 2])
                     n = nStim;
                     if maskFlag == 2, n = nStimCells; end
                     Screen('DrawTextures', winMain, ...
-                           texMasks(maskIndex(1:n)), [], stimloc(1:n, :)');
+                           texMasks(maskIndex(1:n)), [], stimloc(:, 1:n));
                 end
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
