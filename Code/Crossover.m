@@ -85,8 +85,10 @@ function Crossover
     % pedestalShape. 1: square; 2: circle
     pedestalShape = 1;
 
-    % balanceFlag. 0: random stim locations; 1: (unimpemented) balance L/R
-    balanceFlag = 0;
+    % balanceFlag controls how stimuli are placed on the display
+    % 0: random stim locations
+    % 1: equally spaced on the display (depending on SS)
+    balanceFlag = 1;
 
     % define timings (sec)
     durPreTrial   = 0.745;
@@ -444,10 +446,37 @@ function Crossover
                 end
 
                 %% Setup display layout
-                if balanceFlag == 0
+                if (balanceFlag == 0)
                     stimloc = stimCells(randperm(nStimCells), :);
+                elseif (balanceFlag == 1 && nStimCells == 8)
+                    start = Randi(nStimCells);
+                    switch ss
+                      case 1
+                        i = start;
+                        j = start+1:start+7;
+                      case 2
+                        i = [start, start + 4];
+                        j = [start+1:start+3, start+5:start+7];
+                      case 4
+                        i = start:2:start+6;
+                        j = start+1:2:start+7;
+                      case 6
+                        i = [start:start+2, start+4:start+6];
+                        j = [start + 3, start + 7];
+                      case 8
+                        i = start:start+7;
+                        j = [];
+                      otherwise
+                        error(['balancing setsize %d in %d cells is not '...
+                               'supported'], ss, nStimCells);
+                    end
+                    i = Shuffle(mod(i - 1, nStimCells) + 1);
+                    j = Shuffle(mod(j - 1, nStimCells) + 1);
+                    indexes = [i, j],
+                    stimloc = stimCells([i, j], :);
                 else
-                    error('balanceFlag values of %d are not supported', balanceFlag);
+                    error(['balanceFlag values of %d are not supported ' ...
+                           'for %d cells'], balanceFlag, ss);
                 end
                 stimloc = stimloc';
 
