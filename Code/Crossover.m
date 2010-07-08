@@ -60,7 +60,7 @@ function Crossover
     nStaircaseTracks = 1;
     nReversals = 20;
     nReversalsDropped = 10;
-    staircaseStart = 0.5;
+    staircaseStart = noiseLevelList(1);
     staircaseSteps = [-0.1, 0.025]; % Error, Correct
     staircaseRange = [0 1];
 
@@ -376,8 +376,6 @@ function Crossover
                 %% Optional staircasing trials
                 phaseName = 'staircase';
                 doStaircase = 1;
-                nTrials = 10 * numel(targetList) * ...
-                          numel(setSizeList) * numel(stimSetList);
                 %% initialize staircase
                 staircase = zeros(nStimSets, 1);
                 staircaseIsDone = zeros(nStimSets, 1);
@@ -388,6 +386,7 @@ function Crossover
                                    nReversalsDropped, ...
                                    nStaircaseTracks, staircaseRange);
                 end
+                nTrials = 0;
                 staircaseTrialCounter = nTrials;
             elseif (phase == 3 && expTrials > 0)
                 %% Experimental trials, with noise level determined by
@@ -423,10 +422,10 @@ function Crossover
                     staircaseTrialCounter = staircaseTrialCounter + 1;
                     if (staircaseTrialCounter > nTrials)
                         [target, setSize, stimSet] = ...
-                            BalanceTrials(nTrials, 1, ...
-                                          targetList, setSizeList, ...
-                                          1:numel(stimSetList));
-                        staircaseTrialCounter = 1;
+                            BalanceFactors(10, 1, ...
+                                           targetList, setSizeList, ...
+                                           1:numel(stimSetList));
+                        nTrials = numel(target);
                     end
                     ss = setSize(staircaseTrialCounter);
                     targ = target(staircaseTrialCounter);
