@@ -83,7 +83,7 @@ function Crossover
     pedestalFlag = 1;
 
     % pedestalShape. 1: square; 2: circle
-    pedestalShape = 2;
+    pedestalShape = 1;
 
     % balanceFlag. 0: random stim locations; 1: (unimpemented) balance L/R
     balanceFlag = 0;
