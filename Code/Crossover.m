@@ -64,13 +64,29 @@ function Crossover
     staircaseSteps = [-0.1, 0.025]; % Error, Correct
     staircaseRange = [0 1];
 
-    % control how stimuli are presented and cued
-    pedestalFlag    = 1; % 0 = no pedestals, 1 = pedestals
-    pedestalShape   = 2; % 1 = square, 2 = circle
-    balanceFlag     = 0; % 0 = random stim locations, 1 = balanced L-R locations
-    noiseType       = 1; % 0 = whole display, 1 = per cell, 2 = just stimuli
-                         % with palmerFlag==1, noiseType 1 and 2 are both 1
-    maskFlag        = 0; % 0 = none, 1 = mask only stim, 2 = mask all cells, 3 = mask whole display
+    % noiseType controls how noise is drawn over the stimuli.  With Palmer
+    % precues, noiseType 1 and 2 are both set to 1.
+    % 0: draw noise field over the entire display
+    % 1: draw over every stimulus cell
+    % 2: draw over stimulus cells with stimuli in them
+    noiseType = 1;
+
+    % maskFlag controls whether and how masks are drawn after stim offset.
+    % Note that masks are square regardless of pedestal shape.
+    % 0: none
+    % 1: mask only stim positions
+    % 2: mask all cells
+    % 3: mask whole display (not implemented)
+    maskFlag = 0;
+
+    % pedestalFlag. 1: draw pedestals, 0: don't draw them
+    pedestalFlag = 1;
+
+    % pedestalShape. 1: square; 2: circle
+    pedestalShape = 2;
+
+    % balanceFlag. 0: random stim locations; 1: (unimpemented) balance L/R
+    balanceFlag = 0;
 
     % define timings (sec)
     durPreTrial   = 0.745;
