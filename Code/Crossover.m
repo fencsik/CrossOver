@@ -763,7 +763,11 @@ function Crossover
             end % trial loop
             Priority(0);
         end % block loop
-
+        staircases = Staircaser('List');
+        for s = reshape(staircases, 1, numel(staircases))
+            Staircaser('Plot', s, sprintf('Staircase for %s stimuli', ...
+                                          stimString{s}));
+        end
     catch
         %this "catch" section executes in case of an error in the "try" section
         %above.  Importantly, it closes the onscreen window if its open.
