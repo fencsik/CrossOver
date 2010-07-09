@@ -64,6 +64,13 @@ function Crossover
     staircaseSteps = [-0.1, 0.025]; % Error, Correct
     staircaseRange = [0 1];
 
+    % noiseMCS controls how noise-level is manipulated.
+    % 0: either one noise level or one level per task was provided
+    % 1: balance noise levels with all other factors
+    % Note: When a staircase is run, then noiseMCS is ignored and the first
+    %       value of noiseLevelList is used to start the staircases.
+    noiseMCS = 0;
+
     % noiseType controls how noise is drawn over the stimuli.  With Palmer
     % precues, noiseType 1 and 2 are both set to 1.
     % 0: draw noise field over the entire display
@@ -399,12 +406,46 @@ function Crossover
                 continue;
             end
 
-            % balance independent variables
-            if ~doStaircase
+            % set up handling of noise levels (see explanation of noiseMCS
+            % variable)
+            if (staircaseFlag)
+                if (strcmp(phaseName, 'fixed'))
+                    tempNoiseList = NaN();
+                else
+                    tempNoiseList = noiseLevelList(1);
+                end
+            elseif (noiseMCS)
+                tempNoiseList = noiseLevelList;
+            else
+                % set up so noise level varies with stim set
+                if (numel(noiseLevelList) ~= numel(stimSetList))
+                    error(['if no staircase is being run, then you must '...
+                           'provide one noise level per stimulus set']);
+                end
+                tempNoiseList = NaN();
+            end
+
+            % balance independent variables; note that the staircase phase
+            % does this within the trial loop
+            switch phaseName
+              case 'practice'
                 [target, setSize, noiseLevel, stimSet] = ...
                     BalanceTrials(nTrials, 1, targetList, ...
-                                  setSizeList, noiseLevelList, ...
+                                  setSizeList, tempNoiseList, ...
                                   1:numel(stimSetList));
+              case 'fixed'
+                [target, setSize, noiseLevel, stimSet] = ...
+                    BalanceFactors(expTrialsPerCell, 1, targetList, ...
+                                   setSizeList, tempNoiseList, ...
+                                   1:numel(stimSetList));
+                nTrials = numel(target);
+            end
+
+            % fix noise level by stimulus set
+            if (isnan(noiseLevel(1)))
+                for (i = 1:numel(stimSetList))
+                    noiseLevel(stimSet == i) = noiseLevelList(i);
+                end
             end
 
             % set priority level
