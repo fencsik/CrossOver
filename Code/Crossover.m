@@ -400,7 +400,7 @@ function Crossover
             elseif (phase == 3 && expTrialsPerCell > 0)
                 %% Experimental trials, with noise level determined by
                 %% staircase phase or by fixed values
-                phaseName = 'fixed';
+                phaseName = 'experimental';
                 doStaircase = 0;
                 if (exist('staircaseFinalValue', 'var') && ...
                     ~any(isnan(staircaseFinalValue)))
