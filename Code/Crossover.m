@@ -371,7 +371,7 @@ function Crossover
                 doStaircase = 1;
                 %% initialize staircase
                 staircase = zeros(nStimSets, 1);
-                staircaseIsDone = zeros(nStimSets, 1);
+                staircaseFinalValue = nan(nStimSets, 1);
                 for i = 1:nStimSets
                     staircase(i) = ...
                         Staircaser('Create', 1, nReversals, ...
@@ -699,7 +699,10 @@ function Crossover
                         error('Staircaser EndTrial failed on trial %d', ...
                               trial);
                     end
-                    staircaseIsDone(stimIndex) = done;
+                    if (done)
+                        staircaseFinalValue(stimIndex) = ...
+                            Staircaser('FinalValue', staircase(stimIndex));
+                    end
                 end
 
                 %% output data
@@ -734,7 +737,8 @@ function Crossover
                 % Check whether block is done
                 if (any(phase == [1 3]) && trial >= nTrials)
                     blockDone = 1;
-                elseif (phase == 2 && doStaircase && all(staircaseIsDone))
+                elseif (phase == 2 && doStaircase && ...
+                        ~any(isnan(staircaseFinalValue)))
                     blockDone = 1;
                 end
 
