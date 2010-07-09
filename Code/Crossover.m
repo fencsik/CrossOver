@@ -34,19 +34,18 @@ function Crossover
 
     % get user input
     [subject, praTrials, expTrialsPerCell, staircaseFlag, ...
-     noiseLevelList, stimSetList, setSizeList, palmerFlag] = ...
+     noiseLevels, stimSetList, setSizeList, palmerFlag] = ...
         DialogBox(sprintf('%s Parameters', experiment), ...
                   'Subject:', 'xxx', 0, ...
                   'Practice trials', '8', 1, ...
                   'Exp trials per cell', '2', 1, ...
                   'Run staircase? (0=no)', '1', 1, ...
-                  'Noise levels', '0.5', 1, ...
+                  'Noise (one value or one per stim set)', '0.5', 1, ...
                   'Stimulus sets (2=ori,7=2v5)', '2 7', 1, ...
                   'Set sizes', '1 2 4 8', 1, ...
                   'Palmer-style precues? (1=yes,0=no)', '0', 1);
 
     %% Set any remaining parameters
-    expTrials = 4;
     targetList = [0 1];
 
     % staircase parameters
@@ -122,6 +121,20 @@ function Crossover
     PsychPortAudio('FillBuffer', paClick, MakeBeep(1000, .01));
     paBuzz = PsychPortAudio('Open', [], [], [], samplingRate, 1);
     PsychPortAudio('FillBuffer', paBuzz, MakeBuzz(buzzerDuration, samplingRate));
+
+    % prepare levels of noise
+    nStimSets = numel(stimSetList);
+    nNoiseLevels = numel(noiseLevels);
+    if (nNoiseLevels == 1 && nStimSets > 1)
+        % replicate noise levels to match stimulus sets
+        noiseLevels = repmat(noiseLevels, 1, nStimSets);
+    elseif (nNoiseLevels ~= nStimSets)
+        % if more than one noise level is given, then it must match the
+        % number of stimulus sets given
+        error(['Either supply one noise level or one for each stimulus '...
+               'set.\nYou supplied %d levels for %d sets'], ...
+              nNoiseLevels, nStimSets);
+    end
 
     % misc set-up
     rand('twister', 100 * sum(clock));
@@ -202,7 +215,6 @@ function Crossover
         edgeOffset = round((pedestalSize - stimSize) / 2); % distance from edge of pedestal to edge of stimulus
         middle = ceil(pedestalSize / 2); % middle of the pedestal
         stimRadius = stimWidth / 2; % distance from stimulus edge to its middle
-        nStimSets = numel(stimSetList);
         stim = struct('texT', cell(1, nStimSets), ...
                       'texD', cell(1, nStimSets), ...
                       'angleT', cell(1, nStimSets), ...
@@ -365,6 +377,10 @@ function Crossover
                 phaseName = 'practice';
                 nTrials = praTrials;
                 doStaircase = 0;
+                phaseNoiseLevels = noiseLevels;
+                [target, setSize, stimSet] = ...
+                    BalanceTrials(nTrials, 1, targetList, setSizeList, ...
+                                  1:numel(stimSetList));
             elseif (phase == 2 && staircaseFlag)
                 %% Optional staircasing trials
                 phaseName = 'staircase';
@@ -372,32 +388,34 @@ function Crossover
                 %% initialize staircase
                 staircase = zeros(nStimSets, 1);
                 staircaseFinalValue = nan(nStimSets, 1);
+                phaseNoiseLevels = [];
                 for i = 1:nStimSets
                     staircase(i) = ...
                         Staircaser('Create', 1, nReversals, ...
-                                   staircaseStart, staircaseSteps, ...
+                                   noiseLevels(1), staircaseSteps, ...
                                    nReversalsDropped, ...
                                    nStaircaseTracks, staircaseRange);
                 end
                 nTrials = 0;
                 staircaseTrialCounter = nTrials;
-            elseif (phase == 3 && expTrials > 0)
+            elseif (phase == 3 && expTrialsPerCell > 0)
                 %% Experimental trials, with noise level determined by
                 %% staircase phase or by fixed values
                 phaseName = 'fixed';
-                nTrials = expTrials;
                 doStaircase = 0;
+                if (exist('staircaseFinalValue', 'var') && ...
+                    ~any(isnan(staircaseFinalValue)))
+                    phaseNoiseLevels = staircaseFinalValue;
+                else
+                    phaseNoiseLevels = noiseLevels;
+                end
+                [target, setSize, stimSet] = ...
+                    BalanceFactors(expTrialsPerCell, 1, targetList, ...
+                                   setSizeList, 1:numel(stimSetList));
+                nTrials = numel(target);
             else
                 % none of the phases are applicable
                 continue;
-            end
-
-            % balance independent variables
-            if ~doStaircase
-                [target, setSize, noiseLevel, stimSet] = ...
-                    BalanceTrials(nTrials, 1, targetList, ...
-                                  setSizeList, noiseLevelList, ...
-                                  1:numel(stimSetList));
             end
 
             % set priority level
@@ -433,7 +451,7 @@ function Crossover
                     ss = setSize(trial);
                     targ = target(trial);
                     stimIndex = stimSet(trial);
-                    noise = noiseLevel(trial);
+                    noise = phaseNoiseLevels(stimIndex);
                     trackLabel = 0;
                 end
 
