@@ -747,6 +747,9 @@ function Crossover
                         actualExposureDur);
                 fclose(fid);
 
+                % close trial-generated windows
+                Screen('Close', texNoise);
+
                 % clear screen after feedback duration
                 Screen('FillRect', winMain, colBackground, rectDisplay);
                 Screen('Flip', winMain, tNextOnset);
