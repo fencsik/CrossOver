@@ -787,6 +787,52 @@ function Crossover
             end % trial loop
             Priority(0);
         end % block loop
+
+        % display end-of-block summary for subject
+        Screen('FillRect', winMain, colBackground);
+        index = ~(isnan(blockAccuracy) | blockAccuracy < 0);
+        blockAccuracy = blockAccuracy(index);
+        blockStimSet = blockStimSet(index);
+        blockPhaseNumber = blockPhaseNumber(index);
+        if (isempty(blockAccuracy))
+            acc = 0;
+        else
+            acc = 100 * mean(blockAccuracy);
+        end
+        accString = sprintf('Average accuracy = %0.0f%%', acc);
+        DrawFormattedText(winMain, ...
+                          ['The experimental block is complete\n\n' ...
+                           accString '\n\n' ...
+                           'Thank you for participating\n\n' ...
+                           'Please inform the experimenter that you ' ...
+                           'are done'], ...
+                          'center', 'center', colForeground);
+        Screen('Flip', winMain);
+        KbStrokeWait();
+
+        % Print end-of-block summary for experimenter
+        index = blockPhaseNumber == 3;
+        phaseAccuracy = blockAccuracy(index);
+        phaseStimSet = blockStimSet(index);
+        fprintf('\nStimSet        Accuracy StaircaseValue\n');
+        for (i = 1:nStimSets)
+            stimSetAccuracy = phaseAccuracy(phaseStimSet == i);
+            fprintf('%-14s ', stimString{i});
+            if (~isempty(stimSetAccuracy))
+                acc = 100 * mean(stimSetAccuracy);
+            else
+                acc = 0;
+            end
+            fprintf('%6.1f%%  ', acc);
+            if (staircaseFlag && ...
+                ~isnan(staircaseFinalValue(i)))
+                fprintf('%11.6f\n', staircaseFinalValue(i));
+            else
+                fprintf('%10s\n', 'none');
+            end
+        end
+        fprintf('\n');
+
         staircases = Staircaser('List');
         for s = reshape(staircases, 1, numel(staircases))
             Staircaser('Plot', s, sprintf('Staircase for %s stimuli', ...
