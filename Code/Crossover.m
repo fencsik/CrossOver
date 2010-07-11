@@ -18,7 +18,7 @@ function Crossover
 %  + Use bulk texture etc. drawing functions wherever possible
 %  + Change sound to PortAudio
 %  + Use new DrawFormattedText for all text drawing
-%  - Allow for pauses ever so often
+%  + Allow for pauses ever so often
 %  + Generate masks only when needed
 %  + Remove test drawing commands
 %  + Ensure noise is set correctly
@@ -94,6 +94,10 @@ function Crossover
     durISI        = 0.080;
     durFeedback   = 0.745;
     durPostTrial  = 0.745;
+
+    % pausing code
+    pauseEvery = 50; % pause every N trials
+    pauseMin = 4.0; % sec
 
     % stimulus set-up
     % Note: distance -> pixel sizes (17 in. monitor, 1024x768 resolution)
@@ -785,6 +789,27 @@ function Crossover
                 elseif (phase == 2 && doStaircase && ...
                         ~any(isnan(staircaseFinalValue)))
                     blockDone = 1;
+                end
+
+                % pause every N trials, unless there's only one or no
+                % trials remaining
+                if (pauseEvery > 0 && ~blockDone && ...
+                    mod(trialCounter, pauseEvery) == 0)
+                    Screen('FillRect', winMain, colBackground);
+                    DrawFormattedText(...
+                        winMain, 'Please take a short break\n\n\n\n', ...
+                        'center', 'center', colForeground);
+                    t1 = Screen('Flip', winMain);
+                    Screen('FillRect', winMain, colBackground);
+                    DrawFormattedText(...
+                        winMain, ...
+                        ['Please take a short break\n\n\n\n', ...
+                         'Press any button to continue'], ...
+                        'center', 'center', colForeground);
+                    Screen('Flip', winMain, t1 + pauseMin);
+                    Screen('FillRect', winMain, colBackground);
+                    KbStrokeWait();
+                    Screen('Flip', winMain);
                 end
 
             end % trial loop
