@@ -784,6 +784,23 @@ function Crossover
     PsychPortAudio('Close');
     clear all global
 
+
+function vOut = ExtendVectorNaN (vIn, n)
+    s = size(vIn);
+    if (sum(s > 1) > 1)
+        error('vectors only: only one dimension can be greater than 1');
+    end
+    if (s(1) > 1)
+        vOut = [vIn, nan(n, 1)];
+    elseif (s(2) > 1)
+        vOut = [vIn, nan(1, n)];
+    else
+        err = sprintf('%dx', size(vIn));
+        error(['can only handle 1xN or Nx1 vectors, but was given a ' ...
+               '%s matrix'], err(1:end-1));
+    end
+
+
 function [pos, index] = MakeGrid (rect, rows, cols, stimrect, randomize, xnoise, ynoise)
 
 % MakeGrid generates a grid of equally-spaced rects within a
