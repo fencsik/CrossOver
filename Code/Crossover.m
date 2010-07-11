@@ -136,6 +136,12 @@ function Crossover
               nNoiseLevels, nStimSets);
     end
 
+    % set up run-level feedback
+    trialsEstimate = 100;
+    blockAccuracy = nan(trialsEstimate, 1);
+    blockStimSet = nan(trialsEstimate, 1);
+    blockPhaseNumber = nan(trialsEstimate, 1);
+
     % misc set-up
     rand('twister', 100 * sum(clock));
     dataFileName = sprintf('%sData-%s.txt', experiment, subject);
@@ -748,6 +754,20 @@ function Crossover
                         trackLabel, reversal, responseString, acc, rt, ...
                         actualExposureDur);
                 fclose(fid);
+
+                % store accuracy for end-of-block summary
+                if (trialCounter > numel(blockAccuracy))
+                    % extend arrays
+                    blockAccuracy = ...
+                        ExtendVectorNaN(blockAccuracy, trialsEstimate);
+                    blockStimSet = ...
+                        ExtendVectorNaN(blockStimSet, trialsEstimate);
+                    blockPhaseNumber = ...
+                        ExtendVectorNaN(blockPhaseNumber, trialsEstimate);
+                end
+                blockAccuracy(trialCounter) = acc;
+                blockStimSet(trialCounter) = stimIndex;
+                blockPhaseNumber(trialCounter) = phase;
 
                 % close trial-generated windows
                 Screen('Close', texNoise);
