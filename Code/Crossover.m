@@ -370,6 +370,7 @@ function Crossover
             error('Abort key pressed');
         end
 
+        trialCounter = 0;
         blockPhases = 1:3;
         for phase = blockPhases
             if (phase == 1 && praTrials > 0)
@@ -426,6 +427,7 @@ function Crossover
             blockDone = 0;
             while (~blockDone)
                 trial = trial + 1;
+                trialCounter = trialCounter + 1;
                 trialtime = datestr(now, 'yyyymmdd.HHMMSS');
 
                 if (doStaircase)
