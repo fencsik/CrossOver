@@ -21,11 +21,14 @@ function Crossover
 %  - Allow for pauses ever so often
 %  + Generate masks only when needed
 %  + Remove test drawing commands
-%  - Ensure noise is set correctly
+%  + Ensure noise is set correctly
 %  + Adjust timing for refresh duration
-%  - Allow responses during stimulus presentation?
+%  - Allow responses during stimulus/mask presentation?
 %  - Finalize dialog box parameters
 %  - Set fixed parameters to reasonable values
+%  + Final screen with accuracy information
+%  + Print accuracy/staircase info at end
+%  + Clear noise textures after each trial
 %  - Add progress bar
 %  - Test
 
