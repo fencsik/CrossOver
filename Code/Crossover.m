@@ -350,7 +350,7 @@ function Crossover
             % do nothing
         elseif (any(maskFlag == [1 2]))
             nMaskTextures = nStimCells * 2;
-            nLines = 100;
+            nLines = 30;
             texMasks = zeros(nMaskTextures, 1);
             for n = 1:nMaskTextures
                 texMasks(n) = Screen('OpenOffscreenWindow', winMain, [], ...
