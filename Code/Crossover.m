@@ -71,7 +71,7 @@ function Crossover
     % 1: mask only stim positions
     % 2: mask all cells
     % 3: mask whole display (not implemented)
-    maskFlag = 0;
+    maskFlag = 2;
 
     % pedestalFlag. 1: draw pedestals, 0: don't draw them
     pedestalFlag = 1;
