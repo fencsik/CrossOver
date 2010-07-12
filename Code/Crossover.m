@@ -55,7 +55,6 @@ function Crossover
     nStaircaseTracks = 1;
     nReversals = 20;
     nReversalsDropped = 10;
-    staircaseStart = noiseLevelList(1);
     staircaseSteps = [-0.1, 0.025]; % Error, Correct
     staircaseRange = [0 1];
 
