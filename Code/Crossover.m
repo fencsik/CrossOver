@@ -4,34 +4,6 @@ function Crossover
 %
 % Authors: David E. Fencsik, Evan M. Palmer, Jeremy M. Wolfe
 
-% 2010-06 revision to manipulate stim-sets within block
-% Todo:
-%  + Revise staircase code
-%  + Output data
-%  + Palmer-style setsize manipulation: show all stim with precue
-%  + Fix pedestal/stim size (stim are currently too big)
-%  + Cleanup keypress handling
-%    + Switch loops to KbStrokeWait or the like
-%    + Process response more intelligently
-%  + Reduce response set-up code and switch to a/' keys
-%  + Calculate and save actual exposure duration
-%  + Use bulk texture etc. drawing functions wherever possible
-%  + Change sound to PortAudio
-%  + Use new DrawFormattedText for all text drawing
-%  + Allow for pauses ever so often
-%  + Generate masks only when needed
-%  + Remove test drawing commands
-%  + Ensure noise is set correctly
-%  + Adjust timing for refresh duration
-%  - Allow responses during stimulus/mask presentation?
-%  - Finalize dialog box parameters
-%  - Set fixed parameters to reasonable values
-%  + Final screen with accuracy information
-%  + Print accuracy/staircase info at end
-%  + Clear noise textures after each trial
-%  + Add progress bar
-%  - Test
-
     experiment = 'Crossover05';
     Version = '1.0-rc7';
 
