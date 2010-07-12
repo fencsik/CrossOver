@@ -1,8 +1,9 @@
-function CrossoverSDT
+function CrossoverSDT8b
 
 % One-Shot Search Control for Confidence Ratings studies
 %
-% $LastChangedDate$
+% $LastChangedDate: 2006-03-23 14:11:22 -0500 (Thu, 23 Mar 2006) $
+
 %%%
 %%% 02/13/06 Changed to Method of Constant Stimuli by EMP
 %%%          50 TP and 50 TA trials at Noise Levels: 10:10:90
@@ -11,6 +12,13 @@ function CrossoverSDT
 %%% 03/23/06 DEF: 1. cleaned up window opening code
 %%%               2. added 2v5 task
 %%% 
+%%%
+%%% 05/31/06 EMP: Same as 7b, except cue then physical set size manipulation instead of just Palmer flag
+%%%        
+%%% 06/08/06 EMP: Same as 8, except locks in noise value after 20 reversals. Noise value is average of 
+%%%               last 10 reversals.
+%%%
+%%% 06/09/06 EMP: Add capability to set a starting noise value.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %clear everything before you begin
@@ -86,36 +94,67 @@ ymove=0; % shifts the display up the screen
 
 
 %get input
-prompt={'Enter initials:','1=Col,2=Ori,3-Conj,4-TLconj,5-TvL,6-easyTvL,7-2v5','Practice Trials:','Number Reversals Until Stable','Trials Per Cell After Stable',...
-'proportion noise (0-1)','noise UP step', 'noise DOWN step', 'color1','color2','orient1','orient2','palmerStyle 0=AccNo 1=AccYes, 2=RTno, 3=RTyes '};
-def={['x' num2str(randi(100))],'3','50','20','50','.5','.025','.1','170 170 170', '0 255 255','0','90','1'};
+%prompt={'Enter initials:','1=Col,2=Ori,3-Conj,4-TLconj,5-TvL,6-easyTvL,7-2v5','Practice Trials:','Number Reversals Until Stable','Trials Per Cell After Stable',...
+%'proportion noise (0-1)','noise UP step', 'noise DOWN step', 'color1','color2','orient1','orient2','palmerStyle 0=AccNo 1=AccYes, 2=RTno, 3=RTyes '};
+%def={['x' num2str(randi(100))],'7','50','20','50','.5','.025','.1','170 170 170', '0 255 255','0','90','0'};
+%title='Input Variables';
+%lineNo=1;
+%userinput=inputdlg(prompt,title,lineNo,def,'on');
+
+prompt={'Enter initials:','1=Col,2=Ori,3-Conj,4-TLconj,5-TvL,6-easyTvL,7-2v5','Practice Trials:','1=Staircase, 2=Fixed Noise','color1','color2','orient1','orient2','palmerStyle 0=AccNo 1=AccYes, 2=RTno, 3=RTyes '};
+def={['x' num2str(randi(100))],'7','50','1','170 170 170', '0 255 255','20','0','0'};
 title='Input Variables';
 lineNo=1;
 userinput=inputdlg(prompt,title,lineNo,def,'on');
 
 
-%Convert User Input
-sinit=(userinput{1,1})
-taskflag=str2num(userinput{2,1})
-ptrials=str2num(userinput{3,1})
-numReversals=str2num(userinput{4,1})
-numtrials=str2num(userinput{5,1})
-noiseParam=str2num(userinput{6,1})
-noiseUp=str2num(userinput{7,1})
-noiseDown=str2num(userinput{8,1}) 
-c1=str2num(userinput{9,1})
-c2=str2num(userinput{10,1})
-or1=str2num(userinput{11,1})
-or2=str2num(userinput{12,1})
-palmerFlag=str2num(userinput{13,1})
 
+%Convert User Input
+sinit=(userinput{1,1});
+taskflag=str2num(userinput{2,1});
+ptrials=str2num(userinput{3,1});
+stair_fix=str2num(userinput{4,1});
+c1=str2num(userinput{5,1});
+c2=str2num(userinput{6,1});
+or1=str2num(userinput{7,1});
+or2=str2num(userinput{8,1});
+palmerFlag=str2num(userinput{9,1});
+
+
+if stair_fix==1
+	%%% STAIRCASE DIALOG BOX
+	prompt2={'Number Reversals Until Stable','Trials Per Cell After Stable','Starting Noise Value (0-1)','Noise UP Step', 'Noise DOWN Step',};
+	def2={'40','100','.5','.025','.1'};
+	title2='Staircase Variables';
+	lineNo2=1;
+	userinput2=inputdlg(prompt2,title2,lineNo2,def2,'on');
+	
+	numReversals=str2num(userinput2{1,1});
+	numtrials=str2num(userinput2{2,1});
+	noiseParam=str2num(userinput2{3,1});
+	noiseUp=str2num(userinput2{4,1});
+	noiseDown=str2num(userinput2{5,1});
+	
+elseif stair_fix==2
+	%%% FIXED NOISE DIALOG BOX
+	prompt3={'What is your noise value?','Trials Per Cell'};
+	def3={'0.000','100'};
+	title3='Fixed Noise Value';
+	lineNo3=1;
+	userinput3=inputdlg(prompt3,title3,lineNo3,def3,'on');
+	
+	fixedNoiseValue=str2num(userinput3{1,1});
+	numtrials=str2num(userinput3{2,1});
+	
+	usethisnoise=fixedNoiseValue;
+end
 
 %%% HARD-CODING SOME EXPERIMENT OPTIONS TO MAKE ROOM IN DIALOG BOX.
-SS=[1 2 4 8]
-cuedur=160
-cuestimISI=440
-stimdur=80
-stimmaskISI=80
+SS=[1 2 4 8];
+cuedur=160;
+cuestimISI=440;
+stimdur=80;
+stimmaskISI=80;
 
 %get input
 %prompt={'proportion noise (0-1)','noise UP step', 'noise DOWN step'};
@@ -402,7 +441,7 @@ tstr{7}='2v5';
 
 cond=[tstr{taskflag}];
 
-fileName1 = ['CrossoverSDT7b_',tstr{taskflag},num2str(palmerFlag),'_', sinit];
+fileName1 = ['CrossoverSDT8b_',tstr{taskflag},'_',num2str(palmerFlag),'_', sinit];
 fid1=fopen(fileName1, 'a');
 
 %datastr1='sinit\tcond\tpalmerFlag\tcolor1\tcolor2\torient1\torient2\tvarOrient1\tvarOrient2\trefreshDur\tstimdur\tnRefreshes\tstimmaskISI';
@@ -493,15 +532,21 @@ end
 
 SCREEN('CopyWindow',Blank,win1,[],screenRect);
 
-
-startingNoise = noiseParam;
-
+if stair_fix==1
+	startingNoise = noiseParam;
+end
+	
 for a=1:2
 	if a==1
 		ttr=ptrials;
 		CenterText(['Begin ' num2str(ttr) ' practice trials'],0,-40,[255 255 255]);
 		prstr='practice';
+		startcounting=0;
 	else
+		if stair_fix==2
+			startcounting=1;
+			usethisnoise=fixedNoiseValue;
+		end
 		ttr=2*ssnum*numtrials;
 		CenterText(['Begin experimental trials'],0,-40,[255 255 255]);
 		prstr='exp';
@@ -539,10 +584,21 @@ for a=1:2
 		exit=1;
 	end
 
-	noiseParam=startingNoise;
+	if stair_fix==1
+		noiseParam=startingNoise;
+	else
+		noiseParam=fixedNoiseValue;
+	end
 	
-	startcounting=0;
 	
+	if stair_fix==1
+		startcounting=0;
+	elseif a==2
+		startcounting=1;
+		trialctr=1;
+	end
+	
+		
 	%for ctr=1:ttr  %% Removed because stopping after certain number of reversals
 	while exit~=1	
 		
@@ -624,7 +680,7 @@ for a=1:2
 		end
 		ca=find(cueAt >8);
 		cueAt(ca)=cueAt(ca)-8;
-		if palmerFlag==1 | palmerFlag==3	% generate cues to tell you where the target might be
+		if palmerFlag==0 | palmerFlag==1 | palmerFlag==3	% generate cues to tell you where the target might be
 			for m=cueAt
 				% 				SCREEN(cueScreen,'FillRect',[170 170 170],cell{m}+[45 45 -45 -45]); % small cue
 				SCREEN(cueScreen,'FillRect',[0 0 0],cell{m});	% big cue
@@ -693,7 +749,7 @@ for a=1:2
 			end
 		end
 		cueNot=[];
-		if palmerFlag==1 | palmerFlag==3 % then you need all te other locations filled too
+		if palmerFlag==1 | palmerFlag==3 % then you need all the other locations filled too
 			for i=1:8
 				if sum(i==cueAt) == 0 % then this is a filler location
 					cueNot=[cueNot i];
@@ -726,6 +782,11 @@ for a=1:2
 			end
 		end
 		% put noise on stim
+		
+		if startcounting==1
+			noiseParam=usethisnoise;
+		end
+				
 		for ii=1:8
 			imageArray=double(screen(stim,'GetImage',[cell{ii}])); % copy from stim
 			sz=size(imageArray);
@@ -825,11 +886,15 @@ for a=1:2
 			if YN==1
 				error(ctr)=0;
 				message{ctr}='HIT';
-				noiseParam=noiseParam+noiseUp;	% small step up  		
+				if stair_fix==1
+					noiseParam=noiseParam+noiseUp;	% small step up  	
+				end
 			else
 				error(ctr)=1;
 				message{ctr}='FA';
-				noiseParam=noiseParam-noiseDown;	% big step down		
+				if stair_fix==1
+					noiseParam=noiseParam-noiseDown;	% big step down	
+				end
 			end
 		
 		elseif response==Key2 % you hit the left hand key 
@@ -837,11 +902,15 @@ for a=1:2
 			if YN==0
 				error(ctr)=0;
 				message{ctr}='TNEG';
-				noiseParam=noiseParam+noiseUp;	% small step up			
+				if stair_fix==1
+					noiseParam=noiseParam+noiseUp;	% small step up	
+				end
 			else
 				error(ctr)=1;
 				message{ctr}='MISS';
-				noiseParam=noiseParam-noiseDown;	% big step down		
+				if stair_fix==1
+					noiseParam=noiseParam-noiseDown;	% big step down		
+				end
 			end
 		else
 			message{ctr}='Wrong Key!!!';
@@ -926,8 +995,13 @@ for a=1:2
 		end
 	
 		if (a==2)
-			if length(revList)>=numReversals
-				startcounting=1;
+			if stair_fix==1
+				if length(revList)>=numReversals
+					startcounting=1;
+					trialctr=trialctr+1;
+					usethisnoise=mean(revList((numReversals/2)+1:numReversals));
+				end
+			elseif stair_fix==2
 				trialctr=trialctr+1;
 			end
 		end
@@ -943,7 +1017,9 @@ for a=1:2
 end % pract/exp loop
 
 %StaircaseResult=mean(revList(max(1,length(revList)-39:length(revList))))	% mean of the last 40 reversals
-StaircaseResult=mean(revList)
+%StaircaseResult=mean(revList)
+
+fprintf('\n\n**************************\nYour Noise Value is: %1.3f\n**************************\n\n',usethisnoise);
 
 CenterText(['Experiment Complete. Thank-you'],0,-40,[0 0 0]);
 FlushEvents('KeyDown');
