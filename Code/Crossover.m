@@ -33,7 +33,7 @@ function Crossover
 %  - Test
 
     experiment = 'Crossover05';
-    Version = '1.0-rc6';
+    Version = '1.0-rc7';
 
     % get user input
     [subject, praTrials, expTrialsPerCell, staircaseFlag, ...
