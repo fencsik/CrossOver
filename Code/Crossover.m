@@ -5,7 +5,7 @@ function Crossover
 % Authors: David E. Fencsik, Evan M. Palmer, Jeremy M. Wolfe
 
     experiment = 'Crossover05';
-    Version = '1.0-rc7';
+    Version = '1.0-rc8';
 
     % get user input
     [subject, praTrials, expTrialsPerCell, staircaseFlag, ...
