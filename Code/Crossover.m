@@ -29,7 +29,7 @@ function Crossover
 %  + Final screen with accuracy information
 %  + Print accuracy/staircase info at end
 %  + Clear noise textures after each trial
-%  - Add progress bar
+%  + Add progress bar
 %  - Test
 
     experiment = 'Crossover05';
@@ -84,6 +84,11 @@ function Crossover
     % 0: random stim locations
     % 1: equally spaced on the display (depending on SS)
     balanceFlag = 1;
+
+    % progressBarFlag determines whether or not to show a progress bar
+    progressBarFlag = 1;
+    progressBarX = 300;
+    progressBarY = 30;
 
     % define timings (sec)
     durPreTrial   = 0.745;
@@ -374,9 +379,31 @@ function Crossover
             error('pedestal shape of %d is not supported', pedestalShape);
         end
 
+        % initialize progress bar
+        if (progressBarFlag)
+            progressCount = 0;
+            progressTotal = praTrials + expTrialsPerCell * nStimSets * ...
+                numel(setSizeList) * numel(targetList);
+            if (staircaseFlag)
+                progressTotal = progressTotal + nStimSets * ...
+                    nStaircaseTracks * nReversals;
+            end
+            global progressBar;
+            progressBar.col = [0 0 0 255];
+            progressBar.rectFrame = ...
+                CenterRectOnPoint([0 0 progressBarX progressBarY], ...
+                                  centerX, ...
+                                  (max(stimCells(:, RectBottom)) + ...
+                                   rectMain(RectBottom)) / 2);
+            UpdateProgressBar(0);
+        end
+
         Screen('FillRect', winMain, colBackground);
         DrawFormattedText(winMain, 'Press any key to begin', ...
                           'center', 'center', colForeground);
+        if (progressBarFlag)
+            DrawProgressBar(winMain);
+        end
         Screen('Flip', winMain);
         [t, keyCode] = KbStrokeWait();
         if (any(find(keyCode) == respQuit))
@@ -573,6 +600,9 @@ function Crossover
 
                 % pretrial blank
                 Screen('FillRect', winMain, colBackground);
+                if (progressBarFlag)
+                    DrawProgressBar(winMain);
+                end
                 Screen(pedestalCommand, winMain, colPedestal, stimloc);
                 Screen('DrawingFinished', winMain);
                 tLastOnset = Screen('Flip', winMain);
@@ -580,6 +610,9 @@ function Crossover
 
                 % fixation
                 Screen('FillRect', winMain, colBackground, rectDisplay);
+                if (progressBarFlag)
+                    DrawProgressBar(winMain);
+                end
                 Screen(pedestalCommand, winMain, colPedestal, stimloc);
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
@@ -591,6 +624,9 @@ function Crossover
                 % draw pre-cues; note that when palmerFlags == 0, then
                 % colCueMatrix is just colPedestal
                 Screen('FillRect', winMain, colBackground, rectDisplay);
+                if (progressBarFlag)
+                    DrawProgressBar(winMain);
+                end
                 Screen(pedestalCommand, winMain, colCueMatrix, stimloc);
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
@@ -599,6 +635,9 @@ function Crossover
 
                 % post pre-cue blank
                 Screen('FillRect', winMain, colBackground, rectDisplay);
+                if (progressBarFlag)
+                    DrawProgressBar(winMain);
+                end
                 Screen(pedestalCommand, winMain, colPedestal, stimloc);
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
@@ -607,6 +646,9 @@ function Crossover
 
                 % draw display
                 Screen('FillRect', winMain, colBackground, rectDisplay);
+                if (progressBarFlag)
+                    DrawProgressBar(winMain);
+                end
                 Screen(pedestalCommand, winMain, colPedestal, stimloc);
                 Screen('DrawTextures', winMain, texture(1:nStim), [], ...
                        stimloc(:, 1:nStim), angle(1:nStim));
@@ -625,6 +667,9 @@ function Crossover
 
                 % ISI
                 Screen('FillRect', winMain, colBackground, rectDisplay);
+                if (progressBarFlag)
+                    DrawProgressBar(winMain);
+                end
                 Screen(pedestalCommand, winMain, colPedestal, stimloc);
                 Screen('FillOval', winMain, colFixation, rectFixation);
                 Screen('DrawingFinished', winMain);
@@ -634,6 +679,9 @@ function Crossover
 
                 % mask
                 Screen('FillRect', winMain, colBackground, rectDisplay);
+                if (progressBarFlag)
+                    DrawProgressBar(winMain);
+                end
                 Screen(pedestalCommand, winMain, colPedestal, stimloc);
                 if any(maskFlag == [1 2])
                     n = nStim;
@@ -648,6 +696,9 @@ function Crossover
                 % collect response
                 [keyTime, keyCode] = KbStrokeWait();
                 Screen('FillRect', winMain, colBackground, rectDisplay);
+                if (progressBarFlag)
+                    DrawProgressBar(winMain);
+                end
                 tLastOnset = Screen('Flip', winMain);
                 responseOnsetTime = keyTime;
                 responseCode = find(keyCode);
@@ -736,6 +787,20 @@ function Crossover
                         actualExposureDur);
                 fclose(fid);
 
+                % update progress bar
+                if (progressBarFlag)
+                    % update information
+                    if (any(phase == [1 3]) || (phase == 2 && reversal))
+                        progressCount = progressCount + 1;
+                    end
+                    % update progress bar itself every 4 trials to obscure
+                    % the workings of the staircase, but always update it
+                    % at the end of each phase
+                    if (blockDone || mod(trialCounter, 4) == 0)
+                        UpdateProgressBar(progressCount / progressTotal);
+                    end
+                end
+
                 % store accuracy for end-of-block summary
                 if (trialCounter > numel(blockAccuracy))
                     % extend arrays
@@ -774,6 +839,9 @@ function Crossover
 
                 % present feedback
                 Screen('FillRect', winMain, colBackground, rectDisplay);
+                if (progressBarFlag)
+                    DrawProgressBar(winMain);
+                end
                 DrawFormattedText(winMain, feedback, ...
                                   'center', 'center', colFeedback);
                 tLastOnset = Screen('Flip', winMain);
@@ -788,6 +856,9 @@ function Crossover
 
                 % clear screen after feedback duration
                 Screen('FillRect', winMain, colBackground, rectDisplay);
+                if (progressBarFlag)
+                    DrawProgressBar(winMain);
+                end
                 Screen('Flip', winMain, tNextOnset);
 
                 % pause every N trials, unless there's only one or no
@@ -795,11 +866,17 @@ function Crossover
                 if (pauseEvery > 0 && ~blockDone && ...
                     mod(trialCounter, pauseEvery) == 0)
                     Screen('FillRect', winMain, colBackground);
+                    if (progressBarFlag)
+                        DrawProgressBar(winMain);
+                    end
                     DrawFormattedText(...
                         winMain, 'Please take a short break\n\n\n\n', ...
                         'center', 'center', colForeground);
                     t1 = Screen('Flip', winMain);
                     Screen('FillRect', winMain, colBackground);
+                    if (progressBarFlag)
+                        DrawProgressBar(winMain);
+                    end
                     DrawFormattedText(...
                         winMain, ...
                         ['Please take a short break\n\n\n\n', ...
@@ -807,6 +884,9 @@ function Crossover
                         'center', 'center', colForeground);
                     Screen('Flip', winMain, t1 + pauseMin);
                     Screen('FillRect', winMain, colBackground);
+                    if (progressBarFlag)
+                        DrawProgressBar(winMain);
+                    end
                     KbStrokeWait();
                     Screen('Flip', winMain);
                 end
@@ -817,6 +897,9 @@ function Crossover
 
         % display end-of-block summary for subject
         Screen('FillRect', winMain, colBackground);
+        if (progressBarFlag)
+            DrawProgressBar(winMain);
+        end
         index = ~(isnan(blockAccuracy) | blockAccuracy < 0);
         blockAccuracy = blockAccuracy(index);
         blockStimSet = blockStimSet(index);
@@ -1049,3 +1132,17 @@ function varargout = DialogBox (title, varargin)
             varargout{i} = p;
         end
     end
+
+
+function UpdateProgressBar (progress)
+    global progressBar;
+    progressBar.progress = progress;
+    progressBar.rectProgress = ...
+        AlignRect(ScaleRect(progressBar.rectFrame, progress, 1), ...
+                  progressBar.rectFrame, 'center', 'left');
+
+
+function DrawProgressBar (win)
+    global progressBar;
+    Screen('FrameRect', win, progressBar.col, progressBar.rectFrame);
+    Screen('FillRect', win, progressBar.col, progressBar.rectProgress);
