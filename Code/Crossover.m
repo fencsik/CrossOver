@@ -683,40 +683,6 @@ function Crossover
                     acc = -3;
                 end
 
-                % prepare feedback
-                switch acc
-                  case 0
-                    feedback = sprintf('TRIAL %d - ERROR', trial);
-                    colFeedback = colRed;
-                  case 1
-                    feedback = sprintf('TRIAL %d - CORRECT', trial);
-                    colFeedback = colGreen;
-                  case -1
-                    feedback = 'NO RESPONSE';
-                    colFeedback = colRed;
-                  case -2
-                    feedback = 'MULTIPLE KEYS PRESSED';
-                    colFeedback = colRed;
-                  case -3
-                    feedback = 'NON-RESPONSE KEY PRESSED';
-                    colFeedback = colRed;
-                end
-
-                % present feedback
-                Screen('FillRect', winMain, colBackground, rectDisplay);
-                DrawFormattedText(winMain, feedback, ...
-                                  'center', 'center', colFeedback);
-                tLastOnset = Screen('Flip', winMain);
-
-                durExtraFeedback = 0;
-                if acc < 0
-                    durExtraFeedback = buzzerDuration;
-                    PsychPortAudio('Start', paBuzz);
-                    PsychPortAudio('Stop', paBuzz, 1);
-                end
-                tNextOnset = tLastOnset + durFeedback + ...
-                    durExtraFeedback - durSlack;
-
                 % update staircase
                 reversal = 0;
                 if doStaircase
@@ -786,6 +752,39 @@ function Crossover
 
                 % close trial-generated windows
                 Screen('Close', texNoise);
+
+                % prepare feedback
+                switch acc
+                  case 0
+                    feedback = sprintf('TRIAL %d - ERROR', trial);
+                    colFeedback = colRed;
+                  case 1
+                    feedback = sprintf('TRIAL %d - CORRECT', trial);
+                    colFeedback = colGreen;
+                  case -1
+                    feedback = 'NO RESPONSE';
+                    colFeedback = colRed;
+                  case -2
+                    feedback = 'MULTIPLE KEYS PRESSED';
+                    colFeedback = colRed;
+                  case -3
+                    feedback = 'NON-RESPONSE KEY PRESSED';
+                    colFeedback = colRed;
+                end
+
+                % present feedback
+                Screen('FillRect', winMain, colBackground, rectDisplay);
+                DrawFormattedText(winMain, feedback, ...
+                                  'center', 'center', colFeedback);
+                tLastOnset = Screen('Flip', winMain);
+                durExtraFeedback = 0;
+                if acc < 0
+                    durExtraFeedback = buzzerDuration;
+                    PsychPortAudio('Start', paBuzz);
+                    PsychPortAudio('Stop', paBuzz, 1);
+                end
+                tNextOnset = tLastOnset + durFeedback + ...
+                    durExtraFeedback - durSlack;
 
                 % clear screen after feedback duration
                 Screen('FillRect', winMain, colBackground, rectDisplay);
