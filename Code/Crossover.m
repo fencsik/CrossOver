@@ -52,7 +52,7 @@ function Crossover
     targetList = [0 1];
 
     % staircase parameters
-    nStaircaseTracks = 1;
+    nStaircaseTracks = 2;
     nReversals = 20;
     nReversalsDropped = 10;
     staircaseSteps = [-0.1, 0.025]; % Error, Correct
