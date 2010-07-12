@@ -792,10 +792,10 @@ function Crossover
                 % prepare feedback
                 switch acc
                   case 0
-                    feedback = sprintf('TRIAL %d - ERROR', trial);
+                    feedback = sprintf('TRIAL %d - ERROR', trialCounter);
                     colFeedback = colRed;
                   case 1
-                    feedback = sprintf('TRIAL %d - CORRECT', trial);
+                    feedback = sprintf('TRIAL %d - CORRECT', trialCounter);
                     colFeedback = colGreen;
                   case -1
                     feedback = 'NO RESPONSE';
