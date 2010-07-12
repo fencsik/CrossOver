@@ -737,6 +737,14 @@ function Crossover
                     end
                 end
 
+                % Check whether phase is done
+                if (any(phase == [1 3]) && trial >= nTrials)
+                    blockDone = 1;
+                elseif (phase == 2 && doStaircase && ...
+                        ~any(isnan(staircaseFinalValue)))
+                    blockDone = 1;
+                end
+
                 %% output data
                 if (~exist(dataFileName, 'file'))
                     %% open new file and print header
@@ -782,14 +790,6 @@ function Crossover
                 % clear screen after feedback duration
                 Screen('FillRect', winMain, colBackground, rectDisplay);
                 Screen('Flip', winMain, tNextOnset);
-
-                % Check whether block is done
-                if (any(phase == [1 3]) && trial >= nTrials)
-                    blockDone = 1;
-                elseif (phase == 2 && doStaircase && ...
-                        ~any(isnan(staircaseFinalValue)))
-                    blockDone = 1;
-                end
 
                 % pause every N trials, unless there's only one or no
                 % trials remaining
