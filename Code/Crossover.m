@@ -58,8 +58,8 @@ function Crossover
 
     % progressBarFlag determines whether or not to show a progress bar
     progressBarFlag = 1;
-    progressBarX = 300;
-    progressBarY = 30;
+    progressBarX = 400;
+    progressBarY = 10;
 
     % define timings (sec)
     durPreTrial   = 0.745;
