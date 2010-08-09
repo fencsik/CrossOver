@@ -5,7 +5,7 @@ function Crossover
 % Authors: David E. Fencsik, Evan M. Palmer, Jeremy M. Wolfe
 
     experiment = 'Crossover05';
-    Version = '1.0-rc8';
+    Version = '1.0-rc9';
 
     % get user input
     [subject, praTrials, expTrialsPerCell, staircaseFlag, ...
@@ -449,6 +449,7 @@ function Crossover
                                            targetList, setSizeList, ...
                                            1:numel(stimSetList));
                         nTrials = numel(target);
+                        staircaseTrialCounter = 1;
                     end
                     ss = setSize(staircaseTrialCounter);
                     targ = target(staircaseTrialCounter);
