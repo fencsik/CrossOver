@@ -5,7 +5,7 @@ function Crossover
 % Authors: David E. Fencsik, Evan M. Palmer, Jeremy M. Wolfe
 
     experiment = 'Crossover05';
-    Version = '1.0-rc9';
+    Version = '1.0-rc10';
 
     % get user input
     [subject, praTrials, expTrialsPerCell, staircaseFlag, ...
@@ -941,7 +941,7 @@ function vOut = ExtendVectorNaN (vIn, n)
         error('vectors only: only one dimension can be greater than 1');
     end
     if (s(1) > 1)
-        vOut = [vIn, nan(n, 1)];
+        vOut = [vIn; nan(n, 1)];
     elseif (s(2) > 1)
         vOut = [vIn, nan(1, n)];
     else
