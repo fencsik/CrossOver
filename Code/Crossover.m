@@ -5,7 +5,7 @@ function Crossover
 % Authors: David E. Fencsik, Evan M. Palmer, Jeremy M. Wolfe
 
     experiment = 'Crossover05';
-    Version = '1.0-rc11';
+    Version = '1.0-rc12';
 
     % get user input
     [subject, praTrials, expTrialsPerCell, staircaseFlag, ...
@@ -27,7 +27,7 @@ function Crossover
     nStaircaseTracks = 2;
     nReversals = 20;
     nReversalsDropped = 10;
-    staircaseSteps = [0.025, -0.1, -0.125, 0]; % Hit, Miss, FA, CR
+    staircaseSteps = [0.0125, -0.0500, -0.0625, 0.0000]; % H, M, FA, CR
     staircaseRange = [0 1];
 
     % noiseType controls how noise is drawn over the stimuli.  With Palmer
