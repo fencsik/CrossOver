@@ -5,7 +5,7 @@ function Crossover
 % Authors: David E. Fencsik, Evan M. Palmer, Jeremy M. Wolfe
 
     experiment = 'Crossover05';
-    Version = '1.0-rc12';
+    Version = '1.0';
 
     % get user input
     [subject, praTrials, expTrialsPerCell, staircaseFlag, ...
@@ -18,7 +18,7 @@ function Crossover
                   'Noise (one value or one per stim set)', '0.5', 1, ...
                   'Stimulus sets (2=ori,7=2v5)', '2 7', 1, ...
                   'Set sizes', '1 2 4 8', 1, ...
-                  'Palmer-style precues? (0=no,1=yes)', '0', 1);
+                  'Palmer-style precues? (0=no,1=yes)', '1', 1);
 
     %% Set any remaining parameters
     targetList = [0 1];
