@@ -1,0 +1,26 @@
+List of analyses for Crossover05
+
+* rawdata.r: combines raw data files and outputs a binary version
+
+* data00.r: filters raw data and cleans up factors
+
+* data01.r: collapses across subjects, stim sets, target, and setsize
+
+* data02.r: computes d' and associated statistics across subjects, stim
+  sets, and setize
+
+Utility functions:
+* maxrule.r: defines a function to compute predicted hit and false-alarm
+  rates for a max-rule model of search
+* maxdprime.r: defines a function to compute the underlying sensitivity and
+  criterion for a max-rule model given a set of hit and false alarm rates
+* logLikeBinom.r: defines a function to compute the log-likelihood function
+  for a max-rule model given a set of hit and false-alarm rates
+
+* Makefile: rules for running Unix "make" utility
+
+
+(The following lines are for Emacs and can be ignored.)
+Local Variables:
+mode:text
+End:
