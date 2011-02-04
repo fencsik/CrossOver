@@ -13,6 +13,7 @@ f.data00 <- function () {
                   rawdata$RT <= 2000, ]
 
     ## Fix factors
+    rawdata$Subject <- factor(toupper(substr(as.character(rawdata$Subject), 1, 3)))
     rawdata$Block <- factor(rawdata$Block)
     rawdata$Target <- factor(rawdata$Target, levels=c(0, 1),
                              labels=c("absent", "present"))

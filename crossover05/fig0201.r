@@ -36,7 +36,7 @@ f.fig0201 <- function () {
     counter <- 0
     for (sub in dimnames(dp)[[3]]) {
         matplot(x, dp[, , sub], type="n", axes=F, ylim=ylim,
-                xlab="", ylab="", main=toupper(sub))
+                xlab="", ylab="", main=sub)
         axis(1, x)
         axis(2)
         for (cond in dimnames(dp)[[2]]) {
