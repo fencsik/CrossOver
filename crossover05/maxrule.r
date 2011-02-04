@@ -13,7 +13,7 @@ maxrule <- function (sensitivity, criterion, setsize, capacity) {
         stop("sensitivity must be a single numeric value")
     if (missing(criterion) || length(criterion) < 1 ||
         !is.numeric(criterion) ||
-        (!is.null(dim(criterion)) && length(setsize) != max(dim(setsize))))
+        (!is.null(dim(criterion)) && length(criterion) != max(dim(criterion))))
         stop("criterion must be an Nx1 vector, with N >= 1")
     if (missing(setsize) || length(setsize) < 1 ||
         (!is.null(dim(setsize)) &&length(setsize) != max(dim(setsize))))
