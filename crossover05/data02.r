@@ -17,10 +17,10 @@ f.data02 <- function () {
     ## create new data table with appropriate IVs and check that everything is
     ## ordered correctly
     if (!all(tp$setsize == ta$setsize & tp$cond == ta$cond &
-             tp$subject == ta$subject)) {
+             tp$sub == ta$sub)) {
         stop("mismatch between target-present and target-absent factors")
     }
-    data02 <- tp[,c("setsize", "cond", "subject")]
+    data02 <- tp[,c("setsize", "cond", "sub")]
     rownames(data02) <- as.character(1:dim(data02)[1])
 
     ## place basic DVs into data table

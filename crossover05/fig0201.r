@@ -24,8 +24,8 @@ f.fig0201 <- function () {
                 xpd = NA, bg = "white")
 
     ## extract data
-    dp <- with(data02, tapply(dprime, list(setsize, cond, subject), mean))
-    err <- with(data02, tapply(dpci, list(setsize, cond, subject), mean))
+    dp <- with(data02, tapply(dprime, list(setsize, cond, sub), mean))
+    err <- with(data02, tapply(dpci, list(setsize, cond, sub), mean))
     x <- as.numeric(dimnames(dp)[[1]])
     conditions <- dimnames(dp)[[2]]
 

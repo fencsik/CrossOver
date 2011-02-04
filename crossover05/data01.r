@@ -11,9 +11,9 @@ f.data01 <- function () {
     ## Extract factors for all trials and for correct trials
     dataCC <- data00[data00$Accuracy == 1, ]
     factorsAll <- with(data00, list(setsize=SetSize, target=Target,
-                                    cond=StimSet, subject=Subject))
+                                    cond=StimSet, sub=Subject))
     factorsCor <- with(dataCC, list(setsize=SetSize, target=Target,
-                                    cond=StimSet, subject=Subject))
+                                    cond=StimSet, sub=Subject))
 
     ## Aggregate across factors
     data01 <- aggregate(data.frame(nobs=data00$Accuracy), factorsAll, length)
