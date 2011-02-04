@@ -2,10 +2,10 @@
 
 all : data02.rda
 
-rawdata.rda : rawdata.r data/*
-data00.rda : rawdata.rda data00.r
-data01.rda : data00.rda data01.r
-data02.rda : data01.rda data02.r
+rawdata.rda : data/*
+data00.rda : rawdata.rda
+data01.rda : data00.rda
+data02.rda : data01.rda
 
 # Commands and implicit rules
 
