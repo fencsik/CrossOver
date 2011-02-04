@@ -1,11 +1,12 @@
 # Explicit rules
 
-all : data02.rda
+all : fig0201.pdf
 
 rawdata.rda : data/*
 data00.rda : rawdata.rda
 data01.rda : data00.rda
 data02.rda : data01.rda
+fig0201.pdf : data02.rda
 
 # Commands and implicit rules
 

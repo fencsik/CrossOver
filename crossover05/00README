@@ -8,6 +8,8 @@ List of analyses for Crossover05
 
 * data02.r: computes d' and associated statistics across subjects, stim
   sets, and setize
+* fig0201.r: plot individual d' as a function of setsize separated by stim
+  set
 
 Utility functions:
 * maxrule.r: defines a function to compute predicted hit and false-alarm
