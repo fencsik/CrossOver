@@ -9,9 +9,11 @@ f.data03 <- function () {
     outfile <- "data03.rda"
     max.rule.file <- "maxrule.r"
     log.like.file <- "logLikeBinom.r"
+    compute.dprime.file <- "ComputeDprime.r"
     load(infile)
     source(max.rule.file)
     source(log.like.file)
+    source(compute.dprime.file)
 
 ### Prepare data and output
 
@@ -92,6 +94,12 @@ f.data03 <- function () {
     data$pred.nhits <- as.data.frame(as.table(pred.nhits))$Freq
     data$pred.nfa <- as.data.frame(as.table(pred.nfa))$Freq
     data <- data[with(data, order(sub, cond, setsize)), ]
+
+    ## compute observed and predicted dprime
+    data$obse.dprime <- ComputeDprime(data$obs.nhits, data$obs.nfa,
+                                      data$npos, data$nneg)$dprime
+    data$pred.dprime <- ComputeDprime(data$pred.nhits, data$pred.nfa,
+                                      data$npos, data$nneg)$dprime
 
     ## convert output/parameters to a data frame
     first <- TRUE
