@@ -1,4 +1,6 @@
 .Rhistory
+*.gz
 *.pdf
 *.rda
 *.txt
+*.zip
