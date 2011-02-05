@@ -5,9 +5,9 @@ all : fig0201.pdf data03.rda
 rawdata.rda : data/*
 data00.rda : rawdata.rda
 data01.rda : data00.rda
-data02.rda : data01.rda
+data02.rda : data01.rda ComputeDprime.r
 fig0201.pdf : data02.rda
-data03.rda: data02.rda maxrule.r logLikeBinom.r
+data03.rda: data02.rda maxrule.r logLikeBinom.r ComputeDprime.r
 
 # Commands and implicit rules
 
