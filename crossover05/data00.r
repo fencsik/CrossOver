@@ -10,7 +10,7 @@ f.data00 <- function () {
     ## Filter out unwanted trials
     rawdata <- rawdata[rawdata$Block == "experimental" &
                   rawdata$Accuracy >= 0 &
-                  rawdata$RT <= 2000, ]
+                  rawdata$RT <= 10000, ]
 
     ## Fix factors
     rawdata$Subject <- factor(toupper(substr(as.character(rawdata$Subject), 1, 3)))
