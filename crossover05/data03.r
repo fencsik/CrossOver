@@ -104,6 +104,7 @@ f.data03 <- function () {
             eval(parse(text=sprintf("param$%s <- as.data.frame(as.table(output[,i,]))$Freq", i)))
         }
     }
+    param <- param[with(param, order(cond, sub)), ]
 
     data03 <- list(data=data, par=param,
                 rsq=with(data,
