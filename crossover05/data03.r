@@ -30,11 +30,11 @@ f.data03 <- function () {
     factors <- with(data02, list(sub, cond, setsize))
     npos <- with(data02, tapply(npos, factors, sum))
     nneg <- with(data02, tapply(nneg, factors, sum))
-    obs.nhits <- with(data02, tapply(nhits, factors, sum))
-    obs.nfa <- with(data02, tapply(nfa, factors, sum))
+    obse.nhits <- with(data02, tapply(nhits, factors, sum))
+    obse.nfa <- with(data02, tapply(nfa, factors, sum))
 
-    pred.nhits <- array(NA, dim(obs.nhits), dimnames(obs.nhits))
-    pred.nfa <- array(NA, dim(obs.nfa), dimnames(obs.nfa))
+    pred.nhits <- array(NA, dim(obse.nhits), dimnames(obse.nhits))
+    pred.nfa <- array(NA, dim(obse.nfa), dimnames(obse.nfa))
 
     output <- array(NA, dim=c(n.subjects, 8 + n.setsizes, n.stimsets),
                     dimnames=list(all.subjects,
@@ -43,8 +43,8 @@ f.data03 <- function () {
                       all.stimsets))
 
 ### Define fit function
-    GoodnessOfFit <- function (p, obs) {
-        return(-1 * logLikeBinom(obs$nhits, obs$nfa, obs$npos, obs$nneg,
+    GoodnessOfFit <- function (p, obse) {
+        return(-1 * logLikeBinom(obse$nhits, obse$nfa, obse$npos, obse$nneg,
                                  all.setsizes, p[1], p[2:(n.setsizes+1)],
                                  capacity=Inf, correct=TRUE))
     }
@@ -54,11 +54,11 @@ f.data03 <- function () {
     for (sub in all.subjects) {
         for (cond in all.stimsets) {
             p <- c(3, rep(2, n.setsizes)) # sens and crit
-            obs <- list(nhits=obs.nhits[sub, cond, ],
-                        nfa=obs.nfa[sub, cond, ],
+            obse <- list(nhits=obse.nhits[sub, cond, ],
+                        nfa=obse.nfa[sub, cond, ],
                         npos=npos[sub, cond, ],
                         nneg=nneg[sub, cond, ])
-            o <- nlminb(p, GoodnessOfFit, obs=obs)
+            o <- nlminb(p, GoodnessOfFit, obse=obse)
 
             output[sub, "s", cond] <- o$par[1]
             output[sub, paste("c", all.setsizes, sep=""), cond] <-
@@ -66,7 +66,7 @@ f.data03 <- function () {
             output[sub, "k", cond] <- Inf
             output[sub, "iter", cond] <- o$iterations
             output[sub, "code", cond] <- o$convergence
-            output[sub, "ml", cond] <- GoodnessOfFit(o$par, obs)
+            output[sub, "ml", cond] <- GoodnessOfFit(o$par, obse)
 
             ## Store predicted counts
             pred <- maxrule(o$par[1], o$par[2:(n.setsizes+1)],
@@ -78,9 +78,9 @@ f.data03 <- function () {
 
             output[sub, "rmse", cond] <-
                 sqrt(mean((c(pred$nhits, pred$nfa) -
-                           c(obs$nhits, obs$nfa)) ^ 2))
+                           c(obse$nhits, obse$nfa)) ^ 2))
             output[sub, "r", cond] <-
-                cor(c(pred$nhits, pred$nfa), c(obs$nhits, obs$nfa))
+                cor(c(pred$nhits, pred$nfa), c(obse$nhits, obse$nfa))
             output[sub, "rsq", cond] <- output[sub, "r", cond] ^ 2
         }
     }
@@ -89,15 +89,15 @@ f.data03 <- function () {
     data <- as.data.frame(as.table(npos))
     names(data) <- c("sub", "cond", "setsize", "npos")
     data$nneg <- as.data.frame(as.table(nneg))$Freq
-    data$obs.nhits <- as.data.frame(as.table(obs.nhits))$Freq
-    data$obs.nfa <- as.data.frame(as.table(obs.nfa))$Freq
+    data$obse.nhits <- as.data.frame(as.table(obse.nhits))$Freq
+    data$obse.nfa <- as.data.frame(as.table(obse.nfa))$Freq
     data$pred.nhits <- as.data.frame(as.table(pred.nhits))$Freq
     data$pred.nfa <- as.data.frame(as.table(pred.nfa))$Freq
     data <- data[with(data, order(sub, cond, setsize)), ]
     rownames(data) <- 1:length(rownames(data))
 
     ## compute observed and predicted dprime
-    data$obse.dprime <- ComputeDprime(data$obs.nhits, data$obs.nfa,
+    data$obse.dprime <- ComputeDprime(data$obse.nhits, data$obse.nfa,
                                       data$npos, data$nneg)$dprime
     data$pred.dprime <- ComputeDprime(data$pred.nhits, data$pred.nfa,
                                       data$npos, data$nneg)$dprime
@@ -117,7 +117,7 @@ f.data03 <- function () {
 
     data03 <- list(data=data, par=param,
                 rsq=with(data,
-                  cor(c(obs.nhits, obs.nfa), c(pred.nhits, pred.nfa))^2),
+                  cor(c(obse.nhits, obse.nfa), c(pred.nhits, pred.nfa))^2),
                 rule="max", crit="ML", type="counts")
     save(data03, file=outfile)
 }
