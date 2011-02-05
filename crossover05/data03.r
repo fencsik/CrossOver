@@ -94,6 +94,7 @@ f.data03 <- function () {
     data$pred.nhits <- as.data.frame(as.table(pred.nhits))$Freq
     data$pred.nfa <- as.data.frame(as.table(pred.nfa))$Freq
     data <- data[with(data, order(sub, cond, setsize)), ]
+    rownames(data) <- 1:length(rownames(data))
 
     ## compute observed and predicted dprime
     data$obse.dprime <- ComputeDprime(data$obs.nhits, data$obs.nfa,
