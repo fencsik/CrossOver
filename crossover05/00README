@@ -17,6 +17,10 @@ List of analyses for Crossover05
 * data04.r: fit a limited-capacity max-rule model with variable criterion
   using maximum likelihood
 
+* Exp2-ModelFits.r: output a tab-delimited table of the observed and
+  predicted hit rate, false-alarm rate, and d' for both the unlimited- and
+  limited-capacity models from data03 and data04
+
 Utility functions:
 * maxrule.r: defines a function to compute predicted hit and false-alarm
   rates for a max-rule model of search
