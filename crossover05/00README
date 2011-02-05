@@ -11,6 +11,9 @@ List of analyses for Crossover05
 * fig0201.r: plot individual d' as a function of setsize separated by stim
   set
 
+* data03.r: fit an unlimited-capacity max-rule model with variable
+  criterion using maximum likelihood
+
 Utility functions:
 * maxrule.r: defines a function to compute predicted hit and false-alarm
   rates for a max-rule model of search
