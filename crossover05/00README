@@ -16,6 +16,8 @@ List of analyses for Crossover05
 
 * data04.r: fit a limited-capacity max-rule model with variable criterion
   using maximum likelihood
+* tab0402.r: goodness-of-fit tests on unlimited- and limited-capacity
+  models from data03 and data04
 
 * Exp2-ModelFits.r: output a tab-delimited table of the observed and
   predicted hit rate, false-alarm rate, and d' for both the unlimited- and
