@@ -14,6 +14,9 @@ f.data04 <- function () {
     source(max.rule.file)
     source(log.like.file)
     source(compute.dprime.file)
+    starting.k <- list(list(AMS=2, ATM=2, CAC=4, CMB=4, EMP=2),
+                       list(AMS=2, ATM=2, CAC=4, CMB=4, EMP=5))
+    names(starting.k) <- c("2v5", "orientation")
 
 ### Prepare data and output
 
@@ -53,7 +56,7 @@ f.data04 <- function () {
 
     for (sub in all.subjects) {
         for (cond in all.stimsets) {
-            p <- c(3, rep(2, n.setsizes), 2) # sens, crit, and k
+            p <- c(3, rep(2, n.setsizes), starting.k[[cond]][[sub]])
             obse <- list(nhits=obse.nhits[sub, cond, ],
                         nfa=obse.nfa[sub, cond, ],
                         npos=npos[sub, cond, ],
