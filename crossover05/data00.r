@@ -17,6 +17,9 @@ f.data00 <- function () {
     rawdata$Block <- factor(rawdata$Block)
     rawdata$Target <- factor(rawdata$Target, levels=c(0, 1),
                              labels=c("absent", "present"))
+    rawdata$StimSet <- factor(as.character(rawdata$StimSet),
+                              levels=c("2v5", "orientation"),
+                              labels=c("2v5", "Orientation"))
     rawdata$SetSize <- factor(rawdata$SetSize)
     rawdata$Precue <- factor(rawdata$Precue)
     rawdata$Response <- factor(rawdata$Response)

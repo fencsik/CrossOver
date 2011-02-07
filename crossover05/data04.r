@@ -16,7 +16,7 @@ f.data04 <- function () {
     source(compute.dprime.file)
     starting.k <- list(list(AMS=2, ATM=2, CAC=4, CMB=4, EMP=2),
                        list(AMS=2, ATM=2, CAC=4, CMB=4, EMP=5))
-    names(starting.k) <- c("2v5", "orientation")
+    names(starting.k) <- c("2v5", "Orientation")
 
 ### Prepare data and output
 
