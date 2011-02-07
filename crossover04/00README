@@ -1,0 +1,38 @@
+List of analyses for Crossover05
+
+* data.txt: processed data file, but the most basic data I have, including
+  number of positive and negative trials, and the number of hits and CRs
+
+* data02.r: loads data.txt, collapses across precue var, then computes d'
+  and associated statistics across subjects, stim sets, and setize
+* fig0201.r: plot individual d' as a function of setsize separated by stim
+  set
+
+* data03.r: fit an unlimited-capacity max-rule model with variable
+  criterion using maximum likelihood
+
+* data04.r: fit a limited-capacity max-rule model with variable criterion
+  using maximum likelihood
+* tab0402.r: goodness-of-fit tests on unlimited- and limited-capacity
+  models from data03 and data04
+
+* Exp1-ModelFits.r: output a tab-delimited table of the observed and
+  predicted hit rate, false-alarm rate, and d' for both the unlimited- and
+  limited-capacity models from data03 and data04
+
+Utility functions:
+* ComputeDprime.r: calculates d' from the number of hits and false alarms
+* maxrule.r: defines a function to compute predicted hit and false-alarm
+  rates for a max-rule model of search
+* maxdprime.r: defines a function to compute the underlying sensitivity and
+  criterion for a max-rule model given a set of hit and false alarm rates
+* logLikeBinom.r: defines a function to compute the log-likelihood function
+  for a max-rule model given a set of hit and false-alarm rates
+
+* Makefile: rules for running Unix "make" utility
+
+
+(The following lines are for Emacs and can be ignored.)
+Local Variables:
+mode:text
+End:
