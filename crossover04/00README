@@ -10,9 +10,11 @@ List of analyses for Crossover05
 
 * data03.r: fit an unlimited-capacity max-rule model with variable
   criterion using maximum likelihood
+* fig0301.r: plot d' from model fits against observed data for each subject
 
 * data04.r: fit a limited-capacity max-rule model with variable criterion
   using maximum likelihood
+* fig0401.r: plot d' from model fits against observed data for each subject
 * tab0402.r: goodness-of-fit tests on unlimited- and limited-capacity
   models from data03 and data04
 
