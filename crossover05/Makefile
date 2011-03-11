@@ -1,6 +1,7 @@
 # Explicit rules
 
-all : fig0201.pdf fig0301.pdf fig0401.pdf tab0402.txt Exp2-ModelFits.txt
+all : fig0201.pdf fig0301.pdf fig0401.pdf fig0402.pdf tab0402.txt \
+	Exp2-ModelFits.txt
 
 rawdata.rda : data/*
 data00.rda : rawdata.rda
@@ -11,6 +12,7 @@ data03.rda: data02.rda maxrule.r logLikeBinom.r ComputeDprime.r
 fig0301.pdf : data03.rda
 data04.rda : data02.rda maxrule.r logLikeBinom.r ComputeDprime.r
 fig0401.pdf : data04.rda
+fig0402.pdf : data04.rda
 tab0402.txt : data03.rda data04.rda
 Exp2-ModelFits.txt : data03.rda data04.rda
 
