@@ -119,9 +119,10 @@ f.data04 <- function () {
     param <- param[with(param, order(cond, sub)), ]
 
     data04 <- list(data=data, par=param,
-                rsq=with(data,
-                  cor(c(obse.nhits, obse.nfa), c(pred.nhits, pred.nfa))^2),
-                rule="max", crit="ML", type="counts")
+                   rsq=with(data,
+                     cor(c(obse.nhits, obse.nfa), c(pred.nhits, pred.nfa))^2),
+                   rule="max", crit="ML", type="counts",
+                   pred.function=maxrule)
     save(data04, file=outfile)
 }
 
