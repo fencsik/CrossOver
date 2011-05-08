@@ -12,24 +12,24 @@ f.tab0402 <- function () {
     log.like.file <- "logLikeBinom.r"
     source(log.like.file)
 
-    myeval <- function (s, env=parent.frame()) {
-        eval(parse(text=s), envir=env)
+    myeval <- function (s, ..., env=parent.frame()) {
+        eval(parse(text=sprintf(s, ...)), envir=env)
     }
 
     on.exit(while (sink.number() > 0) sink())
     on.exit(while (substr(search()[2], 1, 7) != "package") detach(), TRUE)
 
     for (i in as.character(1:2)) {
-        myeval(sprintf("name <- an%s", i))
+        myeval("name <- an%s", i)
         load(sprintf("%s.rda", name))
-        myeval(sprintf("attach(%s$data)", name))
+        myeval("attach(%s$data)", name)
         factors <- list(sub, cond, setsize)
-        myeval(sprintf("npos%s <- tapply(npos, factors, sum)", i))
-        myeval(sprintf("nneg%s <- tapply(nneg, factors, sum)", i))
-        myeval(sprintf("nhits%s <- tapply(obse.nhits, factors, sum)", i))
-        myeval(sprintf("nfa%s <- tapply(obse.nfa, factors, sum)", i))
+        myeval("npos%s <- tapply(npos, factors, sum)", i)
+        myeval("nneg%s <- tapply(nneg, factors, sum)", i)
+        myeval("nhits%s <- tapply(obse.nhits, factors, sum)", i)
+        myeval("nfa%s <- tapply(obse.nfa, factors, sum)", i)
         detach()
-        myeval(sprintf("par%s <- %s$par", i, name))
+        myeval("par%s <- %s$par", i, name)
     }
 
     indexc1 <- grep("c[1-9]{0,3}$", dimnames(par1)[[2]])
