@@ -14,6 +14,7 @@ List of analyses for Crossover05
 * data03.r: fit an unlimited-capacity max-rule model with variable
   criterion using maximum likelihood
 * fig0301.r: plot d' from model fits against observed data for each subject
+* fig0302.r: plot individual observed and predicted hit and CR rates
 * tab0303.r: test effects of setsize on criterion for the
   unlimited-capacity models from data03
 
