@@ -44,7 +44,7 @@ f.fig0302 <- function () {
     obse[["Hits"]] <- obse.nhits / npos
     obse[["CR"]] <- 1 - obse.nfa / nneg
     pred[["Hits"]] <- pred.nhits / npos
-    pred[["CR"]] <- 1 - obse.nfa / nneg
+    pred[["CR"]] <- 1 - pred.nfa / nneg
     x <- as.numeric(dimnames(obse.nhits)[[1]])
     conditions <- dimnames(obse.nhits)[[2]]
 
