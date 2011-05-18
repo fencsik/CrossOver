@@ -1,6 +1,6 @@
 ### data06.r: fits a max-rule model to the data.
 ###
-### Assumptions: limited capacity, variable criterion
+### Assumptions: limited capacity, fixed criterion
 ###
 ### Fit Procedure: maximum likelihood
 
