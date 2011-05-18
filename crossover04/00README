@@ -28,6 +28,7 @@ List of analyses for Crossover04
   using maximum likelihood
 * fig0501.r: plot d' from model fits against observed data for each subject
 * fig0502.r: plot individual observed and predicted hit and CR rates
+* tab0504.r: goodness-of-fit tests on criterion between data03 and data05
 
 * data06.r: fit a limited-capacity max-rule model with one criterion using
   maximum likelihood
@@ -35,6 +36,7 @@ List of analyses for Crossover04
 * fig0602.r: plot individual observed and predicted hit and CR rates
 * tab0602.r: goodness-of-fit tests on unlimited- and limited-capacity
   models from data05 and data06
+* tab0604.r: goodness-of-fit tests on criterion between data04 and data06
 
 * Exp1-ModelFits.r: output a tab-delimited table of the observed and
   predicted hit rate, false-alarm rate, and d' for both the unlimited- and

@@ -2,8 +2,8 @@
 
 all : fig0201.pdf fig0301.pdf fig0302.pdf tab0303.txt \
 	fig0401.pdf fig0402.pdf tab0402.txt tab0403.txt \
-	fig0501.pdf fig0502.pdf \
-	fig0601.pdf fig0602.pdf tab0602.txt \
+	fig0501.pdf fig0502.pdf tab0504.txt \
+	fig0601.pdf fig0602.pdf tab0602.txt tab0604.txt \
 	Exp1-ModelFits.txt
 
 data02.rda : data.txt ComputeDprime.r
@@ -20,10 +20,12 @@ tab0403.txt : data04.rda
 data05.rda : data02.rda maxrule.r logLikeBinom.r ComputeDprime.r
 fig0501.pdf : data05.rda
 fig0502.pdf : data05.rda
+tab0504.txt : data03.rda data05.rda
 data06.rda : data02.rda maxrule.r logLikeBinom.r ComputeDprime.r
 fig0601.pdf : data06.rda
 fig0602.pdf : data06.rda
 tab0602.txt : data05.rda data06.rda
+tab0604.txt : data04.rda data06.rda
 Exp1-ModelFits.txt : data03.rda data04.rda
 
 # Commands and implicit rules
