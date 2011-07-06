@@ -46,12 +46,11 @@ List of analyses for Crossover05
   limited-capacity models from data03 and data04
 
 Utility functions:
-* maxrule.r: defines a function to compute predicted hit and false-alarm
-  rates for a max-rule model of search
+* maxrule.r: defines functions to compute predicted hit and false-alarm
+  rates for a max-rule model of search, and the log-likelihood function for
+  a set of parameters and data
 * maxdprime.r: defines a function to compute the underlying sensitivity and
   criterion for a max-rule model given a set of hit and false alarm rates
-* logLikeBinom.r: defines a function to compute the log-likelihood function
-  for a max-rule model given a set of hit and false-alarm rates
 
 * Makefile: rules for running Unix "make" utility
 

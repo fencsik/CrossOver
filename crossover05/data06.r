@@ -8,11 +8,9 @@ f.data06 <- function () {
     infile <- "data02.rda"
     outfile <- "data06.rda"
     max.rule.file <- "maxrule.r"
-    log.like.file <- "logLikeBinom.r"
     compute.dprime.file <- "ComputeDprime.r"
     load(infile)
     source(max.rule.file)
-    source(log.like.file)
     source(compute.dprime.file)
     starting.k <- list(list(AMS=2, ATM=2, CAC=4, CMB=4, EMP=2),
                        list(AMS=2, ATM=2, CAC=4, CMB=4, EMP=5))

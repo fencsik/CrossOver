@@ -8,11 +8,9 @@ f.data03 <- function () {
     infile <- "data02.rda"
     outfile <- "data03.rda"
     max.rule.file <- "maxrule.r"
-    log.like.file <- "logLikeBinom.r"
     compute.dprime.file <- "ComputeDprime.r"
     load(infile)
     source(max.rule.file)
-    source(log.like.file)
     source(compute.dprime.file)
 
 ### Prepare data and output
