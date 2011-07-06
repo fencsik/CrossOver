@@ -8,13 +8,14 @@
 #####    parameters based on a set of observed data
 
 ### Calculate predicted hit rate and false-alarm rate for a max-rule based
-### search model, given sensitivity, criterion, setsize, and an optional
-### capacity.
+### search model, given sensitivity, criterion, setsize, and optionally a
+### capacity and/or standard-deviation slope parameter.
 ###
 ### Sensitivity and criterion must be scalar, capacity can be scalar or
-### empty, and setsize can be a vector of any length greater than 0.
+### empty, sdslope can be scalar or empty, and setsize can be a vector of
+### any length greater than 0.
 
-maxrule <- function (sensitivity, criterion, setsize, capacity) {
+maxrule <- function (sensitivity, criterion, setsize, capacity, sdslope) {
 
     ## Error-checking
     if (missing(sensitivity) || length(sensitivity) != 1 ||
@@ -36,16 +37,26 @@ maxrule <- function (sensitivity, criterion, setsize, capacity) {
     } else {
         limitedCapacity <- TRUE
     }
+    if (missing(sdslope) || is.null(sdslope) || !is.finite(sdslope)) {
+        sdslope <- NULL
+    } else if (length(sdslope) != 1) {
+        stop("sdslope must be empty, NULL, or a single number")
+    }
     if (length(criterion) > 1 && length(criterion) != length(setsize)) {
         stop("criterion must be either a single value, or one per setsize")
     }
 
     k <- pmin(setsize, capacity)
+    if (!is.null(sdslope)) {
+        Phi <- function(x) pnorm(x, mean=0, sd=(setsize - 1) * sdslope + 1)
+    } else {
+        Phi <- function(x) pnorm(x, mean=0, sd=1)
+    }
 
-    fa <- 1 - pnorm(criterion) ^ k
-    hr <- 1 - k / setsize * pnorm(criterion - sensitivity) *
-        (pnorm(criterion) ^ (k - 1)) - (setsize - k) / setsize *
-            (pnorm(criterion) ^ k)
+    fa <- 1 - Phi(criterion) ^ k
+    hr <- 1 - k / setsize * Phi(criterion - sensitivity) *
+        (Phi(criterion) ^ (k - 1)) - (setsize - k) / setsize *
+            (Phi(criterion) ^ k)
 
     names(fa) <- NULL
     names(hr) <- NULL
@@ -56,12 +67,13 @@ maxrule <- function (sensitivity, criterion, setsize, capacity) {
 
 ### Compute log-likelihood of observing some data at some setsizes given a
 ### max rule search model with a particular sensitivity, criterion, and
-### optional capacity.  Assume accuracy data are i.i.d. binomial.
+### optionally a capacity and/or standard-deviation slope parameter.
+### Assume accuracy data are i.i.d. binomial.
 ###
 ### The arguments hit and fa must be provided as counts, not proportions
 
 logLikeBinom <- function(hit, fa, npos, nneg, setsize,
-                         sensitivity, criterion, capacity,
+                         sensitivity, criterion, capacity, sdslope,
                          correct=NULL) {
 
     if (length(hit) != length(fa) ||
@@ -71,7 +83,7 @@ logLikeBinom <- function(hit, fa, npos, nneg, setsize,
     if (length(hit) != length(setsize))
         stop("hit rate and setsize must be the same length")
 
-    pred <- maxrule(sensitivity, criterion, setsize, capacity)
+    pred <- maxrule(sensitivity, criterion, setsize, capacity, sdslope)
 
     if (!is.null(correct)) {
         if (correct == TRUE)
