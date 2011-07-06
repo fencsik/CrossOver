@@ -4,7 +4,7 @@
 f.tab0303 <- function () {
     infile <- "data03.rda"
     outfile <- "tab0303.txt"
-    library("ez", quietly=TRUE, warn.conflicts=FALSE)
+    suppressPackageStartupMessages(library("ez"))
     load(infile)
     on.exit(while (sink.number() > 0) sink())
     dt <- melt(data03$par, id.vars=c("sub", "cond"),
