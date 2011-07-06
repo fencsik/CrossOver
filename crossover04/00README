@@ -38,6 +38,24 @@ List of analyses for Crossover04
   models from data05 and data06
 * tab0604.r: goodness-of-fit tests on criterion between data04 and data06
 
+* data07.r: fit an unlimited-capacity, variable variance max-rule model
+  with variable criterion using maximum likelihood
+* fig0701.r: plot d' from model fits against observed data for each subject
+* fig0702.r: plot individual observed and predicted hit and CR rates
+* tab0701.r: goodness-of-fit tests on variance slope parameter from data03
+  to data07
+* tab0702.r: goodness-of-fit tests on variance vs. capacity limit between
+  data04 and data07
+
+* data08.r: fit an unlimited-capacity, variable variance max-rule model
+  with one criterion using maximum likelihood
+* fig0801.r: plot d' from model fits against observed data for each subject
+* fig0802.r: plot individual observed and predicted hit and CR rates
+* tab0801.r: goodness-of-fit tests on variance slope parameter from data05
+  to data08
+* tab0802.r: goodness-of-fit tests on variance vs. capacity limit between
+  data06 and data08
+
 * Exp1-ModelFits.r: output a tab-delimited table of the observed and
   predicted hit rate, false-alarm rate, and d' for both the unlimited- and
   limited-capacity models from data03 and data04
