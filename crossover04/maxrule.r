@@ -64,23 +64,12 @@ logLikeBinom <- function(hit, fa, npos, nneg, setsize,
                          sensitivity, criterion, capacity,
                          correct=NULL) {
 
-    ## Make sure all necessary arguments were provided
-    for (arg in names(formals())) {
-        if (arg == "capacity" || arg == "correct") next
-        eval(parse(text=sprintf(
-                     "if (missing(%s)) stop(\"argument %s missing\")",
-                     arg, arg)))
-    }
-    if (missing(capacity) || !is.finite(capacity)) capacity <- NULL
-
-    if (length(hit) != length(fa))
-        stop("hit rate and false-alarm rate must be the same length")
+    if (length(hit) != length(fa) ||
+        length(hit) != length(npos) ||
+        length(hit) != length(nneg))
+        stop("all data arguments must have the same length")
     if (length(hit) != length(setsize))
         stop("hit rate and setsize must be the same length")
-    if (length(criterion) != 1 && length(criterion) != length(setsize)) {
-        print(criterion)
-        stop("length of criterion must be 1 or the same as setsize")
-    }
 
     pred <- maxrule(sensitivity, criterion, setsize, capacity)
 
