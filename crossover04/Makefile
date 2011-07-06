@@ -5,7 +5,7 @@ all : fig0201.pdf fig0301.pdf fig0302.pdf tab0303.txt \
 	fig0501.pdf fig0502.pdf tab0504.txt \
 	fig0601.pdf fig0602.pdf tab0602.txt tab0604.txt \
 	fig0701.pdf fig0702.pdf tab0701.txt tab0702.txt \
-	fig0801.pdf fig0802.pdf tab0801.txt tab0802.txt \
+	fig0801.pdf fig0802.pdf tab0801.txt tab0802.txt tab0803.txt \
 	Exp1-ModelFits.txt
 
 data02.rda : data.txt ComputeDprime.r
@@ -38,6 +38,7 @@ fig0801.pdf : data08.rda
 fig0802.pdf : data08.rda
 tab0801.txt : data05.rda data08.rda
 tab0802.txt : data08.rda data06.rda
+tab0803.txt : data08.rda data07.rda
 Exp1-ModelFits.txt : data03.rda data04.rda
 
 # Commands and implicit rules
