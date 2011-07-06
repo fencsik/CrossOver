@@ -58,6 +58,8 @@ List of analyses for Crossover05
   to data08
 * tab0802.r: goodness-of-fit tests on variance vs. capacity limit between
   data06 and data08
+* tab0803.r: compare fit of fixed- vs. variable criteria under the
+  variable-variance models (i.e., data07 vs. data08)
 
 * Exp2-ModelFits.r: output a tab-delimited table of the observed and
   predicted hit rate, false-alarm rate, and d' for both the unlimited- and
