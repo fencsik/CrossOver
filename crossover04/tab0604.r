@@ -9,8 +9,8 @@ f.tab0604 <- function () {
     nPar1 <- 3
     nPar2 <- 6
     outfile <- "tab0604.txt"
-    log.like.file <- "logLikeBinom.r"
-    source(log.like.file)
+    max.rule.file <- "maxrule.r"
+    source(max.rule.file)
 
     myeval <- function (s, env=parent.frame()) {
         eval(parse(text=s), envir=env)
