@@ -9,7 +9,7 @@ f.tab0403 <- function () {
     on.exit(while (sink.number() > 0) sink())
     dt <- melt(data04$par, id.vars=c("sub", "cond"),
                measure.vars=c("c1", "c2", "c4", "c8"),
-               variable_name="setsize")
+               variable.name="setsize")
     dt$setsize <- factor(sub("c", "", as.character(dt$setsize)))
     names(dt)[names(dt) == "value"] <- "criterion"
     sink(outfile)
