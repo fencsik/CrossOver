@@ -43,7 +43,7 @@ Exp1-ModelFits.txt : data03.rda data04.rda
 
 # Commands and implicit rules
 
-R = /usr/bin/R --slave --no-save --no-restore --no-readline --file=$<
+R = /usr/local/bin/Rscript --slave --no-save --no-restore --no-readline $<
 
 %.rda: %.r; $(R)
 %.pdf: %.r; $(R)
